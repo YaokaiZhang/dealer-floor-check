@@ -41,7 +41,7 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
             {t.topUp.amount > 0 && (
               <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Credit-line top-up</dt><dd className="font-medium">{eur(t.topUp.amount)}</dd></div>
             )}
-            <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Check-ins</dt><dd className="font-medium">{FREQUENCY[dealer.tier]}</dd></div>
+            <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Checks</dt><dd className="font-medium">{FREQUENCY[dealer.tier]}</dd></div>
           </dl>
           <span className="mt-3 inline-block text-sm font-medium underline underline-offset-4">Benefits →</span>
         </Card>

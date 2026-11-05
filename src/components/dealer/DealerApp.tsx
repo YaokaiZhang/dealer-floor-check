@@ -90,12 +90,12 @@ export function DealerApp() {
         <h1 className="mt-3 display-xl">Hi {dealer.name}</h1>
       </section>
 
-      {state.alerts
-        .filter((a) => a.dealerId === dealer.id && a.verifier?.status === "on_site")
-        .map((a) => (
-          <div key={a.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
-            <p className="text-sm"><b>{a.verifier!.name}</b> from Aurora visits today</p>
-            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]">{a.verifier!.visitCode}</span>
+      {state.spotChecks
+        .filter((v) => v.dealerId === dealer.id && v.verifier.status === "on_site")
+        .map((v) => (
+          <div key={v.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
+            <p className="text-sm"><b>{v.verifier.name}</b> from Aurora visits today</p>
+            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]">{v.verifier.visitCode}</span>
           </div>
         ))}
 

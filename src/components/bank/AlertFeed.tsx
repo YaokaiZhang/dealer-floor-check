@@ -43,7 +43,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
                   <span className="flex flex-wrap items-center gap-1.5">
                     <SeverityTag severity={a.severity} />
                     <SourceTag source={a.source} />
-                    <StatusTag alert={a} />
+                    <StatusTag alert={a} visit={a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined} />
                     <span className="ml-auto tag-text text-ash-700" title={timeFi(a.createdAt)}>{timeAgo(a.createdAt, now)}</span>
                   </span>
                   <span className="mt-2 block font-semibold">{d.name}</span>

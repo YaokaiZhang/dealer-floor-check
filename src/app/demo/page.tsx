@@ -77,11 +77,12 @@ export default function DemoPage() {
           <div className="min-w-0 space-y-6">
             {/* Check-ins */}
             <section>
-              <h2 className="mb-3 display-md">Random check-in requests</h2>
+              <h2 className="mb-3 display-md">Random check-ins and spot checks</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {s.dealers.map((d) => {
                   const st = portfolioStats(s, d.id);
                   const open = s.checkIns.filter((c) => c.dealerId === d.id && c.status !== "completed").length;
+                  const visit = s.spotChecks.find((v) => v.dealerId === d.id && v.verifier.status !== "reported");
                   return (
                     <Card key={d.id} className="flex flex-col gap-3 p-4">
                       <div className="flex items-start justify-between gap-2">
@@ -92,10 +93,15 @@ export default function DemoPage() {
                         {hydrated && <TierBadge tier={d.tier} />}
                       </div>
                       <div className="flex items-center justify-between gap-2">
-                        <span className="tag-text text-ash-700">{hydrated && open ? `${open} open check-in${open > 1 ? "s" : ""}` : " "}</span>
-                        <Button variant="secondary" className="py-1.5" onClick={() => fire(`Check-in sent to ${d.name}`, () => actions.sendCheckIn(d.id))}>
-                          Send check-in
-                        </Button>
+                        <span className="tag-text text-ash-700">{(hydrated && [open ? `${open} check-in${open > 1 ? "s" : ""}` : "", visit ? "visit open" : ""].filter(Boolean).join(" · ")) || " "}</span>
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <Button variant="secondary" className="py-1.5" onClick={() => fire(`Check-in sent to ${d.name}`, () => actions.sendCheckIn(d.id))}>
+                            Send check-in
+                          </Button>
+                          <Button variant="secondary" className="py-1.5" disabled={hydrated && !!visit} onClick={() => fire(`Spot check posted for ${d.name}`, () => actions.sendSpotCheck(d.id))}>
+                            Spot check
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   );
@@ -142,7 +148,7 @@ export default function DemoPage() {
                   onChange={(v) => actions.setFlag("simulateOnSite", v)}
                 />
                 <Toggle
-                  label="Auto-complete verifier jobs"
+                  label="Auto-complete spot checks"
                   help="Reports back after ~6 s"
                   checked={hydrated && s.flags.autoVerifier}
                   onChange={(v) => actions.setFlag("autoVerifier", v)}

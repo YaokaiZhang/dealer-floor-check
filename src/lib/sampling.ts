@@ -4,14 +4,15 @@
  * One check-in of n cars from a pool of N, with M cars missing, misses every missing car with
  *   q(n) = C(N-M, n) / C(N, n) = prod_{i<n} (N-M-i)/(N-i)          (hypergeometric)
  * Every check-in draws afresh, so k check-ins a year all miss with probability q(n)^k.
- * We pick the smallest n with 1 - q(n)^k >= confidence, then cap it so a check-in stays light.
+ * Random spot checks add their own miss factor `otherMiss` (q_visit^visits), so the year misses with
+ * q(n)^k · otherMiss. We pick the smallest n with 1 - q(n)^k · otherMiss >= confidence, then cap it.
  */
-export function sampleSize(N: number, p = 0.02, confidence = 0.95, perYear = 1, maxCars = Infinity): number {
+export function sampleSize(N: number, p = 0.02, confidence = 0.95, perYear = 1, maxCars = Infinity, otherMiss = 1): number {
   if (N <= 0) return 0;
   const M = missingToDetect(N, p);
   const cap = Math.max(1, Math.min(N, maxCars));
   for (let n = 1; n <= cap; n++) {
-    if (yearlyDetection(N, M, n, perYear) >= confidence) return n;
+    if (1 - (1 - yearlyDetection(N, M, n, perYear)) * otherMiss >= confidence) return n;
   }
   return cap;
 }

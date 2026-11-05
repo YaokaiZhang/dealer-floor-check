@@ -1,7 +1,7 @@
 export type Tier = "Gold" | "Silver" | "Standard" | "Review";
 export type CarStatus = "in_stock" | "sold_paid" | "sold_unpaid_suspect";
 export type Severity = "high" | "medium" | "low";
-export type AlertSource = "connected_car" | "marketplace" | "registry" | "check_in";
+export type AlertSource = "connected_car" | "marketplace" | "registry" | "check_in" | "spot_check";
 
 export interface Geofence { lat: number; lng: number; radiusM: number }
 
@@ -48,7 +48,7 @@ export interface ConnectedFeed { lat: number; lng: number; odometerKm: number; l
 export interface MarketplaceFeed { listed: boolean; status: "active" | "sold" | "removed"; listingTitle?: string; price?: number; changedAt?: string }
 export interface RegistryFeed { owner: string; lastOwnerChange: string; pending?: boolean }
 
-export type EscalationStep = "signal" | "targeted_check_in" | "gig_verifier" | "auditor";
+export type EscalationStep = "signal" | "targeted_check_in" | "visit" | "auditor";
 
 export interface Alert {
   id: string;
@@ -62,13 +62,14 @@ export interface Alert {
   /** Escalation ladder position. */
   step: EscalationStep;
   evidence: { label: string; value: string }[];
-  verifier?: VerifierJob;
+  /** The spot check this alert brought forward (or that raised it). */
+  spotCheckId?: string;
   targetedCheckInId?: string;
 }
 
 export type VerifierStatus = "offered" | "en_route" | "on_site" | "reported";
 
-/** A paid, one-car job for a local freelance verifier. The verifier never sees why the car was picked. */
+/** The paid job a local freelance verifier takes for one spot check. */
 export interface VerifierJob {
   dispatchedAt: string;
   name: string;
@@ -80,14 +81,31 @@ export interface VerifierJob {
   arrivedAt?: string;
   arrival?: PhotoCheck["location"];
   reportedAt?: string;
-  photo?: PhotoCheck;
-  odometerKm?: number;
-  notFoundReason?: string;
   note?: string;
   /** True when the demo auto-completed the job instead of someone using /verifier. */
   simulated?: boolean;
-  report?: string;
-  found?: boolean;
+}
+
+/** What the verifier found for one car. A simulated report has no photo. */
+export type VisitCarResult = { status: "found"; photo?: PhotoCheck } | { status: "missing"; reason?: string };
+
+/**
+ * An unannounced, random spot check by a local verifier: a few random cars from all financed stock,
+ * connected cars included. Alerts bring the next one forward and add the flagged car, so a visit
+ * looks the same to the dealer and the verifier whatever its reason.
+ */
+export interface SpotCheck {
+  id: string;
+  dealerId: string;
+  createdAt: string;
+  /** Bank-only. */
+  reason: "random" | "brought_forward";
+  /** Alerts that brought this visit forward. Bank-only. */
+  alertIds: string[];
+  sampledVins: string[];
+  verifier: VerifierJob;
+  results: Record<string, VisitCarResult>;
+  outcome?: "clean" | "failed";
 }
 
 export type ShotKind = "vin" | "car" | "odometer";
@@ -145,9 +163,14 @@ export interface SamplingExplanation {
   maxCars: number;
   /** Chance one check-in catches a missing car. */
   perCheckIn: number;
-  /** Chance a year of check-ins catches it. */
+  /** Chance a year of check-ins and spot checks catches it. */
   yearly: number;
-  /** Mean days until a check-in catches it. */
+  /** Random spot checks per year and cars per visit for the tier. */
+  visitsPerYear: number;
+  visitCars: number;
+  /** Chance one spot check catches it (visits draw from all in-stock cars). */
+  perVisit: number;
+  /** Mean days until a check-in or spot check catches it. */
   expectedDays: number;
 }
 
@@ -163,6 +186,7 @@ export interface DemoState {
   };
   alerts: Alert[];
   checkIns: CheckIn[];
+  spotChecks: SpotCheck[];
   /** Perceptual hashes of all earlier check-in photos across dealers (reuse detection). */
   photoHashes: { hash: string; dealerId: string; vin: string; at: string }[];
   demo: { soldCarVin: string; soldCarAwayPosition: { lat: number; lng: number } };

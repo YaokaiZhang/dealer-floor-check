@@ -29,7 +29,7 @@ export function lastOdometer(s: DemoState, vin: string): number | null {
     if (r && km != null && (!best || r.freshness.receivedAt > best.at)) best = { at: r.freshness.receivedAt, km };
   };
   for (const ci of s.checkIns) { const r = ci.results[vin]; if (r && !("skipped" in r)) consider(r); }
-  for (const a of s.alerts) if (a.vin === vin) consider(a.verifier?.photo);
+  for (const v of s.spotChecks) { const r = v.results[vin]; if (r?.status === "found") consider(r.photo); }
   return (best as { km: number } | null)?.km ?? null;
 }
 

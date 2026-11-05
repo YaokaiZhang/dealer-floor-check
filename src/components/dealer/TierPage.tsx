@@ -31,7 +31,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
         <dl className="divide-y divide-ink">
           <Benefit label="Credit-line top-up" value={t.topUp.amount > 0 ? eur(t.topUp.amount) : "After a quick chat"} sub={t.topUp.amount > 0 ? t.topUp.speed : undefined} />
           <Benefit label="Rate" value={rateText(t.rateDiscountPp)} />
-          <Benefit label="Check-ins" value={FREQUENCY[tier]} />
+          <Benefit label="Checks" value={FREQUENCY[tier]} />
         </dl>
       </Card>
 

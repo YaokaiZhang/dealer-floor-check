@@ -6,7 +6,7 @@ import { Tag } from "@/components/ui/Tag";
 const ROLES = [
   { href: "/dealer", tag: "Mobile web", title: "Dealer app", body: "3-minute check-in, at a time they pick.", tone: "bg-lime" },
   { href: "/bank", tag: "Dashboard", title: "Bank dashboard", body: "Portfolio, live alerts, sampling.", tone: "bg-brand" },
-  { href: "/verifier", tag: "Mobile web", title: "Freelance verifier", body: "€30 one-car visit, VIN photo.", tone: "bg-brand-soft" },
+  { href: "/verifier", tag: "Mobile web", title: "Freelance verifier", body: "Random spot checks, a few cars each.", tone: "bg-brand-soft" },
   { href: "/demo", tag: "Stage", title: "Demo control", body: "Fire simulated events.", tone: "bg-paper" },
 ];
 

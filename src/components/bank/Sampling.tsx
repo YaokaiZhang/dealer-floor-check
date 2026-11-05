@@ -40,28 +40,34 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
             q = C(N−M, n) / C(N, n)
           </span>
           <span className="block">
-            Each of the <b>{e.perYear}</b> check-ins a year draws afresh, so all of them miss with q<sup>{e.perYear}</sup>. We pick the smallest n where 1 − q<sup>{e.perYear}</sup> ≥ {pct(e.confidence)}, capped at {e.maxCars} cars.
+            Each of the <b>{e.perYear}</b> check-ins a year draws afresh, so all of them miss with q<sup>{e.perYear}</sup>.
           </span>
           <span className="mt-2 block">
-            Here n = <b>{e.n}</b>: one check-in catches it {pct(e.perCheckIn, 1)} of the time, a year of them {pct(e.yearly, 1)}.
+            Random spot checks add their own chance: <b>{e.visitsPerYear}</b> unannounced visits of {e.visitCars} cars from all stock, connected cars included, each catching it {pct(e.perVisit, 1)} of the time. A year misses with q<sup>{e.perYear}</sup> · q<sub>visit</sub><sup>{e.visitsPerYear}</sup>.
           </span>
-          <span className="mt-2 block text-ash-700">Connected cars leave the pool. Signals catch most cases within days; check-ins are the backstop.</span>
+          <span className="mt-2 block">
+            We pick the smallest n where the year reaches {pct(e.confidence)}, capped at {e.maxCars} cars.
+          </span>
+          <span className="mt-2 block">
+            Here n = <b>{e.n}</b>: one check-in catches it {pct(e.perCheckIn, 1)} of the time; check-ins and visits together {pct(e.yearly, 1)} a year.
+          </span>
+          <span className="mt-2 block text-ash-700">Connected cars leave the check-in pool. Signals catch most cases within days; check-ins and spot checks are the backstop.</span>
         </Explainer>
       </div>
-      {e.pool > 0 && <DetectionCurve N={e.pool} M={M} n={e.n} k={e.perYear} confidence={e.confidence} />}
+      {e.pool > 0 && <DetectionCurve N={e.pool} M={M} n={e.n} k={e.perYear} visitMiss={(1 - e.perVisit) ** e.visitsPerYear} visits={e.visitsPerYear} confidence={e.confidence} />}
     </div>
   );
 }
 
 /** P(catch ≥1 missing car) vs cars per check-in: one check-in (dashed) and a year of them (solid), labelled at the line ends. */
-function DetectionCurve({ N, M, n, k, confidence }: { N: number; M: number; n: number; k: number; confidence: number }) {
+function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: number; M: number; n: number; k: number; visitMiss: number; visits: number; confidence: number }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
   const [hover, setHover] = useState<number | null>(null);
   const X = Math.min(N, Math.max(12, n * 2));
   const H = 190, L = 40, R = 76, T = 12, B = 40;
   const iw = Math.max(100, w - L - R), ih = H - T - B;
   const once = (c: number) => detectionProbability(N, M, c);
-  const year = (c: number) => yearlyDetection(N, M, c, k);
+  const year = (c: number) => 1 - (1 - yearlyDetection(N, M, c, k)) * visitMiss;
   const x = (c: number) => L + (c / X) * iw;
   const y = (p: number) => T + (1 - p) * ih;
   const line = (f: (c: number) => number) => Array.from({ length: X + 1 }, (_, c) => `${c ? "L" : "M"}${x(c).toFixed(1)},${y(f(c)).toFixed(1)}`).join("");
@@ -88,7 +94,7 @@ function DetectionCurve({ N, M, n, k, confidence }: { N: number; M: number; n: n
           }}
           onPointerLeave={() => setHover(null)}
           role="img"
-          aria-label={`With ${n} cars per check-in, one check-in catches a missing car ${pct(once(n))} of the time and ${k} check-ins a year ${pct(year(n))}.`}
+          aria-label={`With ${n} cars per check-in, one check-in catches a missing car ${pct(once(n))} of the time; ${k} check-ins and ${visits} spot checks a year ${pct(year(n))}.`}
         >
           {[0, 0.5, 1].map((g) => (
             <g key={g}>
@@ -105,7 +111,8 @@ function DetectionCurve({ N, M, n, k, confidence }: { N: number; M: number; n: n
           <path d={line(once)} fill="none" stroke="#6b6b6b" strokeWidth="1.5" strokeDasharray="4 3" />
           <path d={line(year)} fill="none" stroke="#5b4fe0" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
           <text x={L + iw + 6} y={y(year(X)) + 4} fontSize="11" fill="#5b4fe0" fontWeight="600">{k}×/yr</text>
-          <text x={L + iw + 6} y={Math.max(y(once(X)) + 4, y(year(X)) + 18)} fontSize="11" fill="#4d4d4d">once</text>
+          <text x={L + iw + 6} y={y(year(X)) + 17} fontSize="10" fill="#5b4fe0">+{visits} visits</text>
+          <text x={L + iw + 6} y={Math.max(y(once(X)) + 4, y(year(X)) + 32)} fontSize="11" fill="#4d4d4d">once</text>
           <line x1={x(sel)} x2={x(sel)} y1={T} y2={T + ih} stroke="#8a8a8a" strokeWidth="1" />
           <circle cx={x(n)} cy={y(year(n))} r="5" fill="#5b4fe0" stroke="#fff" strokeWidth="2" />
           {hover !== null && hover !== n && <circle cx={x(sel)} cy={y(year(sel))} r="4" fill="#000" stroke="#fff" strokeWidth="2" />}

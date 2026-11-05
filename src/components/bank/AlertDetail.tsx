@@ -1,7 +1,7 @@
 "use client";
 import type { Store } from "@/lib/store";
 import { actions } from "@/lib/store";
-import type { Alert, Car, CheckIn, ConnectedFeed, Dealer, EscalationStep } from "@/lib/types";
+import type { Alert, Car, CheckIn, ConnectedFeed, Dealer, EscalationStep, SpotCheck } from "@/lib/types";
 import { distanceM, formatDistance } from "@/lib/geo";
 import { dateFi, eur, timeAgo, timeFi } from "@/lib/format";
 import { ASSUMPTIONS } from "@/config/assumptions";
@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/Button";
 import { SectionTag } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
-import { SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow } from "./shared";
+import { visitFee } from "@/lib/costModel";
+import { SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow, visitFoundCar } from "./shared";
 
 const LADDER: { step: EscalationStep; title: string; who: string; cost: string }[] = [
   { step: "signal", title: "Signal", who: "Automatic", cost: "€0" },
   { step: "targeted_check_in", title: "Check-in", who: "Dealer photo", cost: `€${ASSUMPTIONS.checkInHandlingCost}` },
-  { step: "gig_verifier", title: "Verifier", who: "Local visit", cost: `€${ASSUMPTIONS.gigCheckCost}` },
+  { step: "visit", title: "Spot check", who: "Next random visit, today", cost: `€${visitFee(ASSUMPTIONS.avgCarsPerVisit)}` },
   { step: "auditor", title: "Auditor", who: "Last resort", cost: `€${ASSUMPTIONS.auditorVisitCost}` },
 ];
 
@@ -25,6 +26,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
   const cc = car.connected ? s.feeds.connected[alert.vin] : undefined;
   const ci = alert.targetedCheckInId ? s.checkIns.find((c) => c.id === alert.targetedCheckInId) : undefined;
   const open = isOpen(alert);
+  const visit = alert.spotCheckId ? s.spotChecks.find((v) => v.id === alert.spotCheckId) : undefined;
   const stepIdx = STEP_ORDER.indexOf(alert.step);
 
   return (
@@ -35,7 +37,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           <div className="flex flex-wrap items-center gap-1.5">
             <SeverityTag severity={alert.severity} />
             <SourceTag source={alert.source} />
-            <StatusTag alert={alert} />
+            <StatusTag alert={alert} visit={visit} />
             <span className="tag-text text-ash-700">{timeAgo(alert.createdAt, now)} · {timeFi(alert.createdAt)}</span>
           </div>
           <h2 className="mt-4 display-lg">{alert.message}</h2>
@@ -55,10 +57,10 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
             <SectionTag>Next step</SectionTag>
             <Tag tone="outline">Officer decides</Tag>
           </div>
-          <p className="mt-2 font-semibold leading-snug">{recommend(alert, ci)}</p>
+          <p className="mt-2 font-semibold leading-snug">{recommend(alert, ci, visit)}</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="brand" disabled={!open || !!alert.verifier || alert.step === "auditor"} onClick={() => actions.dispatchVerifier(alert.id)}>
-              Dispatch verifier (€{ASSUMPTIONS.gigCheckCost})
+            <Button variant="brand" disabled={!open || !!visit || alert.step === "auditor"} onClick={() => actions.bringVisitForward(alert.id)}>
+              Bring spot check forward
             </Button>
             <Button variant="secondary" disabled={!open || alert.step === "auditor"} onClick={() => actions.escalateToAuditor(alert.id)}>
               Escalate to auditor
@@ -72,7 +74,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           </div>
         </div>
 
-        {alert.verifier && <VerifierCard alert={alert} now={now} />}
+        {visit && <SpotCheckCard s={s} alert={alert} visit={visit} now={now} />}
 
         <TargetedCheckIn ci={ci} vin={alert.vin} severity={alert.severity} />
 
@@ -94,17 +96,16 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
   );
 }
 
-function recommend(a: Alert, ci?: CheckIn): string {
+function recommend(a: Alert, ci?: CheckIn, v?: SpotCheck): string {
   if (a.status === "resolved_ok") return "Cleared.";
   if (a.status === "confirmed_fraud") return "Confirmed. Hand over to recovery.";
   if (a.step === "auditor") return "Auditor assigned. Decide after the visit.";
-  if (a.verifier?.status === "offered") return "Waiting for a verifier.";
-  if (a.verifier?.status === "en_route") return `${a.verifier.name} en route.`;
-  if (a.verifier?.status === "on_site") return `${a.verifier.name} on the lot.`;
-  if (a.verifier?.status === "reported") return a.verifier.found ? "Car found. Clear the alert." : "Car not found. Escalate or confirm.";
-  if (a.severity === "high") return `Dispatch a verifier (€${ASSUMPTIONS.gigCheckCost}), not an auditor (€${ASSUMPTIONS.auditorVisitCost}).`;
+  if (v?.verifier.status === "offered") return "Spot check brought forward. Waiting for a verifier.";
+  if (v?.verifier.status === "en_route") return `${v.verifier.name} en route.`;
+  if (v?.verifier.status === "on_site") return `${v.verifier.name} on the lot.`;
+  if (v) return visitFoundCar(v, a.vin) ? "Car found. Clear the alert." : "Car not found. Escalate or confirm.";
   if (ci && ci.status !== "completed") return "Wait for the dealer's check-in.";
-  if (ci?.status === "completed") return ci.outcome === "clean" ? "Photographed on site. Clear it." : "Check-in failed. Dispatch a verifier.";
+  if (ci?.status === "completed") return ci.outcome === "clean" ? "Photographed on site. Clear it." : "Check-in failed. Bring the spot check forward.";
   return "Low severity. Keep watching.";
 }
 
@@ -147,14 +148,19 @@ const V_STEPS = [
   { key: "reportedAt", label: "Report" },
 ] as const;
 
-function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
-  const v = alert.verifier!;
+function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit: SpotCheck; now: number }) {
+  const v = visit.verifier;
   const reported = v.status === "reported";
+  const found = visitFoundCar(visit, alert.vin);
+  const r = visit.results[alert.vin];
+  const photo = r?.status === "found" ? r.photo : undefined;
+  const others = visit.sampledVins.filter((x) => x !== alert.vin);
+  const othersOk = others.filter((x) => visitFoundCar(visit, x)).length;
   const secs = Math.max(0, Math.round((now - Date.parse(v.dispatchedAt)) / 1000));
   return (
-    <div className={`border border-ink ${reported ? (v.found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
+    <div className={`border border-ink ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink px-4 py-3">
-        <SectionTag className="!text-ink">Gig verifier · {eur(v.fee)}</SectionTag>
+        <SectionTag className="!text-ink">Spot check · {visit.sampledVins.length} cars · {eur(v.fee)}</SectionTag>
         <span className="tag-text text-ash-700">{v.name} · {v.visitCode}</span>
       </div>
       <ol className="grid grid-cols-4 border-b border-ink">
@@ -175,17 +181,19 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
               <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden />
               {v.status === "offered" ? "Waiting for a verifier to accept" : v.status === "en_route" ? `${v.name} en route` : `${v.name} on the lot`}
             </p>
+            <p className="mt-1 text-sm text-ash-700">Looks like any random visit: this car plus {others.length} random.</p>
             <div className="mt-1 flex flex-wrap items-center gap-x-4 tag-text text-ash-700">
               <span>{secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago</span>
               <a className="py-2 underline underline-offset-4 hover:text-ink" href="/verifier" target="_blank" rel="noreferrer">Verifier app ↗</a>
-              <button type="button" onClick={() => actions.verifierReport(alert.id)} className="py-2 underline underline-offset-4 hover:text-ink">Simulate report</button>
+              <button type="button" onClick={() => actions.verifierReport(visit.id)} className="py-2 underline underline-offset-4 hover:text-ink">Simulate report</button>
             </div>
           </>
         ) : (
           <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
             <div>
-              <p className="display-md">{v.found ? "Car found ✓" : "Car not on the lot"}</p>
-              <p className="mt-1 text-sm">{v.report}</p>
+              <p className="display-md">{found ? "Car found ✓" : r?.status === "missing" ? "Car not on the lot" : "Car not confirmed"}</p>
+              {r?.status === "missing" && r.reason && <p className="mt-1 text-sm">{r.reason}.</p>}
+              {v.note && <p className="mt-1 text-sm">Note: {v.note}</p>}
               <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                 {v.arrival && (
                   <>
@@ -193,26 +201,28 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
                     <dd className="font-mono">{formatDistance(v.arrival.distanceM)} from lot{v.arrival.simulated ? " (simulated)" : ""}</dd>
                   </>
                 )}
-                {v.photo && (
+                {photo && (
                   <>
                     <dt className="tag-text text-ash-700">VIN read</dt>
-                    <dd className="font-mono">{v.photo.readVin ?? "unreadable"} · {v.photo.vinMatch}</dd>
-                    {v.photo.plate && (
+                    <dd className="font-mono">{photo.readVin ?? "unreadable"} · {photo.vinMatch}</dd>
+                    {photo.plate && (
                       <>
                         <dt className="tag-text text-ash-700">Plate read</dt>
-                        <dd className="font-mono">{v.photo.plate.read ?? "unreadable"} · {v.photo.plate.match ? "match" : "mismatch"}</dd>
+                        <dd className="font-mono">{photo.plate.read ?? "unreadable"} · {photo.plate.match ? "match" : "mismatch"}</dd>
                       </>
                     )}
-                    {v.photo.odometer && (
+                    {photo.odometer && (
                       <>
                         <dt className="tag-text text-ash-700">Odometer</dt>
-                        <dd className="font-mono">{v.photo.odometer.readKm != null ? `${v.photo.odometer.readKm.toLocaleString("en")} km` : "unreadable"}{v.photo.odometer.plausible ? "" : " · implausible"}</dd>
+                        <dd className="font-mono">{photo.odometer.readKm != null ? `${photo.odometer.readKm.toLocaleString("en")} km` : "unreadable"}{photo.odometer.plausible ? "" : " · implausible"}</dd>
                       </>
                     )}
                     <dt className="tag-text text-ash-700">Photo reuse</dt>
-                    <dd className="font-mono">{v.photo.reuse.duplicate ? "DUPLICATE" : `none (nearest ${v.photo.reuse.nearestDistance} bits)`}</dd>
+                    <dd className="font-mono">{photo.reuse.duplicate ? "DUPLICATE" : `none (nearest ${photo.reuse.nearestDistance} bits)`}</dd>
                   </>
                 )}
+                <dt className="tag-text text-ash-700">Other cars</dt>
+                <dd className="font-mono">{othersOk} of {others.length} confirmed</dd>
                 {v.simulated && (
                   <>
                     <dt className="tag-text text-ash-700">Source</dt>
@@ -221,9 +231,9 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
                 )}
               </dl>
             </div>
-            {v.photo?.thumbnail && (
+            {photo?.thumbnails?.car && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={v.photo.thumbnail} alt={`Verifier photo of the VIN plate for ${alert.vin}`} className="w-40 border border-ink object-cover" />
+              <img src={photo.thumbnails.car} alt={`Verifier photo of ${s.cars.find((c) => c.vin === alert.vin)?.plate ?? alert.vin}`} className="w-40 border border-ink object-cover" />
             )}
           </div>
         )}

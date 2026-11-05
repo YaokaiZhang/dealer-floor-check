@@ -5,6 +5,7 @@ import { FREQUENCY } from "./tierCopy";
 
 const CHECKS = [
   { title: "Check-in photos", body: "VIN, plate, odometer, place and time" },
+  { title: "Spot checks", body: "Now and then a local verifier drops by to see a few cars. Random, short, paid by us" },
   { title: "Connected cars", body: "Cars seen on your lot count as checked (with consent)" },
   { title: "Public registry", body: "Ownership changes" },
   { title: "Marketplaces", body: "Listings of financed cars" },
@@ -16,7 +17,7 @@ export function Transparency() {
       <section className="animate-rise">
         <SectionTag>Open about the rules</SectionTag>
         <h2 className="mt-3 display-lg">What Aurora checks, and why</h2>
-        <p className="mt-3 text-ash-700">Data first, so we rarely ask and almost never visit.</p>
+        <p className="mt-3 text-ash-700">Data first, so we rarely ask and only drop by now and then.</p>
       </section>
 
       <section>

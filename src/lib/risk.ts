@@ -41,14 +41,26 @@ export function samplingFor(state: DemoState, dealer: Dealer) {
   const tier = TIERS[dealer.tier];
   const { p, confidence, maxCars } = tier.sampling;
   const perYear = tier.checkInsPerYear;
-  const n = sampleSize(pool.length, p, confidence, perYear, maxCars);
+
+  // Spot checks draw from every in-stock car, connected ones included.
+  const stock = cars.filter((c) => c.status === "in_stock").length;
+  const visitCars = Math.min(tier.visit.cars, stock);
+  const visitsPerYear = tier.visit.perYear;
+  const perVisit = stock ? detectionProbability(stock, missingToDetect(stock, p), visitCars) : 0;
+  const visitMiss = (1 - perVisit) ** visitsPerYear;
+
+  const n = sampleSize(pool.length, p, confidence, perYear, maxCars, visitMiss);
   const M = missingToDetect(pool.length, p);
   const perCheckIn = pool.length ? detectionProbability(pool.length, M, n) : 0;
+  const yearly = 1 - (pool.length ? 1 - yearlyDetection(pool.length, M, n, perYear) : 1) * visitMiss;
+  // Mean wait: events every 365/(k+v) days, each catching it with the average chance per event.
+  const events = perYear + visitsPerYear;
+  const avgCatch = (perYear * perCheckIn + visitsPerYear * perVisit) / events;
   const explanation: SamplingExplanation = {
     fleet: cars.length, autoVerified: autoVerified.length, pool: pool.length, n, p, confidence, missingToDetect: M,
-    perYear, maxCars, perCheckIn,
-    yearly: pool.length ? yearlyDetection(pool.length, M, n, perYear) : 0,
-    expectedDays: Math.round(expectedDaysToDetect(perCheckIn, perYear)),
+    perYear, maxCars, perCheckIn, yearly,
+    visitsPerYear, visitCars, perVisit,
+    expectedDays: Math.round(expectedDaysToDetect(avgCatch, events)),
   };
   return { explanation, pool };
 }

@@ -15,8 +15,10 @@ export const ASSUMPTIONS = {
   signalDetectionDays: 2, // near-real-time detection when a signal fires
   checkInHandlingCost: 5, // € per remote self check-in (handling + vision API)
   checkInsPerDealerYear: 6, // average across tiers
-  gigCheckCost: 30, // € per gig-verifier physical check
-  gigChecksPerDealerYear: 1.5,
+  gigCheckCost: 30, // € per spot check by a local verifier, first car
+  gigCheckCostPerExtraCar: 5, // € per further car on the same visit
+  avgCarsPerVisit: 3,
+  gigChecksPerDealerYear: 2, // random spot checks, average across tiers (incl. visits brought forward)
   dataFeedCostPerDealerYear: 120, // € connected-car + registry + marketplace data
   maxScheduledChecks: 12,
 } as const;

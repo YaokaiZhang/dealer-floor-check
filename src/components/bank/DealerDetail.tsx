@@ -2,7 +2,7 @@
 import { useState } from "react";
 import type { Store } from "@/lib/store";
 import { actions } from "@/lib/store";
-import type { CheckIn, Dealer, HistoryEntry, PhotoCheck, Tier } from "@/lib/types";
+import type { CheckIn, Dealer, HistoryEntry, PhotoCheck, SpotCheck, Tier } from "@/lib/types";
 import { isAutoVerified, portfolioStats, riskScore, samplingFor } from "@/lib/risk";
 import { dateFi, eur, eurCompact, pct, timeFi } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
@@ -10,6 +10,7 @@ import { TIERS, TIER_ORDER } from "@/config/tiers";
 import { SectionTag } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
+import { Button } from "@/components/ui/Button";
 import { RiskBreakdown, riskTone, riskWord } from "./Portfolio";
 import { SamplingFlow } from "./Sampling";
 import { Check, SEV_BAR, SourceTag, isOpen } from "./shared";
@@ -20,6 +21,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
   const { explanation } = samplingFor(s, d);
   const tier = TIERS[d.tier];
   const checkIns = s.checkIns.filter((c) => c.dealerId === d.id);
+  const visits = s.spotChecks.filter((v) => v.dealerId === d.id);
   const alerts = s.alerts.filter((a) => a.dealerId === d.id);
 
   return (
@@ -78,6 +80,19 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <SectionTag>Spot checks · {tier.visit.perYear}×/yr, unannounced</SectionTag>
+            <Button variant="secondary" className="py-1.5" disabled={!!visits.find((v) => v.verifier.status !== "reported")} onClick={() => actions.sendSpotCheck(d.id)}>
+              Post spot check
+            </Button>
+          </div>
+          {visits.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
+          <div className="mt-3 space-y-4">
+            {visits.map((v) => <VisitCard key={v.id} v={v} s={s} />)}
+          </div>
+        </section>
+
+        <section>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
             <SectionTag>Check-ins · silent checks</SectionTag>
             <Tag tone="ink">Bank only</Tag>
           </div>
@@ -129,6 +144,54 @@ function Fig({ k, v, sub }: { k: string; v: string; sub: string }) {
       <dt className="tag-text text-ash-700">{k}</dt>
       <dd className="mt-1 figure text-3xl">{v}</dd>
       <dd className="mt-1 text-xs text-ash-700">{sub}</dd>
+    </div>
+  );
+}
+
+const PHOTO_HEAD = (
+  <thead className="tag-text text-ash-700">
+    <tr className="border-b border-ash-300">
+      <th className="p-2 font-normal">Photo</th>
+      <th className="p-2 font-normal">VIN read</th>
+      <th className="p-2 font-normal">Plate · odometer</th>
+      <th className="p-2 font-normal">Location</th>
+      <th className="p-2 font-normal">Freshness</th>
+      <th className="p-2 font-normal">Reuse</th>
+      <th className="p-2 font-normal">Result</th>
+    </tr>
+  </thead>
+);
+
+const VISIT_STATUS: Record<SpotCheck["verifier"]["status"], string> = { offered: "posted", en_route: "en route", on_site: "on site", reported: "reported" };
+
+function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
+  const j = v.verifier;
+  return (
+    <div className="border border-ink">
+      <div className="flex flex-wrap items-center gap-2 border-b border-ink bg-mist px-3 py-2">
+        <Tag tone={v.reason === "brought_forward" ? "brand" : "outline"}>{v.reason === "brought_forward" ? "brought forward" : "random"}</Tag>
+        <Tag tone={v.outcome === "clean" ? "lime" : v.outcome ? "high" : "muted"}>{v.outcome ?? VISIT_STATUS[j.status]}</Tag>
+        <span className="text-sm">{j.name} · {j.visitCode} · {eur(j.fee)}</span>
+        <span className="ml-auto tag-text text-ash-700">{v.sampledVins.length} cars{j.simulated ? " · simulated" : ""}</span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[820px] text-left text-xs">
+          {PHOTO_HEAD}
+          <tbody>
+            {v.sampledVins.map((vin) => {
+              const r = v.results[vin];
+              const car = s.cars.find((x) => x.vin === vin);
+              const label = car ? `${car.make} ${car.model}` : "";
+              const flagged = v.alertIds.some((id) => s.alerts.find((a) => a.id === id)?.vin === vin);
+              const lead = <><span className="font-mono">{vin}</span> <span className="text-ash-500">· {label}</span>{flagged && <Tag tone="brand" className="ml-1">flagged</Tag>}</>;
+              if (!r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={7}>{lead} <span className="text-ash-500">· {j.status === "reported" ? "not checked" : "waiting"}</span></td></tr>;
+              if (r.status === "missing") return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}>{lead} <span className="ml-1">{r.reason ?? "Not on the lot"}</span></td><td className="p-2"><Tag tone="high">not on lot</Tag></td></tr>;
+              if (!r.photo) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}>{lead} <span className="text-ash-500">· found (simulated report, no photos)</span></td><td className="p-2"><Tag tone="lime">found</Tag></td></tr>;
+              return <PhotoRow key={vin} r={r.photo} label={flagged ? `${label} · flagged` : label} />;
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

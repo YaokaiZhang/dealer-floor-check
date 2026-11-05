@@ -28,8 +28,10 @@ const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]
   signalDetectionDays: ["Detection when a signal fires", (v) => `${v} days`],
   checkInHandlingCost: ["Remote check-in handling", (v) => eur(v)],
   checkInsPerDealerYear: ["Check-ins / dealer / yr", (v) => String(v)],
-  gigCheckCost: ["Gig-verifier check", (v) => eur(v)],
-  gigChecksPerDealerYear: ["Gig checks / dealer / yr", (v) => String(v)],
+  gigCheckCost: ["Spot check, first car", (v) => eur(v)],
+  gigCheckCostPerExtraCar: ["Spot check, each further car", (v) => eur(v)],
+  avgCarsPerVisit: ["Cars per spot check", (v) => String(v)],
+  gigChecksPerDealerYear: ["Spot checks / dealer / yr", (v) => String(v)],
   dataFeedCostPerDealerYear: ["Data feeds / dealer / yr", (v) => eur(v)],
   maxScheduledChecks: ["Max scheduled checks (x-axis)", (v) => `${v} / yr`],
 };

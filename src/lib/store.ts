@@ -9,18 +9,18 @@
 import { useSyncExternalStore } from "react";
 import seed from "../../data/seed.json";
 import type {
-  Alert, AlertSource, Car, CheckIn, CheckInWindow, Dealer, DemoState, PhotoCheck, Severity, Tier,
+  Alert, AlertSource, Car, CheckIn, CheckInWindow, Dealer, DemoState, PhotoCheck, Severity, SpotCheck, Tier, VisitCarResult,
 } from "./types";
-import { CLEAN_STREAK_TO_STEP_UP, TIER_ORDER } from "@/config/tiers";
+import { CLEAN_STREAK_TO_STEP_UP, TIER_ORDER, TIERS } from "@/config/tiers";
+import { visitFee } from "./costModel";
 import { drawRandom } from "./sampling";
 import { resetServerChecks } from "./verify";
 import { samplingFor } from "./risk";
 import { distanceM, formatDistance } from "./geo";
 import { eur } from "./format";
-import { ASSUMPTIONS } from "@/config/assumptions";
 
 const KEY = "aurora-floor-check-demo";
-const VERSION = 5;
+const VERSION = 6;
 const HOUR = 3600_000;
 
 export interface DemoFlags { simulateOnSite: boolean; nextPhotoUnreadable: boolean; autoVerifier: boolean; demoCamera: boolean }
@@ -54,6 +54,7 @@ export function buildInitialState(now = Date.now()): Store {
     feeds: { connected, marketplace: structuredClone(s.feeds.marketplace), registry: structuredClone(s.feeds.registry) },
     alerts: [],
     checkIns: [],
+    spotChecks: [],
     photoHashes: [],
     demo: s.demo,
     events: [{ id: uid("ev"), at: new Date(now).toISOString(), text: "Demo reset to seed data" }],
@@ -105,11 +106,11 @@ const armed = new Set<string>();
 function armVerifierTimers() {
   const s = load();
   if (!s.flags.autoVerifier) return;
-  for (const a of s.alerts) {
-    if (!a.verifier || a.verifier.status === "reported" || armed.has(a.id)) continue;
-    armed.add(a.id);
-    const wait = Math.max(0, new Date(a.verifier.dispatchedAt).getTime() + 6000 - Date.now());
-    setTimeout(() => actions.verifierReport(a.id), wait);
+  for (const v of s.spotChecks) {
+    if (v.verifier.status === "reported" || armed.has(v.id)) continue;
+    armed.add(v.id);
+    const wait = Math.max(0, new Date(v.verifier.dispatchedAt).getTime() + 6000 - Date.now());
+    setTimeout(() => actions.verifierReport(v.id), wait);
   }
 }
 
@@ -168,14 +169,106 @@ function raiseAlert(s: Store, a: Omit<Alert, "id" | "createdAt" | "status" | "st
   const d = dealerOf(s, a.dealerId);
   log(s, `${a.severity.toUpperCase()} alert · ${d.name}: ${a.message}`);
   // Ladder step 1: a friendly, targeted check-in for that one VIN.
-  if (a.severity !== "low") {
+  if (a.severity !== "low" && a.source !== "spot_check") {
     const ci = createCheckIn(s, a.dealerId, "targeted", a.vin);
     alert.step = "targeted_check_in";
     alert.targetedCheckInId = ci.id;
     log(s, `Targeted check-in sent to ${d.name} for ${a.vin}`);
   }
+  // High severity: the next random spot check moves to today, with this car added.
+  if (a.severity === "high" && a.source !== "spot_check") bringVisitForward(s, alert);
   applyReviewRule(s, d);
   return alert;
+}
+
+// ---------------------------------------------------------------- spot checks
+const openVisit = (s: Store, dealerId: string) => s.spotChecks.find((v) => v.dealerId === dealerId && v.verifier.status !== "reported");
+
+/** n random in-stock cars (connected ones included) plus any must-include cars, shuffled so none stands out. */
+function drawVisitCars(s: Store, dealerId: string, n: number, mustInclude: string[] = []): string[] {
+  const stock = s.cars.filter((c) => c.dealerId === dealerId && c.status === "in_stock" && !mustInclude.includes(c.vin));
+  const vins = [...drawRandom(stock, n).map((c) => c.vin), ...mustInclude];
+  return drawRandom(vins, vins.length);
+}
+
+function createSpotCheck(s: Store, dealerId: string, reason: SpotCheck["reason"], alert?: Alert): SpotCheck {
+  const d = dealerOf(s, dealerId);
+  const vins = drawVisitCars(s, dealerId, TIERS[d.tier].visit.cars, alert ? [alert.vin] : []);
+  const now = new Date().toISOString();
+  const v: SpotCheck = {
+    id: uid("sc"), dealerId, createdAt: now, reason, alertIds: alert ? [alert.id] : [], sampledVins: vins, results: {},
+    verifier: { dispatchedAt: now, name: pickVerifier(d.city), status: "offered", visitCode: `AV-${Math.floor(1000 + Math.random() * 9000)}`, fee: visitFee(vins.length) },
+  };
+  s.spotChecks.unshift(v);
+  return v;
+}
+
+/** Alerts don't create a special visit: they pull the next random one forward and add the flagged car. */
+function bringVisitForward(s: Store, a: Alert) {
+  const d = dealerOf(s, a.dealerId);
+  let v = openVisit(s, a.dealerId);
+  if (v) {
+    if (!v.sampledVins.includes(a.vin)) {
+      const at = Math.floor(Math.random() * (v.sampledVins.length + 1));
+      v.sampledVins.splice(at, 0, a.vin);
+      v.verifier.fee = visitFee(v.sampledVins.length);
+    }
+    if (!v.alertIds.includes(a.id)) v.alertIds.push(a.id);
+    v.reason = "brought_forward";
+    log(s, `${a.vin} added to today's spot check at ${d.name}`);
+  } else {
+    v = createSpotCheck(s, a.dealerId, "brought_forward", a);
+    log(s, `Next spot check at ${d.name} brought forward to today (${v.sampledVins.length} cars, ${eur(v.verifier.fee)})`);
+  }
+  a.step = "visit";
+  a.status = "investigating";
+  a.spotCheckId = v.id;
+  armVerifierTimers();
+}
+
+function describeVisitCar(r: VisitCarResult | undefined, simulated?: boolean): string {
+  if (!r) return "Not checked";
+  if (r.status === "missing") return `Car not on the lot${r.reason ? `. ${r.reason}` : ""}`;
+  if (!r.photo) return `Car found on the lot${simulated ? " (simulated report)" : ""}`;
+  if (!r.photo.verified) return "Car found, but the photos could not be confirmed";
+  const km = r.photo.odometer?.readKm;
+  return `Car found: VIN plate, car and odometer photographed and matched${km != null ? `, odometer ${km.toLocaleString("en")} km` : ""}`;
+}
+
+function finishSpotCheck(s: Store, v: SpotCheck) {
+  const d = dealerOf(s, v.dealerId);
+  v.verifier.status = "reported";
+  v.verifier.reportedAt = new Date().toISOString();
+  const bad = v.sampledVins.filter((vin) => { const r = v.results[vin]; return !r || r.status === "missing" || (r.photo && !r.photo.verified); });
+  v.outcome = bad.length ? "failed" : "clean";
+  for (const vin of v.sampledVins) {
+    const r = v.results[vin];
+    if (r?.status === "found" && r.photo) s.photoHashes.push({ hash: r.photo.reuse.hash, dealerId: d.id, vin, at: v.verifier.reportedAt });
+  }
+  d.history.push({
+    id: uid("h"), date: today(), kind: "verifier", outcome: v.outcome === "clean" ? "clean" : "failed",
+    note: `Spot check: ${v.sampledVins.length - bad.length} of ${v.sampledVins.length} cars confirmed${v.verifier.simulated ? " (simulated)" : ""}`,
+  });
+  // Answer the alerts that brought the visit forward.
+  for (const id of v.alertIds) {
+    const a = s.alerts.find((x) => x.id === id);
+    if (a) a.evidence.push({ label: "Spot check", value: describeVisitCar(v.results[a.vin], v.verifier.simulated) });
+  }
+  // Anything else the verifier couldn't confirm becomes a new alert.
+  for (const vin of bad) {
+    if (v.alertIds.some((id) => s.alerts.find((x) => x.id === id)?.vin === vin)) continue;
+    if (s.alerts.some((a) => a.vin === vin && (a.status === "open" || a.status === "investigating"))) continue;
+    const r = v.results[vin];
+    const missing = !r || r.status === "missing";
+    const a = raiseAlert(s, {
+      dealerId: d.id, vin, source: "spot_check", severity: missing ? "high" : "medium",
+      message: missing ? `Car not on the lot at a spot check${r?.status === "missing" && r.reason ? ` (${r.reason.toLowerCase()})` : ""}` : "Car at a spot check could not be confirmed",
+      evidence: [...feedEvidence(s, vin), { label: "Spot check", value: describeVisitCar(r, v.verifier.simulated) }],
+    });
+    a.step = "visit";
+    a.spotCheckId = v.id;
+  }
+  log(s, `Spot check at ${d.name}: ${v.sampledVins.length - bad.length}/${v.sampledVins.length} cars confirmed${bad.length ? " ✗" : " ✓"}`);
 }
 
 function feedEvidence(s: Store, vin: string): { label: string; value: string }[] {
@@ -381,80 +474,79 @@ export const actions = {
 
   // ----- bank actions (escalation ladder + human review)
 
-  dispatchVerifier(alertId: string) {
+  /** Bank officer: bring the next random spot check forward for a medium or low alert. */
+  bringVisitForward(alertId: string) {
     commit((s) => {
       const a = s.alerts.find((x) => x.id === alertId)!;
-      a.step = "gig_verifier";
-      a.status = "investigating";
-      a.verifier = {
-        dispatchedAt: new Date().toISOString(),
-        name: pickVerifier(dealerOf(s, a.dealerId).city),
-        status: "offered",
-        visitCode: `AV-${Math.floor(1000 + Math.random() * 9000)}`,
-        fee: ASSUMPTIONS.gigCheckCost,
-      };
-      log(s, `Verifier job posted near ${dealerOf(s, a.dealerId).name} for ${a.vin} (${eur(ASSUMPTIONS.gigCheckCost)})`);
+      bringVisitForward(s, a);
+    });
+  },
+
+  /** Random, unannounced spot check. In production the schedule draws these; here the demo panel does. */
+  sendSpotCheck(dealerId: string) {
+    commit((s) => {
+      if (openVisit(s, dealerId)) return;
+      const v = createSpotCheck(s, dealerId, "random");
+      log(s, `Random spot check posted for ${dealerOf(s, dealerId).name} (${v.sampledVins.length} cars, ${eur(v.verifier.fee)})`);
     });
     armVerifierTimers();
   },
 
   // ----- freelance verifier app (/verifier)
 
-  verifierAccept(alertId: string) {
+  verifierAccept(id: string) {
     commit((s) => {
-      const a = s.alerts.find((x) => x.id === alertId);
-      if (!a?.verifier || a.verifier.status !== "offered") return;
-      a.verifier.status = "en_route";
-      a.verifier.acceptedAt = new Date().toISOString();
-      log(s, `${a.verifier.name} accepted the verifier job at ${dealerOf(s, a.dealerId).name}`);
+      const v = s.spotChecks.find((x) => x.id === id);
+      if (!v || v.verifier.status !== "offered") return;
+      v.verifier.status = "en_route";
+      v.verifier.acceptedAt = new Date().toISOString();
+      log(s, `${v.verifier.name} accepted the spot check at ${dealerOf(s, v.dealerId).name}`);
     });
   },
 
-  verifierArrive(alertId: string, arrival: PhotoCheck["location"]) {
+  verifierArrive(id: string, arrival: PhotoCheck["location"]) {
     commit((s) => {
-      const a = s.alerts.find((x) => x.id === alertId);
-      if (!a?.verifier || a.verifier.status !== "en_route") return;
-      a.verifier.status = "on_site";
-      a.verifier.arrivedAt = new Date().toISOString();
-      a.verifier.arrival = arrival;
-      log(s, `${a.verifier.name} checked in on site at ${dealerOf(s, a.dealerId).name}${arrival?.simulated ? " (simulated location)" : ""}`);
+      const v = s.spotChecks.find((x) => x.id === id);
+      if (!v || v.verifier.status !== "en_route") return;
+      v.verifier.status = "on_site";
+      v.verifier.arrivedAt = new Date().toISOString();
+      v.verifier.arrival = arrival;
+      log(s, `${v.verifier.name} checked in on site at ${dealerOf(s, v.dealerId).name}${arrival?.simulated ? " (simulated location)" : ""}`);
     });
   },
 
-  verifierSubmit(alertId: string, r: { found: boolean; photo?: PhotoCheck; odometerKm?: number; notFoundReason?: string; note?: string }) {
+  verifierCar(id: string, vin: string, result: VisitCarResult | null) {
     commit((s) => {
-      const a = s.alerts.find((x) => x.id === alertId);
-      if (!a?.verifier || a.verifier.status === "reported") return;
-      const v = a.verifier;
-      const d = dealerOf(s, a.dealerId);
-      Object.assign(v, r, { status: "reported", reportedAt: new Date().toISOString() });
-      v.report = r.found
-        ? `Car found on the lot. VIN plate, car and odometer photographed${r.photo?.verified ? " and matched" : ""}${r.odometerKm ? `, odometer ${r.odometerKm.toLocaleString("en")} km` : ""}.${r.note ? ` Note: ${r.note}` : ""}`
-        : `Car not on the lot.${r.notFoundReason ? ` ${r.notFoundReason}.` : ""}${r.note ? ` Note: ${r.note}` : ""}`;
-      if (r.photo) s.photoHashes.push({ hash: r.photo.reuse.hash, dealerId: d.id, vin: a.vin, at: v.reportedAt! });
-      a.evidence.push({ label: "Gig verifier", value: v.report });
-      d.history.push({ id: uid("h"), date: today(), kind: "verifier", outcome: r.found ? "clean" : "failed", note: `Verifier visit for ${a.vin}: ${r.found ? "car found" : "car not on the lot"}` });
-      log(s, `Verifier report for ${a.vin}: ${r.found ? "car found ✓" : "car NOT found"}`);
+      const v = s.spotChecks.find((x) => x.id === id);
+      if (!v || v.verifier.status === "reported") return;
+      if (result) v.results[vin] = result;
+      else delete v.results[vin];
+    });
+  },
+
+  verifierSubmit(id: string, note?: string) {
+    commit((s) => {
+      const v = s.spotChecks.find((x) => x.id === id);
+      if (!v || v.verifier.status === "reported") return;
+      if (note) v.verifier.note = note;
+      finishSpotCheck(s, v);
     });
   },
 
   /** Auto-completed report (flag "autoVerifier", or "Simulate report" on the bank). */
-  verifierReport(alertId: string) {
+  verifierReport(id: string) {
     commit((s) => {
-      const a = s.alerts.find((x) => x.id === alertId);
-      if (!a?.verifier || a.verifier.status === "reported") return;
-      const car = carOf(s, a.vin);
-      // Demo: the sold-out-of-trust car is not on the lot; other cars are found.
-      const found = car.demoScenario !== "sold_out_of_trust" && a.source !== "registry";
-      a.verifier.simulated = true;
-      a.verifier.reportedAt = new Date().toISOString();
-      a.verifier.status = "reported";
-      a.verifier.found = found;
-      a.verifier.report = found
-        ? `Car found on the lot, VIN plate photographed, odometer ${s.feeds.connected[a.vin]?.odometerKm.toLocaleString("en") ?? "n/a"} km.`
-        : "Car not on the lot. Staff said it was \"out on a test drive\"; no test-drive record available.";
-      a.evidence.push({ label: "Gig verifier", value: a.verifier.report });
-      log(s, `Verifier report for ${a.vin}: ${found ? "car found ✓" : "car NOT found"}`);
+      const v = s.spotChecks.find((x) => x.id === id);
+      if (!v || v.verifier.status === "reported") return;
+      const now = new Date().toISOString();
+      Object.assign(v.verifier, { simulated: true, acceptedAt: v.verifier.acceptedAt ?? now, arrivedAt: v.verifier.arrivedAt ?? now });
+      for (const vin of v.sampledVins) {
+        if (v.results[vin]) continue;
+        // Demo: the sold-out-of-trust car, and cars with a registry owner change, are not on the lot.
+        const gone = carOf(s, vin).demoScenario === "sold_out_of_trust" || s.alerts.some((a) => a.vin === vin && a.source === "registry" && v.alertIds.includes(a.id));
+        v.results[vin] = gone ? { status: "missing", reason: "Staff said it was out on a test drive; no test-drive record" } : { status: "found" };
+      }
+      finishSpotCheck(s, v);
     });
   },
 

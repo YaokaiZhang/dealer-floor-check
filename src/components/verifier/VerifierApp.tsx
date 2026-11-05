@@ -9,15 +9,15 @@ import { getPosition, lastOdometer, submitShots, type Fix, type Shots } from "@/
 import { ShotSequence } from "@/components/capture/ShotSequence";
 import { distanceM, formatDistance } from "@/lib/geo";
 import { eur, timeFi } from "@/lib/format";
-import type { Alert, Car, Dealer, PhotoCheck } from "@/lib/types";
+import type { Car, Dealer, PhotoCheck, SpotCheck, VisitCarResult } from "@/lib/types";
 
 /**
- * The freelancer's phone app. A vetted local person takes a paid one-car job,
- * goes to the lot, photographs the VIN plate (or says why the car isn't there) and is paid.
- * They never see the alert behind the job, so visits stay neutral and can't be "tipped".
+ * The freelancer's phone app. A vetted local person takes a paid spot check: an unannounced visit
+ * to a dealer lot to confirm a few random cars. Every visit looks the same, whether it is routine
+ * or was brought forward by an alert, so visits stay neutral and can't be "tipped".
  */
 
-type Job = { alert: Alert; dealer: Dealer; car: Car };
+type Job = { visit: SpotCheck; dealer: Dealer; cars: Car[] };
 
 const NOT_FOUND_REASONS = [
   "Staff say it's out on a test drive",
@@ -27,13 +27,18 @@ const NOT_FOUND_REASONS = [
 ];
 
 function jobsOf(s: Store): Job[] {
-  return s.alerts
-    .filter((a) => a.verifier)
-    .map((a) => ({ alert: a, dealer: s.dealers.find((d) => d.id === a.dealerId)!, car: s.cars.find((c) => c.vin === a.vin)! }))
-    .sort((a, b) => Date.parse(b.alert.verifier!.dispatchedAt) - Date.parse(a.alert.verifier!.dispatchedAt));
+  return s.spotChecks
+    .map((v) => ({
+      visit: v,
+      dealer: s.dealers.find((d) => d.id === v.dealerId)!,
+      cars: v.sampledVins.map((vin) => s.cars.find((c) => c.vin === vin)!),
+    }))
+    .sort((a, b) => Date.parse(b.visit.verifier.dispatchedAt) - Date.parse(a.visit.verifier.dispatchedAt));
 }
 
-export function VerifierShell({ children }: { children: React.ReactNode }) {
+const confirmed = (r?: VisitCarResult) => r?.status === "found" && (!r.photo || r.photo.verified);
+
+function VerifierShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-mist">
       <RoleSwitcher compact />
@@ -60,11 +65,11 @@ export function VerifierApp() {
   }
 
   const jobs = jobsOf(s);
-  const active = jobs.find((j) => j.alert.id === openId) ?? jobs.find((j) => j.alert.verifier!.status === "en_route" || j.alert.verifier!.status === "on_site");
-  const offered = jobs.filter((j) => j.alert.verifier!.status === "offered" && !declined.includes(j.alert.id));
-  const done = jobs.filter((j) => j.alert.verifier!.status === "reported" && !j.alert.verifier!.simulated);
-  const earned = done.reduce((sum, j) => sum + j.alert.verifier!.fee, 0);
-  const me = active?.alert.verifier!.name ?? offered[0]?.alert.verifier!.name ?? "Sanna M.";
+  const active = jobs.find((j) => j.visit.id === openId) ?? jobs.find((j) => j.visit.verifier.status === "en_route" || j.visit.verifier.status === "on_site");
+  const offered = jobs.filter((j) => j.visit.verifier.status === "offered" && !declined.includes(j.visit.id));
+  const done = jobs.filter((j) => j.visit.verifier.status === "reported" && !j.visit.verifier.simulated);
+  const earned = done.reduce((sum, j) => sum + j.visit.verifier.fee, 0);
+  const me = active?.visit.verifier.name ?? offered[0]?.visit.verifier.name ?? "Sanna M.";
 
   return (
     <VerifierShell>
@@ -87,22 +92,24 @@ export function VerifierApp() {
       </section>
 
       <div className="space-y-6 px-4 pt-5">
-        {active ? (
-          <ActiveJob key={active.alert.id} job={active} s={s} onClose={() => setOpenId(null)} />
+        {active && active.visit.verifier.status !== "reported" ? (
+          <ActiveJob key={active.visit.id} job={active} s={s} />
+        ) : active ? (
+          <Reported job={active} onClose={() => setOpenId(null)} />
         ) : (
           <>
             <section>
-              <h2 className="mb-3 display-md">Jobs near you</h2>
+              <h2 className="mb-3 display-md">Spot checks near you</h2>
               {offered.length === 0 ? (
                 <Card className="p-5">
-                  <p className="font-medium">No jobs nearby</p>
-                  <a href="/bank" className="mt-1 inline-block py-2 tag-text text-ash-700 underline underline-offset-4" target="_blank" rel="noreferrer">Dispatch one from the bank ↗</a>
+                  <p className="font-medium">No visits nearby</p>
+                  <a href="/demo" className="mt-1 inline-block py-2 tag-text text-ash-700 underline underline-offset-4" target="_blank" rel="noreferrer">Post one from the demo panel ↗</a>
                 </Card>
               ) : (
                 <ul className="space-y-3">
                   {offered.map((j) => (
-                    <li key={j.alert.id}>
-                      <OfferCard job={j} onAccept={() => { actions.verifierAccept(j.alert.id); setOpenId(j.alert.id); }} onDecline={() => setDeclined((d) => [...d, j.alert.id])} />
+                    <li key={j.visit.id}>
+                      <OfferCard job={j} onAccept={() => { actions.verifierAccept(j.visit.id); setOpenId(j.visit.id); }} onDecline={() => setDeclined((d) => [...d, j.visit.id])} />
                     </li>
                   ))}
                 </ul>
@@ -114,12 +121,14 @@ export function VerifierApp() {
                 <h2 className="mb-3 display-md">Completed</h2>
                 <Card className="divide-y divide-ash-100">
                   {done.map((j) => (
-                    <div key={j.alert.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                    <div key={j.visit.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
                       <span>
-                        <span className="block font-medium">{j.car.make} {j.car.model} · {j.dealer.name}</span>
-                        <span className="block tag-text text-ash-700">{timeFi(j.alert.verifier!.reportedAt!)} · {j.alert.verifier!.found ? "car found" : "not on the lot"}</span>
+                        <span className="block font-medium">{j.dealer.name}</span>
+                        <span className="block tag-text text-ash-700">
+                          {timeFi(j.visit.verifier.reportedAt!)} · {j.cars.filter((c) => confirmed(j.visit.results[c.vin])).length} of {j.cars.length} found
+                        </span>
                       </span>
-                      <span className="figure text-lg">+{eur(j.alert.verifier!.fee)}</span>
+                      <span className="figure text-lg">+{eur(j.visit.verifier.fee)}</span>
                     </div>
                   ))}
                 </Card>
@@ -127,9 +136,9 @@ export function VerifierApp() {
             )}
 
             <section>
-              <p className="mb-2 tag-text text-ash-700">How jobs work</p>
+              <p className="mb-2 tag-text text-ash-700">How visits work</p>
               <ul className="grid grid-cols-2 border border-ink bg-brand-soft">
-                {[["1 car", "per job"], ["~20 min", "on site"], ["Paid", "found or not"], ["Neutral", "you're not told why"]].map(([k, sub], i) => (
+                {[["3–5 cars", "per visit"], ["~30 min", "on site"], ["Paid", "found or not"], ["Random", "unannounced"]].map(([k, sub], i) => (
                   <li key={k} className={`p-3 ${i % 2 ? "border-l border-ink" : ""} ${i > 1 ? "border-t border-ink" : ""}`}>
                     <p className="figure text-xl">{k}</p>
                     <p className="tag-text text-ash-700">{sub}</p>
@@ -145,9 +154,9 @@ export function VerifierApp() {
 }
 
 function OfferCard({ job, onAccept, onDecline }: { job: Job; onAccept: () => void; onDecline: () => void }) {
-  const { dealer, car, alert } = job;
+  const { dealer, visit, cars } = job;
   // Fictional travel distance for the demo: verifiers are matched within the dealer's city.
-  const km = 2 + (parseInt(alert.id.replace(/\D/g, "").slice(-2) || "4", 10) % 9);
+  const km = 2 + (parseInt(visit.id.replace(/\D/g, "").slice(-2) || "4", 10) % 9);
   return (
     <Card className="animate-rise overflow-hidden">
       <div className="flex items-start justify-between gap-3 border-b border-ink bg-lime px-4 py-3">
@@ -155,30 +164,39 @@ function OfferCard({ job, onAccept, onDecline }: { job: Job; onAccept: () => voi
           <p className="tag-text">{dealer.city} · {km} km away</p>
           <p className="mt-1 display-md">{dealer.name}</p>
         </div>
-        <span className="figure text-3xl">{eur(alert.verifier!.fee)}</span>
+        <span className="figure text-3xl">{eur(visit.verifier.fee)}</span>
       </div>
       <div className="px-4 py-3 text-sm">
-        <p><b>{car.year} {car.make} {car.model}</b> · {car.color.toLowerCase()}</p>
-        <p className="mt-1 tag-text text-ash-700">~20 min · posted {timeFi(alert.verifier!.dispatchedAt)}</p>
+        <p><b>{cars.length} cars</b> to confirm on the lot</p>
+        <p className="mt-1 tag-text text-ash-700">~{10 + cars.length * 5} min · posted {timeFi(visit.verifier.dispatchedAt)}</p>
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-2 border-t border-ink p-3">
-        <Button arrow className="min-h-12" onClick={onAccept}>Accept job</Button>
+        <Button arrow className="min-h-12" onClick={onAccept}>Accept visit</Button>
         <Button variant="secondary" className="min-h-12" onClick={onDecline}>Not now</Button>
       </div>
     </Card>
   );
 }
 
-function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => void }) {
-  const { alert, dealer, car } = job;
-  const v = alert.verifier!;
+function Steps({ status }: { status: SpotCheck["verifier"]["status"] }) {
+  const idx = status === "en_route" ? 0 : status === "on_site" ? 1 : 2;
+  return (
+    <ol className="grid grid-cols-3 border border-ink tag-text">
+      {(["Travel", "On site", "Report"] as const).map((l, i) => (
+        <li key={l} className={`px-2 py-2 text-center ${i > 0 ? "border-l border-ink" : ""} ${i === idx ? "bg-ink text-paper" : i < idx ? "bg-lime" : "text-ash-500"}`}>
+          {i < idx ? "✓ " : ""}{l}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ActiveJob({ job, s }: { job: Job; s: Store }) {
+  const { visit, dealer, cars } = job;
+  const v = visit.verifier;
   const [busy, setBusy] = useState(false);
   const [tooFar, setTooFar] = useState<number | null>(null);
-  const [photo, setPhoto] = useState<PhotoCheck | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const [mode, setMode] = useState<"found" | "missing">("found");
-  const [reason, setReason] = useState<string | null>(null);
+  const [carVin, setCarVin] = useState<string | null>(null);
   const [note, setNote] = useState("");
 
   const arrive = async () => {
@@ -198,11 +216,92 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
         arrival = { ...p, accuracyM: 10, distanceM: Math.round(distanceM(p, g)), inside: true, simulated: true };
       }
       if (!arrival?.inside) { setTooFar(arrival?.distanceM ?? -1); return; }
-      actions.verifierArrive(alert.id, arrival);
+      actions.verifierArrive(visit.id, arrival);
     } finally {
       setBusy(false);
     }
   };
+
+  const car = carVin ? cars.find((c) => c.vin === carVin) : undefined;
+  if (car) return <CarCheck key={car.vin} visit={visit} dealer={dealer} car={car} s={s} onBack={() => setCarVin(null)} />;
+
+  const allDone = cars.every((c) => visit.results[c.vin]);
+
+  return (
+    <div className="space-y-5">
+      <Steps status={v.status} />
+
+      <Card className="overflow-hidden">
+        <div className="border-b border-ink bg-brand-soft px-5 py-4">
+          <p className="tag-text text-ash-700">{dealer.city} · {cars.length} cars</p>
+          <h2 className="mt-2 display-xl">{dealer.name}</h2>
+        </div>
+        <div className="flex items-center justify-between gap-3 px-5 py-3">
+          <div>
+            <p className="tag-text text-ash-700">Your visit code</p>
+            <p className="mt-1 font-mono text-2xl font-medium tracking-[0.15em]">{v.visitCode}</p>
+          </div>
+          <p className="max-w-[9rem] text-right text-xs text-ash-700">Staff see this code too</p>
+        </div>
+      </Card>
+
+      {v.status === "en_route" ? (
+        <div>
+          <Button arrow className="min-h-14 w-full text-base" disabled={busy} onClick={arrive}>{busy ? "Checking location…" : "I'm at the lot"}</Button>
+          {tooFar !== null && (
+            <p className="mt-3 border border-ink bg-mist p-3 text-sm" role="status">
+              {tooFar < 0 ? "No location. Allow access and retry." : `${formatDistance(tooFar)} from the lot.`}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <ul className="divide-y divide-ink border border-ink" aria-label="Cars to confirm">
+            {cars.map((c) => {
+              const r = visit.results[c.vin];
+              const state = !r ? "todo" : r.status === "missing" ? "missing" : confirmed(r) ? "found" : "unconfirmed";
+              return (
+                <li key={c.vin}>
+                  <button type="button" onClick={() => setCarVin(c.vin)} className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left hover:bg-brand-soft">
+                    <span className={`flex size-8 shrink-0 items-center justify-center border border-ink text-sm ${state === "found" ? "bg-lime" : state === "todo" ? "bg-paper" : "bg-high text-ink"}`} aria-hidden>
+                      {state === "found" ? "✓" : state === "todo" ? "" : "✗"}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{c.make} {c.model}</span>
+                      <span className="block tag-text text-ash-700">{c.color} · {c.plate}</span>
+                    </span>
+                    <span className="tag-text text-ash-700">{state === "todo" ? "Check" : state === "found" ? "Found" : state === "missing" ? "Not here" : "Retake"}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {allDone && (
+            <>
+              <label className="block">
+                <span className="tag-text text-ash-700">Note for the lender (optional)</span>
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1 block w-full border border-ink bg-paper p-3 text-sm" />
+              </label>
+              <Button arrow className="min-h-14 w-full text-base" onClick={() => { actions.verifierSubmit(visit.id, note || undefined); window.scrollTo({ top: 0 }); }}>
+                Send report · get {eur(v.fee)}
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CarCheck({ visit, dealer, car, s, onBack }: { visit: SpotCheck; dealer: Dealer; car: Car; s: Store; onBack: () => void }) {
+  const existing = visit.results[car.vin];
+  const [mode, setMode] = useState<"found" | "missing">(existing?.status === "missing" ? "missing" : "found");
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [reason, setReason] = useState<string | null>(existing?.status === "missing" ? existing.reason ?? null : null);
+  const photo = existing?.status === "found" ? existing.photo : undefined;
 
   const onShots = async (shots: Shots, positions: Fix[], simulated: boolean) => {
     setBusy(true);
@@ -216,7 +315,7 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
         forceUnreadable: s.flags.nextPhotoUnreadable,
       });
       if (s.flags.nextPhotoUnreadable) actions.setFlag("nextPhotoUnreadable", false);
-      setPhoto(check);
+      actions.verifierCar(visit.id, car.vin, { status: "found", photo: check });
     } catch {
       setFailed(true);
     } finally {
@@ -225,48 +324,13 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
     }
   };
 
-  const submit = () => {
-    if (mode === "found") {
-      actions.verifierSubmit(alert.id, { found: true, photo: photo ?? undefined, odometerKm: photo?.odometer?.readKm ?? undefined, note: note || undefined });
-    } else {
-      actions.verifierSubmit(alert.id, { found: false, notFoundReason: reason ?? undefined, note: note || undefined });
-    }
-    window.scrollTo({ top: 0 });
-  };
-
-  if (v.status === "reported") {
-    return (
-      <div className="animate-rise space-y-4" role="status">
-        <div className="flex items-center gap-4 border border-ink bg-lime p-4">
-          <span className="flex size-12 shrink-0 items-center justify-center bg-ink text-lime" aria-hidden>
-            <svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
-          </span>
-          <div>
-            <p className="display-md">Report sent</p>
-            <p className="text-sm">+{eur(v.fee)}</p>
-          </div>
-        </div>
-        <Button arrow className="min-h-12 w-full" onClick={onClose}>Back to jobs</Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5">
-      <ol className="grid grid-cols-3 border border-ink tag-text">
-        {(["Travel", "On site", "Report"] as const).map((l, i) => {
-          const idx = v.status === "en_route" ? 0 : 1;
-          return (
-            <li key={l} className={`px-2 py-2 text-center ${i > 0 ? "border-l border-ink" : ""} ${i === idx ? "bg-ink text-paper" : i < idx ? "bg-lime" : "text-ash-500"}`}>
-              {i < idx ? "✓ " : ""}{l}
-            </li>
-          );
-        })}
-      </ol>
+      <button type="button" onClick={onBack} className="min-h-9 tag-text underline underline-offset-4">← All cars</button>
 
       <Card className="overflow-hidden">
         <div className="border-b border-ink bg-brand-soft px-5 py-4">
-          <p className="tag-text text-ash-700">{dealer.name} · {dealer.city}</p>
+          <p className="tag-text text-ash-700">{dealer.name}</p>
           <h2 className="mt-2 display-xl">{car.make} {car.model}</h2>
           <p className="mt-1 text-ash-700">{car.year} · {car.color}</p>
         </div>
@@ -282,80 +346,74 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
         </dl>
       </Card>
 
-      <div className="flex items-center justify-between gap-3 border border-ink p-4">
-        <div>
-          <p className="tag-text text-ash-700">Your visit code</p>
-          <p className="mt-1 font-mono text-2xl font-medium tracking-[0.15em]">{v.visitCode}</p>
-        </div>
-        <p className="max-w-[9rem] text-right text-xs text-ash-700">Staff see this code too</p>
+      <div className="grid grid-cols-2 border border-ink" role="tablist" aria-label="Is the car here?">
+        {([["found", "Car is here"], ["missing", "Car isn't here"]] as const).map(([k, l], i) => (
+          <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)}
+            className={`min-h-12 px-2 text-sm font-medium ${i > 0 ? "border-l border-ink" : ""} ${mode === k ? "bg-ink text-paper" : "hover:bg-brand-soft"}`}>
+            {l}
+          </button>
+        ))}
       </div>
 
-      {v.status === "en_route" ? (
-        <div>
-          <Button arrow className="min-h-14 w-full text-base" disabled={busy} onClick={arrive}>{busy ? "Checking location…" : "I'm at the lot"}</Button>
-          {tooFar !== null && (
-            <p className="mt-3 border border-ink bg-mist p-3 text-sm" role="status">
-              {tooFar < 0 ? "No location. Allow access and retry." : `${formatDistance(tooFar)} from the lot.`}
-            </p>
-          )}
-        </div>
+      {mode === "found" ? (
+        busy ? (
+          <div className="flex min-h-28 items-center justify-center border border-ink bg-mist" role="status"><p className="font-medium">Checking the photos…</p></div>
+        ) : photo ? (
+          <div className="space-y-3">
+            <div className={`flex items-center gap-3 border border-ink p-3 ${photo.verified ? "bg-lime" : "bg-mist"}`} role="status">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {photo.thumbnails?.car && <img src={photo.thumbnails.car} alt="" className="size-16 border border-ink object-cover" />}
+              <div className="text-sm">
+                <p className="font-medium">{photo.verified ? "Car matches ✓" : "Couldn't confirm the car"}</p>
+                {photo.odometer?.readKm != null && <p className="font-mono text-ash-700">{photo.odometer.readKm.toLocaleString("en")} km</p>}
+                {!photo.verified && <p className="text-ash-700">Closer, no glare.</p>}
+                <button type="button" className="mt-1 min-h-8 underline underline-offset-4" onClick={() => actions.verifierCar(visit.id, car.vin, null)}>Retake</button>
+              </div>
+            </div>
+            <Button arrow className="min-h-14 w-full text-base" onClick={onBack}>Back to the list</Button>
+          </div>
+        ) : (
+          <>
+            {failed && <p className="border border-ink bg-mist p-3 text-sm" role="status">Couldn&apos;t send the photos. Retake.</p>}
+            <ShotSequence key={attempt} car={car} allowDemo={s.flags.demoCamera} onDone={onShots} />
+          </>
+        )
       ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 border border-ink" role="tablist" aria-label="Is the car here?">
-            {([["found", "Car is here"], ["missing", "Car isn't here"]] as const).map(([k, l], i) => (
-              <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)}
-                className={`min-h-12 px-2 text-sm font-medium ${i > 0 ? "border-l border-ink" : ""} ${mode === k ? "bg-ink text-paper" : "hover:bg-brand-soft"}`}>
-                {l}
-              </button>
+        <fieldset>
+          <legend className="tag-text text-ash-700">What did staff tell you?</legend>
+          <div className="mt-2 space-y-2">
+            {NOT_FOUND_REASONS.map((r) => (
+              <label key={r} className={`flex min-h-12 cursor-pointer items-center gap-3 border border-ink px-3 text-sm ${reason === r ? "bg-brand" : "hover:bg-brand-soft"}`}>
+                <input type="radio" name="reason" className="accent-ink" checked={reason === r} onChange={() => setReason(r)} />
+                {r}
+              </label>
             ))}
           </div>
-
-          {mode === "found" ? (
-            <>
-              {busy ? (
-                <div className="flex min-h-28 items-center justify-center border border-ink bg-mist" role="status"><p className="font-medium">Checking the photos…</p></div>
-              ) : photo ? (
-                <div className={`flex items-center gap-3 border border-ink p-3 ${photo.verified ? "bg-lime" : "bg-mist"}`} role="status">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {photo.thumbnails?.car && <img src={photo.thumbnails.car} alt="" className="size-16 border border-ink object-cover" />}
-                  <div className="text-sm">
-                    <p className="font-medium">{photo.verified ? "Car matches ✓" : "Couldn't confirm the car"}</p>
-                    {photo.odometer?.readKm != null && <p className="font-mono text-ash-700">{photo.odometer.readKm.toLocaleString("en")} km</p>}
-                    {!photo.verified && <p className="text-ash-700">Closer, no glare.</p>}
-                    <button type="button" className="mt-1 min-h-8 underline underline-offset-4" onClick={() => setPhoto(null)}>Retake</button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {failed && <p className="border border-ink bg-mist p-3 text-sm" role="status">Couldn&apos;t send the photos. Retake.</p>}
-                  <ShotSequence key={attempt} car={car} allowDemo={s.flags.demoCamera} onDone={onShots} />
-                </>
-              )}
-            </>
-          ) : (
-            <fieldset>
-              <legend className="tag-text text-ash-700">What did staff tell you?</legend>
-              <div className="mt-2 space-y-2">
-                {NOT_FOUND_REASONS.map((r) => (
-                  <label key={r} className={`flex min-h-12 cursor-pointer items-center gap-3 border border-ink px-3 text-sm ${reason === r ? "bg-brand" : "hover:bg-brand-soft"}`}>
-                    <input type="radio" name="reason" className="accent-ink" checked={reason === r} onChange={() => setReason(r)} />
-                    {r}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          )}
-
-          <label className="block">
-            <span className="tag-text text-ash-700">Note for the lender (optional)</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1 block w-full border border-ink bg-paper p-3 text-sm" />
-          </label>
-
-          <Button arrow className="min-h-14 w-full text-base" disabled={busy || (mode === "found" ? !photo : !reason)} onClick={submit}>
-            Send report · get {eur(v.fee)}
+          <Button arrow className="mt-4 min-h-14 w-full text-base" disabled={!reason} onClick={() => { actions.verifierCar(visit.id, car.vin, { status: "missing", reason: reason ?? undefined }); onBack(); }}>
+            Mark as not here
           </Button>
-        </div>
+        </fieldset>
       )}
+    </div>
+  );
+}
+
+function Reported({ job, onClose }: { job: Job; onClose: () => void }) {
+  const { visit, cars } = job;
+  const found = cars.filter((c) => confirmed(visit.results[c.vin])).length;
+  return (
+    <div className="animate-rise space-y-4" role="status">
+      <Steps status="reported" />
+      <div className="flex items-center gap-4 border border-ink bg-lime p-4">
+        <span className="flex size-12 shrink-0 items-center justify-center bg-ink text-lime" aria-hidden>
+          <svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
+        </span>
+        <div>
+          <p className="display-md">Report sent</p>
+          <p className="text-sm">{found} of {cars.length} found · +{eur(visit.verifier.fee)}</p>
+        </div>
+      </div>
+      <Button arrow className="min-h-12 w-full" onClick={onClose}>Back to visits</Button>
     </div>
   );
 }
