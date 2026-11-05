@@ -49,7 +49,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           </div>
         </header>
 
-        <section className="border border-ink bg-mist p-4" aria-labelledby="next-step-h">
+        <section className="border border-line bg-mist p-4" aria-labelledby="next-step-h">
           <div className="flex items-center justify-between gap-2">
             <h3 id="next-step-h" className="text-sm text-ash-700">Next step</h3>
             <Tag tone="outline">Officer decides</Tag>
@@ -81,7 +81,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
 
         <div>
           <H>Evidence</H>
-          <dl className="mt-3 divide-y divide-ash-300 border-y border-ink">
+          <dl className="mt-3 divide-y divide-ash-300 border-y border-line">
             {alert.evidence.map((e, i) => (
               <div key={i} className="grid gap-1 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
                 <dt className="tag-text text-ash-700 sm:pt-0.5">{e.label}</dt>
@@ -113,7 +113,7 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
   return (
     <div>
       <H note="cheapest check first">Escalation</H>
-      <ol className="mt-3 grid border border-ink sm:grid-cols-4">
+      <ol className="mt-3 grid border border-line sm:grid-cols-4">
         {LADDER.map((l, i) => {
           const current = i === stepIdx && !closed;
           const done = i < stepIdx || (closed && i <= stepIdx);
@@ -121,10 +121,10 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
             <li
               key={l.step}
               aria-current={current ? "step" : undefined}
-              className={`relative flex flex-col gap-1 p-3 ${i > 0 ? "border-t border-ink sm:border-t-0 sm:border-l" : ""} ${current ? "bg-brand" : done ? "bg-paper" : "bg-mist text-ash-500"}`}
+              className={`relative flex flex-col gap-1 p-3 ${i > 0 ? "border-t border-line sm:border-t-0 sm:border-l" : ""} ${current ? "bg-brand" : done ? "bg-paper" : "bg-mist text-ash-500"}`}
             >
               <span className="flex items-center justify-between">
-                <span className={`flex size-6 items-center justify-center border tag-text ${current ? "border-ink bg-ink text-paper" : done ? "border-ink bg-lime text-ink" : "border-ash-300"}`}>
+                <span className={`flex size-6 items-center justify-center border tag-text ${current ? "border-ink bg-ink text-paper" : done ? "border-lime bg-lime text-ink" : "border-ash-300"}`}>
                   {done ? "✓" : i + 1}
                 </span>
                 <span className="figure text-xl">{l.cost}</span>
@@ -157,16 +157,16 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
   const othersOk = others.filter((x) => visitFoundCar(visit, x)).length;
   const secs = Math.max(0, Math.round((now - Date.parse(v.dispatchedAt)) / 1000));
   return (
-    <div className={`border border-ink ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink px-4 py-3">
+    <div className={`border border-line ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
         <H note={`${visit.sampledVins.length} cars, ${eur(v.fee)}`}>Spot check</H>
         <span className="text-xs text-ash-700">{v.name}, <span className="font-mono">{v.visitCode}</span></span>
       </div>
-      <ol className="grid grid-cols-4 border-b border-ink">
+      <ol className="grid grid-cols-4 border-b border-line">
         {V_STEPS.map((st, i) => {
           const at = v[st.key];
           return (
-            <li key={st.key} className={`min-w-0 px-2 py-2 sm:px-3 ${i > 0 ? "border-l border-ink" : ""} ${at ? "" : "text-ash-500"}`}>
+            <li key={st.key} className={`min-w-0 px-2 py-2 sm:px-3 ${i > 0 ? "border-l border-line" : ""} ${at ? "" : "text-ash-500"}`}>
               <span className="block tag-text">{at ? "✓ " : ""}{st.label}</span>
               <span className="block font-mono text-xs">{at ? timeFi(at) : "—"}</span>
             </li>
@@ -232,7 +232,7 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
             </div>
             {photo?.thumbnails?.car && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={photo.thumbnails.car} alt={`Verifier photo of ${s.cars.find((c) => c.vin === alert.vin)?.plate ?? alert.vin}`} className="w-40 border border-ink object-cover" />
+              <img src={photo.thumbnails.car} alt={`Verifier photo of ${s.cars.find((c) => c.vin === alert.vin)?.plate ?? alert.vin}`} className="w-40 border border-line object-cover" />
             )}
           </div>
         )}
@@ -260,7 +260,7 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
   const r = ci.results[vin];
   const photo = r && !("skipped" in r) ? r : null;
   return (
-    <div className="border border-ink p-4">
+    <div className="border border-line p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <H>Targeted check-in</H>
         <Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>
@@ -282,7 +282,7 @@ function ConnectedCar({ cc, d, car }: { cc: ConnectedFeed; d: Dealer; car: Car }
   return (
     <div>
       <H>Connected car</H>
-      <div className="mt-3 grid gap-4 border border-ink p-4 sm:grid-cols-[1fr_15rem]">
+      <div className="mt-3 grid gap-4 border border-line p-4 sm:grid-cols-[1fr_15rem]">
         <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-sm">
           <dt className="tag-text text-ash-700">Position</dt>
           <dd className="font-mono">{cc.lat.toFixed(4)}, {cc.lng.toFixed(4)}</dd>
@@ -328,27 +328,27 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
   const mx = (cx + px) / 2, my = (cy + py) / 2;
   return (
     <figure className="m-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-ink bg-mist" role="img" aria-label={`Car ${inside ? "inside the dealer geofence" : `${formatDistance(dist)} from the dealer geofence`}`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-line bg-mist" role="img" aria-label={`Car ${inside ? "inside the dealer geofence" : `${formatDistance(dist)} from the dealer geofence`}`}>
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
             <path d="M20 0H0V20" fill="none" stroke="#ececec" strokeWidth="1" />
           </pattern>
         </defs>
         <rect width={W} height={H} fill="url(#grid)" />
-        <circle cx={cx} cy={cy} r={R} fill="#e6e3ff" stroke="#000" strokeWidth="1" />
-        <rect x={cx - 3} y={cy - 3} width="6" height="6" fill="#000" />
+        <circle cx={cx} cy={cy} r={R} fill="#e6e3ff" stroke="#0f1e33" strokeWidth="1" />
+        <rect x={cx - 3} y={cy - 3} width="6" height="6" fill="#0f1e33" />
         <text x={cx} y={cy + R + 14} textAnchor="middle" fontSize="11" fontFamily="var(--font-mono)" fill="#4d4d4d">{d.name.toUpperCase()}</text>
-        {!inside && <line x1={cx} y1={cy} x2={px} y2={py} stroke="#000" strokeWidth="1" strokeDasharray="3 3" />}
-        <circle cx={px} cy={py} r="6" fill={inside ? "#c4ff0d" : "#ff4f3f"} stroke="#fff" strokeWidth="2" />
-        <circle cx={px} cy={py} r="6" fill="none" stroke="#000" strokeWidth="1" />
+        {!inside && <line x1={cx} y1={cy} x2={px} y2={py} stroke="#0f1e33" strokeWidth="1" strokeDasharray="3 3" />}
+        <circle cx={px} cy={py} r="6" fill={inside ? "#b6e0cb" : "#ff4f3f"} stroke="#fff" strokeWidth="2" />
+        <circle cx={px} cy={py} r="6" fill="none" stroke="#0f1e33" strokeWidth="1" />
         {!inside && (
           <g>
-            <rect x={mx - 26} y={my - 9} width="52" height="16" fill="#000" />
+            <rect x={mx - 26} y={my - 9} width="52" height="16" fill="#0f1e33" />
             <text x={mx} y={my + 3} textAnchor="middle" fontSize="10" fontWeight="600" fill="#fff">{formatDistance(dist)}</text>
           </g>
         )}
         <g transform={`translate(${W - 16},18)`}>
-          <path d="M0 -9 L4 3 L0 0 L-4 3Z" fill="#000" />
+          <path d="M0 -9 L4 3 L0 0 L-4 3Z" fill="#0f1e33" />
           <text y="12" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)">N</text>
         </g>
       </svg>

@@ -129,15 +129,15 @@ export function ShotSequence({ car, allowDemo, onDone }: {
 
   return (
     <div>
-      <ol className="grid grid-cols-3 border border-ink" aria-label="Photos for this car">
+      <ol className="grid grid-cols-3 border border-line" aria-label="Photos for this car">
         {STEPS.map((s, i) => {
           const t = taken[s.id];
           return (
             <li key={s.id} aria-current={i === step ? "step" : undefined}
-              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 px-1.5 py-1.5 text-center tag-text transition-colors duration-200 ${i > 0 ? "border-l border-ink" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : "text-ash-700"}`}>
+              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 px-1.5 py-1.5 text-center tag-text transition-colors duration-200 ${i > 0 ? "border-l border-line" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : "text-ash-700"}`}>
               {t
                 ? // eslint-disable-next-line @next/next/no-img-element
-                  <img src={t.url} alt="" className="size-8 shrink-0 border border-ink object-cover animate-pop" />
+                  <img src={t.url} alt="" className="size-8 shrink-0 border border-line object-cover animate-pop" />
                 : <span className="flex size-6 shrink-0 items-center justify-center border border-current">{i + 1}</span>}
               <span className="min-w-0 truncate">{s.short}</span>
             </li>
@@ -145,7 +145,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
         })}
       </ol>
 
-      <div className="relative mt-3 aspect-[4/3] overflow-hidden border border-ink bg-ink">
+      <div className="relative mt-3 aspect-[4/3] overflow-hidden border border-line bg-ink">
         <video ref={videoRef} playsInline muted autoPlay className={`absolute inset-0 size-full object-cover ${mode === "live" ? "" : "hidden"}`} />
         <canvas ref={previewRef} width={1280} height={960} className={`absolute inset-0 size-full object-cover ${mode === "demo" ? "" : "hidden"}`} />
         {ready && step < STEPS.length && (
@@ -180,11 +180,11 @@ export function ShotSequence({ car, allowDemo, onDone }: {
         type="button"
         onClick={() => void shoot()}
         disabled={!ready || step >= STEPS.length}
-        className="mt-3 flex min-h-[4.5rem] w-full items-center justify-center gap-3 border border-ink bg-ink px-4 py-4 text-paper transition-[transform,box-shadow] duration-150 hover:shadow-[3px_3px_0_0_var(--color-brand)] active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-3 flex min-h-[4.5rem] w-full items-center justify-center gap-3 border border-ink bg-ink px-4 py-4 text-paper transition-[transform,box-shadow] duration-150 hover:shadow-lift active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg width="28" height="28" viewBox="0 0 30 30" fill="none" aria-hidden>
           <path d="M4 9h5l2-3h8l2 3h5v15H4z" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="15" cy="16" r="4.5" stroke="#c4ff0d" strokeWidth="1.6" />
+          <circle cx="15" cy="16" r="4.5" stroke="#b6e0cb" strokeWidth="1.6" />
         </svg>
         <span className="display-md">Photograph {STEPS[Math.min(step, STEPS.length - 1)].noun}</span>
       </button>
@@ -215,18 +215,18 @@ function drawSimulated(c: HTMLCanvasElement, kind: ShotKind, car: Car) {
   x.textBaseline = "middle";
   if (kind === "vin") {
     x.fillStyle = "#f4f4f4"; x.fillRect(W * 0.12, H * 0.38, W * 0.76, H * 0.24);
-    x.strokeStyle = "#000"; x.lineWidth = 4; x.strokeRect(W * 0.12, H * 0.38, W * 0.76, H * 0.24);
-    x.fillStyle = "#000"; x.font = "600 64px monospace"; x.fillText(car.vin, W / 2, H / 2);
+    x.strokeStyle = "#0f1e33"; x.lineWidth = 4; x.strokeRect(W * 0.12, H * 0.38, W * 0.76, H * 0.24);
+    x.fillStyle = "#0f1e33"; x.font = "600 64px monospace"; x.fillText(car.vin, W / 2, H / 2);
   } else if (kind === "car") {
     x.fillStyle = "#1d1d1d";
     x.beginPath(); x.roundRect(W * 0.12, H * 0.38, W * 0.76, H * 0.32, 60); x.fill();
     x.beginPath(); x.roundRect(W * 0.26, H * 0.24, W * 0.48, H * 0.2, 40); x.fill();
     x.fillStyle = "#fff"; x.fillRect(W * 0.38, H * 0.56, W * 0.24, H * 0.09);
-    x.strokeStyle = "#000"; x.lineWidth = 3; x.strokeRect(W * 0.38, H * 0.56, W * 0.24, H * 0.09);
-    x.fillStyle = "#000"; x.font = "700 56px monospace"; x.fillText(car.plate, W / 2, H * 0.605);
+    x.strokeStyle = "#0f1e33"; x.lineWidth = 3; x.strokeRect(W * 0.38, H * 0.56, W * 0.24, H * 0.09);
+    x.fillStyle = "#0f1e33"; x.font = "700 56px monospace"; x.fillText(car.plate, W / 2, H * 0.605);
   } else {
     x.fillStyle = "#0b0b0b"; x.beginPath(); x.roundRect(W * 0.2, H * 0.3, W * 0.6, H * 0.4, 30); x.fill();
-    x.fillStyle = "#c4ff0d"; x.font = "600 96px monospace";
+    x.fillStyle = "#b6e0cb"; x.font = "600 96px monospace";
     x.fillText(`${String(Math.floor(10000 + r() * 90000)).padStart(6, "0")} km`, W / 2, H / 2);
   }
   x.fillStyle = "rgba(0,0,0,0.6)"; x.fillRect(0, H - 56, W, 56);

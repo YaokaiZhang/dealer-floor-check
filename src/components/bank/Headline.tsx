@@ -24,9 +24,9 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
   }, [auto]);
 
   return (
-    <section aria-label="Portfolio headline" className="grid border border-ink bg-paper md:grid-cols-12">
+    <section aria-label="Portfolio headline" className="grid border border-line bg-paper md:grid-cols-12">
       {/* Auto-verified: the one figure to look at */}
-      <div className="relative overflow-hidden border-b border-ink bg-lime p-4 sm:p-5 md:col-span-5 md:border-r md:border-b-0 md:px-6">
+      <div className="relative overflow-hidden border-b border-line bg-paper p-4 sm:p-5 md:col-span-5 md:border-r md:border-b-0 md:px-6">
         <p className="tag-text">Verified automatically today</p>
         <p className="mt-2 flex items-baseline gap-3">
           <Odometer value={auto} ms={1200} className="figure text-[clamp(3rem,5.5vw,4.75rem)]" />
@@ -37,7 +37,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
           {Array.from({ length: cars }, (_, i) => (
             <span
               key={i}
-              className={`h-[11px] w-[6px] rounded-[2px] border transition-colors duration-300 ${i < shown ? "border-ink bg-ink" : "border-ink/25"}`}
+              className={`h-[11px] w-[6px] rounded-[2px] border transition-colors duration-300 ${i < shown ? "border-ink bg-ink" : "border-ash-300"}`}
               style={{ transitionDelay: `${i * 9}ms` }}
             />
           ))}
@@ -47,7 +47,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
 
       <div className="grid grid-cols-2 md:col-span-7 md:grid-cols-3">
         <Stat label="Cars financed" value={cars} sub={<Parts items={[`${eurCompact(exposure)} exposure`, `${s.dealers.length} dealers`]} />} />
-        <button type="button" onClick={onAlerts} className="group border-l border-ink p-4 sm:p-5 text-left transition-colors hover:bg-mist md:px-6">
+        <button type="button" onClick={onAlerts} className="group border-l border-line p-4 sm:p-5 text-left transition-colors hover:bg-mist md:px-6">
           <p className="tag-text text-ash-700">Open alerts <span aria-hidden className="inline-block transition-transform group-hover:translate-y-0.5">↓</span></p>
           <p className="mt-2 figure text-[clamp(2.25rem,3.6vw,3.25rem)]">
             <Odometer value={open.length} />
@@ -59,7 +59,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
             <SevCount n={bySev("low")} cls="bg-low" label="low" />
           </p>
         </button>
-        <div className="col-span-2 border-t border-ink bg-brand p-4 sm:p-5 md:col-span-1 md:border-t-0 md:border-l md:px-6">
+        <div className="col-span-2 border-t border-line p-4 sm:p-5 md:col-span-1 md:border-t-0 md:border-l md:px-6 bg-mist">
           <p className="tag-text">Floor-check cost</p>
           <p className="mt-2 figure text-[clamp(2.25rem,3.6vw,3.25rem)]"><Odometer value={`−${h.checkCostReductionPct}%`} ms={1200} /></p>
           <p className="mt-2 text-sm"><Parts items={[`vs traditional checks`, `−${h.fraudLossReductionPct}% fraud loss, ${eurCompact(h.portfolioSavings)}/yr (model)`]} /></p>

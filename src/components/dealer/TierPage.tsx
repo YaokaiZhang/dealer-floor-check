@@ -7,8 +7,8 @@ import type { Dealer } from "@/lib/types";
 import { FREQUENCY, rateText } from "./tierCopy";
 
 const HEAD: Record<Dealer["tier"], string> = {
-  Gold: "bg-lime",
-  Silver: "bg-brand",
+  Gold: "bg-gold",
+  Silver: "bg-silver",
   Standard: "bg-paper",
   Review: "bg-ink text-paper",
 };
@@ -25,11 +25,11 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
   return (
     <div className="space-y-9">
       <Card className="overflow-hidden">
-        <div className={`border-b border-ink px-5 py-6 ${HEAD[tier]}`}>
+        <div className={`border-b border-line px-5 py-6 ${HEAD[tier]}`}>
           <h2 className="display-xl">You&apos;re {tier} tier</h2>
           <p className="mt-2">{t.blurb}</p>
         </div>
-        <dl className="divide-y divide-ink">
+        <dl className="divide-y divide-line">
           <Benefit label="Credit-line top-up" value={t.topUp.amount > 0 ? eur(t.topUp.amount) : "After a quick chat"} sub={t.topUp.amount > 0 ? t.topUp.speed : undefined} />
           <Benefit label="Rate" value={rateText(t.rateDiscountPp)} />
           <Benefit label="Checks" value={FREQUENCY[tier]} />
@@ -49,7 +49,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
           </div>
           <ol className="mt-4 flex gap-1.5" aria-label={`${streak} of ${CLEAN_STREAK_TO_STEP_UP} clean check-ins in a row`}>
             {Array.from({ length: CLEAN_STREAK_TO_STEP_UP }, (_, i) => (
-              <li key={i} className={`h-3 flex-1 border border-ink ${i < streak ? "bg-lime" : "bg-paper"}`} />
+              <li key={i} className={`h-3 flex-1 border border-line ${i < streak ? "bg-lime" : "bg-paper"}`} />
             ))}
           </ol>
           <p className="mt-3 text-sm">
@@ -66,7 +66,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
 
       <section>
         <h3 className="display-md">{tier === "Gold" ? "How to keep it" : tier === "Review" ? "What helps" : "How to move up"}</h3>
-        <ul className="mt-3 divide-y divide-ash-300 border-y border-ink">
+        <ul className="mt-3 divide-y divide-ash-300 border-y border-line">
           {HELPS.map((h) => (
             <li key={h} className="flex items-center gap-3 py-3.5">
               <span aria-hidden className="size-2 shrink-0 bg-brand-deep" />
@@ -78,7 +78,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
 
       <section>
         <h3 className="display-md">All tiers</h3>
-        <ol className="mt-3 divide-y divide-ink border border-ink">
+        <ol className="mt-3 divide-y divide-line border border-line">
           {[...TIER_ORDER].reverse().map((name) => {
             const x = TIERS[name];
             const on = name === tier;

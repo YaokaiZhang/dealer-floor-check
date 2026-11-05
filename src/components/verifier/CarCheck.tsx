@@ -47,7 +47,7 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
 
   return (
     <div className="pb-10">
-      <div className="flex items-center justify-between gap-3 border-b border-ink pr-4">
+      <div className="flex items-center justify-between gap-3 border-b border-line pr-4">
         <button type="button" onClick={onBack} className="flex min-h-12 items-center gap-2 px-4 text-sm font-medium hover:bg-brand-soft">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden><path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" /></svg>
           All cars
@@ -65,10 +65,10 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
       </section>
 
       <div className="px-4">
-        <div className="grid grid-cols-2 border border-ink" role="tablist" aria-label="Is the car here?">
+        <div className="grid grid-cols-2 border border-line" role="tablist" aria-label="Is the car here?">
           {([["found", "Car is here"], ["missing", "Car isn't here"]] as const).map(([k, l], i) => (
             <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)}
-              className={`min-h-12 px-2 text-sm font-medium transition-colors ${i > 0 ? "border-l border-ink" : ""} ${mode === k ? "bg-ink text-paper" : "hover:bg-brand-soft"}`}>
+              className={`min-h-12 px-2 text-sm font-medium transition-colors ${i > 0 ? "border-l border-line" : ""} ${mode === k ? "bg-ink text-paper" : "hover:bg-brand-soft"}`}>
               {l}
             </button>
           ))}
@@ -80,10 +80,10 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
               <Checking />
             ) : photo ? (
               <div className="space-y-3">
-                <div className={`flex items-center gap-4 border border-ink p-3 ${photo.verified ? "bg-lime" : "bg-high-soft"}`} role="status">
+                <div className={`flex items-center gap-4 border border-line p-3 ${photo.verified ? "bg-lime" : "bg-high-soft"}`} role="status">
                   {photo.thumbnails?.car
                     ? // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo.thumbnails.car} alt="" className="size-20 shrink-0 border border-ink object-cover" />
+                      <img src={photo.thumbnails.car} alt="" className="size-20 shrink-0 border border-line object-cover" />
                     : null}
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 display-md">
@@ -120,7 +120,7 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
               </div>
             ) : (
               <>
-                {failed && <p className="mb-3 border border-ink bg-high-soft p-3 text-sm" role="status">Couldn&apos;t send the photos. Take them again.</p>}
+                {failed && <p className="mb-3 border border-line bg-high-soft p-3 text-sm" role="status">Couldn&apos;t send the photos. Take them again.</p>}
                 <ShotSequence key={attempt} car={car} allowDemo={s.flags.demoCamera} onDone={onShots} />
               </>
             )
@@ -129,7 +129,7 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
               <legend className="text-sm text-ash-700">What did staff tell you?</legend>
               <div className="mt-2 space-y-2">
                 {NOT_FOUND_REASONS.map((r) => (
-                  <label key={r} className={`flex min-h-13 cursor-pointer items-center gap-3 border border-ink px-3 py-2 text-base transition-colors ${reason === r ? "bg-brand" : "hover:bg-brand-soft"}`}>
+                  <label key={r} className={`flex min-h-13 cursor-pointer items-center gap-3 border border-line px-3 py-2 text-base transition-colors ${reason === r ? "bg-brand" : "hover:bg-brand-soft"}`}>
                     <input type="radio" name="reason" className="size-4 accent-ink" checked={reason === r} onChange={() => setReason(r)} />
                     {r}
                   </label>
@@ -149,7 +149,7 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
 /** Photos are being read on the server: a beam sweeps the frame until the answer is back. */
 function Checking() {
   return (
-    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border border-ink bg-ink text-paper" role="status">
+    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border border-line bg-ink text-paper" role="status">
       <style>{`@keyframes vf-sweep { from { transform: translateX(-100%) } to { transform: translateX(400%) } }`}</style>
       <span aria-hidden className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-brand/50 to-transparent animate-[vf-sweep_1400ms_cubic-bezier(0.65,0,0.35,1)_infinite]" />
       <p className="relative display-md">Checking the photos…</p>

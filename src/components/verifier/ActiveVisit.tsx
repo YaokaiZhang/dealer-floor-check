@@ -11,7 +11,7 @@ import { carState, Plate, STATE_LABEL, StateMark, Swatch, type CarState, type Jo
 
 /** Bottom bar for the one next action, within thumb reach. */
 export function ActionBar({ children }: { children: React.ReactNode }) {
-  return <div className="sticky bottom-0 z-10 mt-auto border-t border-ink bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{children}</div>;
+  return <div className="sticky bottom-0 z-10 mt-auto border-t border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{children}</div>;
 }
 
 /** The lot ahead: rows of unknown cars, with this visit's cars outlined somewhere among them. */
@@ -29,7 +29,7 @@ function VisitHeader({ job }: { job: Job }) {
   const states = cars.map((c) => carState(visit.results[c.vin]));
   const checked = states.filter((s) => s !== "todo").length;
   return (
-    <section className="border-b border-ink bg-brand px-4 pt-5 pb-4 bay-lines-ink">
+    <section className="border-b border-line bg-brand px-4 pt-5 pb-4 bay-lines-ink">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm text-ink/70">{dealer.city}</p>
@@ -37,13 +37,13 @@ function VisitHeader({ job }: { job: Job }) {
         </div>
         <div className="shrink-0 text-right">
           <p className="text-xs text-ink/70">Visit code</p>
-          <p className="mt-1 border border-ink bg-paper px-2 py-1 font-mono text-lg font-medium tracking-[0.12em]">{visit.verifier.visitCode}</p>
+          <p className="mt-1 border border-line bg-paper px-2 py-1 font-mono text-lg font-medium tracking-[0.12em]">{visit.verifier.visitCode}</p>
         </div>
       </div>
       {onSite ? (
         <div className="mt-4 flex items-center gap-3">
           <ol className="grid flex-1 gap-1" style={{ gridTemplateColumns: `repeat(${cars.length}, 1fr)` }} aria-hidden>
-            {states.map((s, i) => <li key={i} className={`h-2.5 border border-ink transition-colors duration-300 ${SEGMENT[s]}`} />)}
+            {states.map((s, i) => <li key={i} className={`h-2.5 border border-line transition-colors duration-300 ${SEGMENT[s]}`} />)}
           </ol>
           <p className="shrink-0 text-sm font-medium tabular-nums">{checked} of {cars.length} checked</p>
         </div>
@@ -93,7 +93,7 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
           <Lot stalls={travelLot(cars.length)} cols={10} className="mx-auto w-full max-w-[260px] text-ink" />
           <p className="text-lg leading-snug">{cars.length} cars to photograph. You get <b>{eur(v.fee)}</b> when you send the report, found or not.</p>
           {tooFar !== null && (
-            <p className="border border-ink bg-high-soft p-3 text-sm" role="status">
+            <p className="border border-line bg-high-soft p-3 text-sm" role="status">
               {tooFar < 0 ? "No location. Allow location access and try again." : <>You&apos;re <b>{formatDistance(tooFar)}</b> from the lot. Get closer and try again.</>}
             </p>
           )}
@@ -108,7 +108,7 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
       <VisitHeader job={job} />
-      <ul className="divide-y divide-ink border-b border-ink" aria-label="Cars to confirm">
+      <ul className="divide-y divide-line border-b border-line" aria-label="Cars to confirm">
         {cars.map((c, i) => {
           const st = states[i];
           const done = st === "found" || st === "missing";
@@ -137,7 +137,7 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
       {!next && (
         <label className="block px-4 pt-5 pb-6">
           <span className="text-sm text-ash-700">Note for the lender (optional)</span>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1.5 block w-full border border-ink bg-paper p-3 text-base" />
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1.5 block w-full border border-line bg-paper p-3 text-base" />
         </label>
       )}
 

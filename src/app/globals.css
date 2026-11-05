@@ -1,36 +1,39 @@
 @import "tailwindcss";
 
 /*
- * Visual language: editorial black & white, lavender brand colour, a lime spark,
- * hairline black borders, square corners, uppercase condensed display type,
- * small bordered mono tags and soft drop shadows.
+ * Visual language: calm banking. Navy ink on white, cool grey hairlines,
+ * one bank-blue accent, muted green for verified, square corners,
+ * condensed display type and small mono tags.
  */
 @theme {
-  --color-ink: #000000;
+  --color-ink: #0f1e33;          /* deep navy: text, primary fills */
   --color-paper: #ffffff;
-  --color-mist: #f4f3f8;        /* greys lean a touch toward the lavender */
-  --color-ash-100: #e9e8ef;
-  --color-ash-300: #c9c7d3;
-  --color-ash-500: #6b6b6b;
-  --color-ash-700: #4d4d4d;
-  --color-brand: #a29aff;        /* lavender: fills, bands, highlights (never small text on white) */
-  --color-brand-soft: #e6e3ff;
-  --color-brand-deep: #5b4fe0;   /* lavender text/links on white */
-  --color-lime: #c4ff0d;         /* spark: success, "verified", the one thing to look at */
-  --color-high: #ff4f3f;
-  --color-high-soft: #ffe3df;
-  --color-medium: #ffb020;
-  --color-medium-soft: #fff1d6;
-  --color-low: #a29aff;
-  --color-low-soft: #eeecff;
+  --color-mist: #f4f6f9;         /* cool grey canvas for secondary surfaces */
+  --color-line: #d5dbe4;         /* hairline borders */
+  --color-ash-100: #e6eaf0;
+  --color-ash-300: #c3cbd6;
+  --color-ash-500: #5f6b7a;
+  --color-ash-700: #3d4858;
+  --color-brand: #dbe5f2;        /* pale steel blue: quiet fills and highlights */
+  --color-brand-soft: #eef3f9;
+  --color-brand-deep: #1f4f9e;   /* bank blue: links, focus, the one accent */
+  --color-lime: #b6e0cb;         /* muted aurora green: verified */
+  --color-gold: #ead9a8;         /* tier: gold */
+  --color-silver: #dfe3ea;       /* tier: silver */
+  --color-high: #c23b2e;
+  --color-high-soft: #f9e5e2;
+  --color-medium: #dba23e;
+  --color-medium-soft: #faf0dc;
+  --color-low: #7d94b6;
+  --color-low-soft: #e9eef5;
 
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-face), var(--font-body), ui-sans-serif, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 
   --shadow-card: 0 0 0 0 transparent; /* surfaces stay flat; elevation is the hard offset only */
-  --shadow-lift: 0 10px 24px -6px rgba(0, 0, 0, 0.25);
-  --shadow-hard: 6px 6px 0 0 #000;
+  --shadow-lift: 0 1px 2px rgba(15, 30, 51, 0.06), 0 10px 28px -10px rgba(15, 30, 51, 0.22);
+  --shadow-hard: 0 1px 2px rgba(15, 30, 51, 0.06), 0 10px 28px -10px rgba(15, 30, 51, 0.22);
 
   --animate-rise: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
@@ -76,7 +79,7 @@ body {
 .lot-scan { transform-box: fill-box; transform-origin: center; animation: lot-verify 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .lot-scan > rect:first-child { animation: lot-paint 260ms linear both; animation-delay: inherit; }
 @keyframes lot-verify { 0% { transform: none } 45% { transform: scale(1.14) } 100% { transform: none } }
-@keyframes lot-paint { from { fill: #3a3a3a } to { fill: var(--to) } }
+@keyframes lot-paint { from { fill: #4a5668 } to { fill: var(--to) } }
 
 /* Odometer digits: each place is a strip of 0–9 that rolls to its value. */
 .odo { display: inline-flex; line-height: 1; height: 1.15em; margin-block: -0.075em; overflow: hidden; vertical-align: baseline; }
@@ -90,14 +93,14 @@ body {
 /* Painted parking-bay lines, used as a quiet texture behind headers. */
 @utility bay-lines {
   background-image:
-    repeating-linear-gradient(90deg, transparent 0 27px, rgba(255,255,255,0.14) 27px 28px),
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(255,255,255,0.14) calc(100% - 1px));
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(255,255,255,0.06) 27px 28px),
+    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(255,255,255,0.06) calc(100% - 1px));
   background-size: 28px 44px, 100% 44px;
 }
 @utility bay-lines-ink {
   background-image:
-    repeating-linear-gradient(90deg, transparent 0 27px, rgba(0,0,0,0.12) 27px 28px),
-    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(0,0,0,0.12) calc(100% - 1px));
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(15,30,51,0.06) 27px 28px),
+    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(15,30,51,0.06) calc(100% - 1px));
   background-size: 28px 44px, 100% 44px;
 }
 

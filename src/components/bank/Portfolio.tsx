@@ -11,7 +11,7 @@ export const riskTone = (score: number) => (score >= 60 ? "bg-high" : score >= 3
 export const riskWord = (score: number) => (score >= 60 ? "Act now" : score >= 35 ? "Watch" : "Low");
 
 const SEV: Severity[] = ["high", "medium", "low"];
-const SEV_CHIP: Record<Severity, string> = { high: "bg-high", medium: "bg-medium", low: "bg-low-soft" };
+const SEV_CHIP: Record<Severity, string> = { high: "bg-high text-paper", medium: "bg-medium-soft", low: "bg-low-soft" };
 
 /** Dealers as one ledger, riskiest first, so the eye lands on the row that needs action. */
 export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => void }) {
@@ -20,10 +20,10 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
     .sort((a, b) => b.risk.score - a.risk.score || a.d.name.localeCompare(b.d.name));
 
   return (
-    <div className="border border-ink">
+    <div className="border border-line">
       <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">Dealers, sorted by risk score, highest first. Select a dealer to open details.</caption>
-        <thead className="border-b border-ink bg-mist text-xs whitespace-nowrap text-ash-700">
+        <thead className="border-b border-line bg-mist text-xs whitespace-nowrap text-ash-700">
           <tr>
             <th scope="col" className="py-2 pr-2 pl-4 font-normal">Dealer</th>
             <th scope="col" className="px-2 py-2 font-normal" aria-sort="descending">Risk <span aria-hidden>↓</span></th>
@@ -40,7 +40,7 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
           ))}
         </tbody>
       </table>
-      <p className="border-t border-ink px-4 py-2 text-xs text-ash-700">Risk 0–100 from alerts, check-in record and connected share. Watch from 35, act from 60.</p>
+      <p className="border-t border-line px-4 py-2 text-xs text-ash-700">Risk 0–100 from alerts, check-in record and connected share. Watch from 35, act from 60.</p>
     </div>
   );
 }
@@ -54,7 +54,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
 
   return (
     <Fragment>
-      <tr onClick={onOpen} className={`group cursor-pointer align-middle transition-colors hover:bg-mist ${why ? "" : "border-b border-ink last:border-b-0"}`}>
+      <tr onClick={onOpen} className={`group cursor-pointer align-middle transition-colors hover:bg-mist ${why ? "" : "border-b border-line last:border-b-0"}`}>
         <td className="py-3 pr-2 pl-4">
           <button type="button" onClick={(e) => { e.stopPropagation(); onOpen(); }} className="block text-left focus-visible:outline-offset-4" aria-label={`Open ${d.name}`}>
             <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -106,7 +106,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
         </td>
         <td className="hidden px-2 py-3 md:table-cell">
           <span className="flex items-center gap-2">
-            <span className="block h-2 w-16 border border-ink" aria-hidden>
+            <span className="block h-2 w-16 border border-line" aria-hidden>
               <span className="block h-full bg-lime transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />
             </span>
             <span className="w-[4ch] text-right tabular-nums">{Math.round(autoPct * 100)}%</span>
@@ -119,14 +119,14 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             aria-expanded={why}
             aria-controls={breakdownId}
             aria-label={`${why ? "Hide" : "Show"} risk breakdown for ${d.name}`}
-            className="inline-flex size-8 items-center justify-center border border-transparent text-base hover:border-ink hover:bg-paper"
+            className="inline-flex size-8 items-center justify-center border border-transparent text-base hover:border-line hover:bg-paper"
           >
             <span aria-hidden>{why ? "−" : "+"}</span>
           </button>
         </td>
       </tr>
       {why && (
-        <tr id={breakdownId} className="border-b border-ink bg-mist last:border-b-0">
+        <tr id={breakdownId} className="border-b border-line bg-mist last:border-b-0">
           <td colSpan={7} className="px-4 pt-1 pb-4">
             <div className="max-w-md">
               <RiskBreakdown parts={risk.parts} score={risk.score} />
@@ -157,7 +157,7 @@ export function RiskBreakdown({ parts, score }: { parts: { label: string; points
           </li>
         ))}
       </ul>
-      <p className="mt-2 flex justify-between border-t border-ink pt-1.5 text-sm font-semibold">
+      <p className="mt-2 flex justify-between border-t border-line pt-1.5 text-sm font-semibold">
         <span>Score: {riskWord(score).toLowerCase()}</span>
         <span className="tabular-nums">{score}</span>
       </p>

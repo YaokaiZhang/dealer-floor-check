@@ -2,13 +2,13 @@ import type { ReactNode } from "react";
 
 type Tone = "outline" | "ink" | "brand" | "lime" | "high" | "medium" | "low" | "muted";
 const TONES: Record<Tone, string> = {
-  outline: "border-ink text-ink bg-transparent",
+  outline: "border-line text-ink bg-transparent",
   ink: "border-ink bg-ink text-paper",
-  brand: "border-ink bg-brand text-ink",
-  lime: "border-ink bg-lime text-ink",
-  high: "border-high bg-high text-ink",
-  medium: "border-ink bg-medium text-ink",
-  low: "border-ink bg-low-soft text-ink",
+  brand: "border-brand bg-brand text-ink",
+  lime: "border-lime bg-lime text-ink",
+  high: "border-high bg-high text-paper",
+  medium: "border-medium bg-medium-soft text-ink",
+  low: "border-line bg-low-soft text-ink",
   muted: "border-ash-300 text-ash-700 bg-paper",
 };
 

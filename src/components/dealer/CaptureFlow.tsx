@@ -74,7 +74,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 
           <div className="mt-4">
             {busy ? (
-              <div className="flex min-h-48 flex-col items-center justify-center gap-3 border border-ink bg-mist text-center" role="status" aria-live="polite">
+              <div className="flex min-h-48 flex-col items-center justify-center gap-3 border border-line bg-mist text-center" role="status" aria-live="polite">
                 <span className="flex gap-1.5" aria-hidden>
                   {[0, 1, 2].map((i) => <span key={i} className="size-2 animate-pulse-dot bg-ink" style={{ animationDelay: `${i * 0.2}s` }} />)}
                 </span>
@@ -82,7 +82,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
               </div>
             ) : isVerified(result) ? (
               <div role="status" aria-live="polite">
-                <div className="flex items-center gap-4 border border-ink bg-lime p-4">
+                <div className="flex items-center gap-4 border border-line bg-lime p-4">
                   <span className="flex size-12 shrink-0 items-center justify-center bg-ink text-lime animate-pop" aria-hidden>
                     <svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" pathLength={1} strokeDasharray="1" className="animate-draw" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
                   </span>
@@ -92,7 +92,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
               </div>
             ) : (result && !isSkipped(result)) || failed ? (
               <div>
-                <div className="animate-rise border border-ink border-l-4 border-l-medium bg-paper px-4 py-3" role="status" aria-live="polite">
+                <div className="animate-rise border border-line border-l-4 border-l-medium bg-paper px-4 py-3" role="status" aria-live="polite">
                   <p className="font-medium">{failed ? "Couldn't send the photos" : "We couldn't confirm this car"}</p>
                   <p className="mt-0.5 text-sm text-ash-700">{failed ? "Check the connection and retake." : "Retake: closer, no glare."}</p>
                 </div>
@@ -117,14 +117,14 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 /** Just enough to spot the car on the lot: model, colour, plate, end of the VIN. */
 function CarId({ car }: { car: Car }) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b border-ink pb-4">
+    <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
       <div className="min-w-0">
         <h2 className="display-lg">{car.make} {car.model}</h2>
         <p className="mt-1.5 text-sm text-ash-700">{car.color}, {car.year}</p>
       </div>
       <dl className="shrink-0 text-right">
         <dt className="sr-only">Plate</dt>
-        <dd><span className="inline-block border-2 border-ink px-2 py-0.5 font-mono text-base font-semibold tracking-wider">{car.plate}</span></dd>
+        <dd><span className="inline-block border-2 border-line px-2 py-0.5 font-mono text-base font-semibold tracking-wider">{car.plate}</span></dd>
         <dt className="mt-1.5 text-xs text-ash-700">VIN ends</dt>
         <dd className="font-mono text-sm font-medium tracking-[0.15em]">{car.vin.slice(-6)}</dd>
       </dl>
@@ -145,7 +145,7 @@ function Progress({ checkIn, currentVin, index }: { checkIn: CheckIn; currentVin
         {vins.map((v) => {
           const r = checkIn.results[v];
           const cls = isVerified(r) ? "bg-lime" : isSkipped(r) ? "bg-ash-300" : v === currentVin ? "bg-ink" : "bg-paper";
-          return <li key={v} className={`h-2 flex-1 border border-ink transition-colors duration-300 ${cls}`} />;
+          return <li key={v} className={`h-2 flex-1 border border-line transition-colors duration-300 ${cls}`} />;
         })}
       </ol>
     </div>

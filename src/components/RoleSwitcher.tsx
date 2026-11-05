@@ -17,10 +17,10 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
   const live = useConnected();
   const hydrated = useHydrated();
   return (
-    <header className="sticky top-0 z-40 border-b border-ink bg-paper/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm">
       <div className={`mx-auto flex items-center justify-between gap-3 px-4 ${compact ? "h-14 max-w-xl" : "h-16 max-w-[1400px] md:px-8"}`}>
         <Wordmark />
-        <nav aria-label="Role" className="flex items-center border border-ink">
+        <nav aria-label="Role" className="flex items-center border border-line">
           {ROLES.map((r) => {
             const active = path?.startsWith(r.href);
             return (
@@ -37,7 +37,7 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
         </nav>
       </div>
       {hydrated && !live && (
-        <p role="status" className="border-t border-ink bg-medium px-4 py-1 text-center tag-text">Reconnecting to the server…</p>
+        <p role="status" className="border-t border-line bg-medium-soft px-4 py-1 text-center tag-text">Reconnecting to the server…</p>
       )}
     </header>
   );

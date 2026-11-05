@@ -24,14 +24,14 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
   const t = TIERS[dealer.tier];
   return (
     <div>
-      <div className="flex items-center gap-4 border border-ink bg-lime p-5">
+      <div className="flex items-center gap-4 border border-line bg-lime p-5">
         <span className="flex size-12 shrink-0 items-center justify-center bg-ink text-lime" aria-hidden>
           <svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
         </span>
         <h2 className="display-md">All good. Nothing to do.</h2>
       </div>
 
-      <button type="button" onClick={onTier} className="group mt-4 block w-full border border-ink p-5 text-left transition-colors hover:bg-brand-soft">
+      <button type="button" onClick={onTier} className="group mt-4 block w-full border border-line p-5 text-left transition-colors hover:bg-brand-soft">
         <span className="flex items-center justify-between gap-3">
           <span className="font-medium">Your tier</span>
           <TierBadge tier={dealer.tier} />
@@ -67,7 +67,7 @@ function CheckInCard({ checkIn }: { checkIn: CheckIn; dealer: Dealer }) {
     const label = bookedLabel(checkIn.window!);
     return (
       <Card className="animate-rise overflow-hidden">
-        <div className="flex items-center gap-3 border-b border-ink bg-lime px-5 py-3">
+        <div className="flex items-center gap-3 border-b border-line bg-lime px-5 py-3">
           <span className="flex size-6 shrink-0 items-center justify-center bg-ink text-lime" aria-hidden>
             <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.6" strokeLinecap="square" /></svg>
           </span>
@@ -89,7 +89,7 @@ function CheckInCard({ checkIn }: { checkIn: CheckIn; dealer: Dealer }) {
 
   return (
     <Card className="animate-rise overflow-hidden">
-      <div className="border-b border-ink bg-brand px-5 py-4">
+      <div className="border-b border-line bg-brand px-5 py-4">
         <h2 className="display-lg">{title}</h2>
         <Ask targeted={targeted} className="mt-1.5" />
       </div>
@@ -107,13 +107,13 @@ function WindowPicker({ onPick }: { onPick: (w: CheckInWindow) => void }) {
     <div className="p-5">
       <fieldset>
         <legend className="mb-2 font-medium">When suits you?</legend>
-        <div className="divide-y divide-ink border border-ink">
+        <div className="divide-y divide-line border border-line">
           {windows.map((w) => {
             const on = w.id === selected;
             return (
               <label key={w.id} className={`flex min-h-13 cursor-pointer items-center gap-3 px-4 py-3 transition-colors duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-brand-deep ${on ? "bg-ink text-paper" : "hover:bg-mist"}`}>
                 <input type="radio" name="window" value={w.id} checked={on} onChange={() => setSelected(w.id)} className="sr-only" />
-                <span aria-hidden className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${on ? "border-lime" : "border-ink"}`}>
+                <span aria-hidden className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${on ? "border-lime" : "border-line"}`}>
                   {on && <span className="size-2.5 rounded-full bg-lime" />}
                 </span>
                 <span className="flex-1 font-medium">{w.label}</span>

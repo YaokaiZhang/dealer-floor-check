@@ -51,7 +51,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
   };
 
   return (
-    <section aria-labelledby="alerts-h" className="border border-ink bg-paper">
+    <section aria-labelledby="alerts-h" className="border border-line bg-paper">
       <div className="flex items-center justify-between border-b border-ink bg-ink px-4 py-3 text-paper">
         <h2 id="alerts-h" className="flex items-center gap-2 display-md">
           <span className="inline-block size-2 animate-pulse-dot bg-lime" aria-hidden /> Live alerts
@@ -59,7 +59,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
         <span className="text-sm tabular-nums">{open.length ? <><b className="font-semibold">{open.length}</b> open</> : "None open"}</span>
       </div>
 
-      <ol aria-live="polite" aria-label="Open alerts" className="divide-y divide-ink">
+      <ol aria-live="polite" aria-label="Open alerts" className="divide-y divide-line">
         {open.length === 0 && (
           <li className="px-5 py-6">
             <p className="display-md">All quiet</p>
@@ -71,12 +71,12 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
 
       {closed.length > 0 && (
         <>
-          <h3 className="border-y border-ink bg-mist px-4 py-1.5 text-xs text-ash-700">Closed ({closed.length})</h3>
+          <h3 className="border-y border-line bg-mist px-4 py-1.5 text-xs text-ash-700">Closed ({closed.length})</h3>
           <ol aria-label="Closed alerts" className="divide-y divide-ash-300">{closed.map(row)}</ol>
         </>
       )}
 
-      <div className="border-t border-ink px-4 py-3">
+      <div className="border-t border-line px-4 py-3">
         <h3 className="text-xs font-semibold">Activity</h3>
         <ul className="mt-2 space-y-1.5">
           {s.events.slice(0, 6).map((e) => (

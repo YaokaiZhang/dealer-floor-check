@@ -1,9 +1,9 @@
 import type { Tier } from "@/lib/types";
 
 const STYLE: Record<Tier, string> = {
-  Gold: "bg-lime text-ink border-ink",
-  Silver: "bg-brand text-ink border-ink",
-  Standard: "bg-paper text-ink border-ink",
+  Gold: "bg-gold text-ink border-gold",
+  Silver: "bg-silver text-ink border-silver",
+  Standard: "bg-paper text-ink border-line",
   Review: "bg-ink text-paper border-ink",
 };
 

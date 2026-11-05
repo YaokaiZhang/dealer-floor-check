@@ -26,7 +26,7 @@ export function Transparency() {
 
       <section>
         <h3 className="display-md">What we look at</h3>
-        <dl className="mt-3 divide-y divide-ash-300 border-y border-ink">
+        <dl className="mt-3 divide-y divide-ash-300 border-y border-line">
           {CHECKS.map((c) => (
             <div key={c.title} className="py-3.5">
               <dt className="font-medium">{c.title}</dt>
@@ -38,7 +38,7 @@ export function Transparency() {
 
       <section>
         <h3 className="display-md">How tiers work</h3>
-        <ul className="mt-3 divide-y divide-ash-300 border-y border-ink">
+        <ul className="mt-3 divide-y divide-ash-300 border-y border-line">
           {[...TIER_ORDER].reverse().map((t) => (
             <li key={t} className="flex items-center justify-between gap-4 py-3">
               <TierBadge tier={t} />
@@ -48,7 +48,7 @@ export function Transparency() {
         </ul>
       </section>
 
-      <section className="border border-ink bg-mist p-5">
+      <section className="border border-line bg-mist p-5">
         <h3 className="display-md">What we don&apos;t do</h3>
         <ul className="mt-3 space-y-2.5 text-sm">
           {DONT.map((d) => (

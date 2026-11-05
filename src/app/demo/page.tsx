@@ -64,7 +64,7 @@ export default function DemoPage() {
               </p>
               <p className="mt-2 tag-text">VIN {demoCar.vin}</p>
             </div>
-            <div className="flex flex-col justify-center gap-3 border-t border-ink p-6 md:border-t-0 md:border-l md:p-8">
+            <div className="flex flex-col justify-center gap-3 border-t border-line p-6 md:border-t-0 md:border-l md:p-8">
               <Button variant="primary" arrow disabled={hydrated && scenarioFired} onClick={() => fire("Marketplace: listed as sold", () => actions.marketplaceSold(s.demo.soldCarVin))}>
                 {hydrated && scenarioFired ? "Scenario fired" : "Fire: listed as sold"}
               </Button>
@@ -212,7 +212,7 @@ function FeedRow({ source, tone, title, cars, vin, onVin, buttons }: {
           id={`vin-${source}`}
           value={vin}
           onChange={(e) => onVin(e.target.value)}
-          className="w-full min-w-0 flex-1 border border-ink bg-paper px-2 py-2 font-mono text-xs"
+          className="w-full min-w-0 flex-1 border border-line bg-paper px-2 py-2 font-mono text-xs"
         >
           {s.dealers.map((d) => (
             <optgroup key={d.id} label={d.name}>
@@ -240,7 +240,7 @@ function Toggle({ label, help, checked, onChange }: { label: string; help: strin
         <span className="block text-sm text-ash-700">{help}</span>
       </span>
       <input type="checkbox" className="peer sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <span aria-hidden className="relative mt-1 h-6 w-11 shrink-0 border border-ink bg-paper transition-colors peer-checked:bg-lime peer-focus-visible:outline-2 peer-focus-visible:outline-brand-deep after:absolute after:top-0.5 after:left-0.5 after:size-[18px] after:bg-ink after:transition-transform peer-checked:after:translate-x-5" />
+      <span aria-hidden className="relative mt-1 h-6 w-11 shrink-0 border border-line bg-paper transition-colors peer-checked:bg-brand-deep peer-checked:border-brand-deep peer-checked:after:bg-paper peer-focus-visible:outline-2 peer-focus-visible:outline-brand-deep after:absolute after:top-0.5 after:left-0.5 after:size-[18px] after:bg-ink after:transition-transform peer-checked:after:translate-x-5" />
     </label>
   );
 }

@@ -32,7 +32,7 @@ function VerifierShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-mist">
       <RoleSwitcher compact />
-      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-md border-x border-ink bg-paper">{children}</main>
+      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-md border-x border-line bg-paper">{children}</main>
     </div>
   );
 }
@@ -47,7 +47,7 @@ export function VerifierApp() {
     return (
       <VerifierShell>
         <div aria-hidden>
-          <div className="h-48 border-b border-ink bg-brand-soft" />
+          <div className="h-48 border-b border-line bg-brand-soft" />
           <div className="animate-pulse space-y-3 p-4">
             <div className="h-6 w-1/2 bg-ash-100" />
             <div className="h-44 w-full bg-ash-100" />
@@ -73,14 +73,14 @@ export function VerifierApp() {
 
   return (
     <VerifierShell>
-      <section className="border-b border-ink bg-brand px-4 pt-6 pb-5 bay-lines-ink">
+      <section className="border-b border-line bg-brand px-4 pt-6 pb-5 bay-lines-ink">
         <h1 className="display-xl">Hi {me.split(" ")[0]}</h1>
-        <dl className="mt-4 grid grid-cols-2 border border-ink bg-paper">
+        <dl className="mt-4 grid grid-cols-2 border border-line bg-paper">
           <div className="px-3 py-2.5">
             <dt className="text-xs text-ash-700">Earned today</dt>
             <dd className="mt-1 figure text-3xl"><Odometer value={eur(earned)} /></dd>
           </div>
-          <div className="border-l border-ink px-3 py-2.5">
+          <div className="border-l border-line px-3 py-2.5">
             <dt className="text-xs text-ash-700">Visits done</dt>
             <dd className="mt-1 figure text-3xl"><Odometer value={done.length} /></dd>
           </div>
@@ -110,7 +110,7 @@ export function VerifierApp() {
         {done.length > 0 && (
           <section>
             <h2 className="mb-3 display-md">Done today</h2>
-            <ul className="divide-y divide-ash-300 border-y border-ink">
+            <ul className="divide-y divide-ash-300 border-y border-line">
               {done.map((j) => (
                 <li key={j.visit.id} className="flex items-center justify-between gap-3 py-3">
                   <span className="min-w-0">

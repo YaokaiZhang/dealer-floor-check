@@ -17,13 +17,13 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
   ];
   return (
     <div>
-      <ol className="grid grid-cols-2 border border-ink sm:grid-cols-4">
+      <ol className="grid grid-cols-2 border border-line sm:grid-cols-4">
         {steps.map((s, i) => (
-          <li key={s.k} className={`relative p-3 ${i > 0 ? "sm:pl-6" : ""} ${s.cls} ${i % 2 ? "border-l border-ink" : ""} ${i >= 2 ? "border-t border-ink sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
+          <li key={s.k} className={`relative p-3 ${i > 0 ? "sm:pl-6" : ""} ${s.cls} ${i % 2 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
             <p className="tag-text">{s.k}</p>
             <p className="mt-1 figure text-5xl">{s.v}</p>
             <p className="mt-1 text-xs">{s.sub}</p>
-            {i < 3 && <span className="absolute top-2 -right-3 z-10 hidden size-6 items-center justify-center border border-ink bg-paper text-xs sm:flex" aria-hidden>→</span>}
+            {i < 3 && <span className="absolute top-2 -right-3 z-10 hidden size-6 items-center justify-center border border-line bg-paper text-xs sm:flex" aria-hidden>→</span>}
           </li>
         ))}
       </ol>
@@ -36,7 +36,7 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
           <span className="mt-2 block">
             Suppose M = ⌈p·N⌉ = <b>{M}</b> of the N = <b>{e.pool}</b> pool cars ({fmtP(e.p)}) were missing. One check-in of n random cars misses all of them with
           </span>
-          <span className="my-2 block border border-ink bg-mist p-2 text-center font-mono text-xs">
+          <span className="my-2 block border border-line bg-mist p-2 text-center font-mono text-xs">
             q = C(N−M, n) / C(N, n)
           </span>
           <span className="block">
@@ -102,20 +102,20 @@ function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: numb
               <text x={L - 6} y={y(g) + 3} textAnchor="end" fontSize="10" fill="#4d4d4d" className="tabular-nums">{g * 100}%</text>
             </g>
           ))}
-          <line x1={L} x2={L + iw} y1={y(confidence)} y2={y(confidence)} stroke="#000" strokeWidth="1" strokeDasharray="2 3" />
-          <text x={L + iw - 4} y={y(confidence) + 13} textAnchor="end" fontSize="10" fill="#000" paintOrder="stroke" stroke="#fff" strokeWidth="3">target {pct(confidence)} a year</text>
+          <line x1={L} x2={L + iw} y1={y(confidence)} y2={y(confidence)} stroke="#0f1e33" strokeWidth="1" strokeDasharray="2 3" />
+          <text x={L + iw - 4} y={y(confidence) + 13} textAnchor="end" fontSize="10" fill="#0f1e33" paintOrder="stroke" stroke="#fff" strokeWidth="3">target {pct(confidence)} a year</text>
           {ticks.map((t) => (
             <text key={t} x={x(t)} y={H - 24} textAnchor="middle" fontSize="11" fill="#4d4d4d" className="tabular-nums">{t}</text>
           ))}
           <text x={L + iw / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="#4d4d4d">cars per check-in (n)</text>
           <path d={line(once)} fill="none" stroke="#6b6b6b" strokeWidth="1.5" strokeDasharray="4 3" />
-          <path d={line(year)} fill="none" stroke="#5b4fe0" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-          <text x={L + iw + 6} y={y(year(X)) + 4} fontSize="11" fill="#5b4fe0" fontWeight="600">{k}×/yr</text>
-          <text x={L + iw + 6} y={y(year(X)) + 17} fontSize="10" fill="#5b4fe0">+{visits} visits</text>
+          <path d={line(year)} fill="none" stroke="#1f4f9e" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+          <text x={L + iw + 6} y={y(year(X)) + 4} fontSize="11" fill="#1f4f9e" fontWeight="600">{k}×/yr</text>
+          <text x={L + iw + 6} y={y(year(X)) + 17} fontSize="10" fill="#1f4f9e">+{visits} visits</text>
           <text x={L + iw + 6} y={Math.max(y(once(X)) + 4, y(year(X)) + 32)} fontSize="11" fill="#4d4d4d">once</text>
           <line x1={x(sel)} x2={x(sel)} y1={T} y2={T + ih} stroke="#8a8a8a" strokeWidth="1" />
-          <circle cx={x(n)} cy={y(year(n))} r="5" fill="#5b4fe0" stroke="#fff" strokeWidth="2" />
-          {hover !== null && hover !== n && <circle cx={x(sel)} cy={y(year(sel))} r="4" fill="#000" stroke="#fff" strokeWidth="2" />}
+          <circle cx={x(n)} cy={y(year(n))} r="5" fill="#1f4f9e" stroke="#fff" strokeWidth="2" />
+          {hover !== null && hover !== n && <circle cx={x(sel)} cy={y(year(sel))} r="4" fill="#0f1e33" stroke="#fff" strokeWidth="2" />}
         </svg>
       </div>
     </figure>

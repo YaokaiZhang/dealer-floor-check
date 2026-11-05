@@ -25,7 +25,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
   return (
     <div>
-      <header className="border-b border-ink bg-mist p-4 md:p-6">
+      <header className="border-b border-line bg-mist p-4 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="display-xl">{d.name}</h2>
@@ -33,7 +33,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
           </div>
           <TierBadge tier={d.tier} size="lg" />
         </div>
-        <dl className="mt-5 grid grid-cols-2 gap-px border border-ink bg-ink sm:grid-cols-4">
+        <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
           <Fig k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
           <Fig k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
           <Fig k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
@@ -45,7 +45,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
         {alerts.length > 0 && (
           <section>
             <H note={`${alerts.filter(isOpen).length} open`}>Alerts</H>
-            <ul className="mt-3 divide-y divide-ink border border-ink">
+            <ul className="mt-3 divide-y divide-line border border-line">
               {alerts.map((a) => (
                 <li key={a.id}>
                   <button type="button" onClick={() => onAlert(a.id)} className={`relative block w-full py-3 pr-3 pl-5 text-left text-sm hover:bg-mist ${isOpen(a) ? "" : "text-ash-700"}`}>
@@ -107,10 +107,10 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
         <section className="grid gap-8 md:grid-cols-2">
           <div>
             <H>Tier history</H>
-            <ol className="mt-3 border-l border-ink">
+            <ol className="mt-3 border-l border-line">
               {[...d.tierHistory].reverse().map((t, i) => (
                 <li key={i} className="relative pb-4 pl-5">
-                  <span className="absolute top-1 -left-[5px] size-[9px] border border-ink bg-paper" />
+                  <span className="absolute top-1 -left-[5px] size-[9px] border border-line bg-paper" />
                   <div className="flex items-center gap-2"><TierBadge tier={t.tier} /><span className="tag-text text-ash-700">{dateFi(t.date)}</span></div>
                   <p className="mt-1 text-sm">{t.reason}</p>
                 </li>
@@ -124,7 +124,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
               <select
                 value={d.tier}
                 onChange={(e) => actions.overrideTier(d.id, e.target.value as Tier)}
-                className="mt-2 block w-full border border-ink bg-paper px-3 py-2.5 font-semibold"
+                className="mt-2 block w-full border border-line bg-paper px-3 py-2.5 font-semibold"
               >
                 {[...TIER_ORDER].reverse().map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -172,8 +172,8 @@ const VISIT_STATUS: Record<SpotCheck["verifier"]["status"], string> = { offered:
 function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
   const j = v.verifier;
   return (
-    <div className="border border-ink">
-      <div className="flex flex-wrap items-center gap-2 border-b border-ink bg-mist px-3 py-2">
+    <div className="border border-line">
+      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-mist px-3 py-2">
         <Tag tone={v.reason === "brought_forward" ? "brand" : "outline"}>{v.reason === "brought_forward" ? "brought forward" : "random"}</Tag>
         <Tag tone={v.outcome === "clean" ? "lime" : v.outcome ? "high" : "muted"}>{v.outcome ?? VISIT_STATUS[j.status]}</Tag>
         <span className="text-sm">{j.name} · {j.visitCode} · {eur(j.fee)}</span>
@@ -203,8 +203,8 @@ function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
 
 function CheckInCard({ c, s }: { c: CheckIn; s: Store }) {
   return (
-    <div className="border border-ink">
-      <div className="flex flex-wrap items-center gap-2 border-b border-ink bg-mist px-3 py-2">
+    <div className="border border-line">
+      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-mist px-3 py-2">
         <Tag tone={c.reason === "targeted" ? "brand" : "outline"}>{c.reason}</Tag>
         <Tag tone={c.outcome === "clean" ? "lime" : c.outcome ? "high" : "muted"}>{c.outcome ?? c.status.replace("_", " ")}</Tag>
         <span className="text-sm">{c.window ? c.window.label : `Requested ${timeFi(c.createdAt)}`}</span>
@@ -251,7 +251,7 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
                 const src = r.thumbnails?.[k] ?? (k === "vin" ? r.thumbnail : undefined);
                 return src
                   ? // eslint-disable-next-line @next/next/no-img-element
-                    <img key={k} src={src} alt={`${k === "vin" ? "VIN plate" : k === "car" ? "Car" : "Odometer"} photo for ${r.vin}`} className="h-12 w-16 border border-ink object-cover" />
+                    <img key={k} src={src} alt={`${k === "vin" ? "VIN plate" : k === "car" ? "Car" : "Odometer"} photo for ${r.vin}`} className="h-12 w-16 border border-line object-cover" />
                   : null;
               })}
             </span>
@@ -303,11 +303,11 @@ function History({ entries }: { entries: HistoryEntry[] }) {
   return (
     <div className="mt-6">
       <H>History</H>
-      <ol className="mt-3 divide-y divide-ash-300 border-y border-ink">
+      <ol className="mt-3 divide-y divide-ash-300 border-y border-line">
         {[...entries].reverse().map((h) => (
           <li key={h.id} className="grid grid-cols-[6.5rem_6rem_1fr] items-center gap-2 py-2 text-sm">
             <span className="text-xs tabular-nums text-ash-700">{dateFi(h.date)}</span>
-            <span className="flex items-center gap-1.5 tag-text"><span className={`size-2.5 border border-ink ${HO[h.outcome]}`} />{HK[h.kind]}</span>
+            <span className="flex items-center gap-1.5 tag-text"><span className={`size-2.5 border border-line ${HO[h.outcome]}`} />{HK[h.kind]}</span>
             <span>{h.note}</span>
           </li>
         ))}
@@ -326,7 +326,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
       <div className="flex items-baseline justify-between">
         <H note={`${cars.filter((c) => c.connected).length} connected`}>Cars ({cars.length})</H>
       </div>
-      <div className="mt-3 overflow-x-auto border border-ink">
+      <div className="mt-3 overflow-x-auto border border-line">
         <table className="w-full min-w-[640px] text-left text-xs">
           <thead className="bg-mist tag-text text-ash-700">
             <tr>
@@ -350,7 +350,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
         </table>
       </div>
       {cars.length > 8 && (
-        <button type="button" onClick={() => setAll((a) => !a)} className="mt-2 border border-ink px-3 py-1.5 tag-text hover:bg-brand">
+        <button type="button" onClick={() => setAll((a) => !a)} className="mt-2 border border-line px-3 py-1.5 tag-text hover:bg-brand">
           {all ? "Show fewer" : `Show all ${cars.length} cars`}
         </button>
       )}

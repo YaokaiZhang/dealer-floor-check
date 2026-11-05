@@ -22,7 +22,7 @@ export function DealerShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-mist">
       <RoleSwitcher compact />
-      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-md border-x border-ink bg-paper pb-16">{children}</main>
+      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-md border-x border-line bg-paper pb-16">{children}</main>
     </div>
   );
 }
@@ -71,13 +71,13 @@ export function DealerApp() {
 
   return (
     <DealerShell>
-      <div className="flex items-center justify-between gap-3 border-b border-ink px-4 py-2">
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-2">
         <label htmlFor="dealer-select" className="tag-text text-ash-700">Signed in as</label>
         <select
           id="dealer-select"
           value={dealer.id}
           onChange={(e) => selectDealer(e.target.value)}
-          className="h-10 min-w-0 flex-1 appearance-none border border-ink bg-paper bg-[length:10px] bg-[right_10px_center] bg-no-repeat px-2.5 pr-7 text-sm font-medium"
+          className="h-10 min-w-0 flex-1 appearance-none border border-line bg-paper bg-[length:10px] bg-[right_10px_center] bg-no-repeat px-2.5 pr-7 text-sm font-medium"
           style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\")" }}
         >
           {state.dealers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -99,13 +99,13 @@ export function DealerApp() {
       {state.spotChecks
         .filter((v) => v.dealerId === dealer.id && v.verifier.status === "on_site")
         .map((v) => (
-          <div key={v.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
+          <div key={v.id} className="flex items-center justify-between gap-3 border-t border-line bg-brand-soft px-4 py-3" role="status">
             <p className="text-sm"><b>{v.verifier.name}</b> from Aurora visits today</p>
-            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]" aria-label={`Visit code ${v.verifier.visitCode}`}>{v.verifier.visitCode}</span>
+            <span className="shrink-0 border border-line bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]" aria-label={`Visit code ${v.verifier.visitCode}`}>{v.verifier.visitCode}</span>
           </div>
         ))}
 
-      <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-3 border-y border-ink bg-paper">
+      <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-3 border-y border-line bg-paper">
         {/* One ink block slides under the active tab. */}
         <span
           aria-hidden
@@ -120,7 +120,7 @@ export function DealerApp() {
               type="button"
               onClick={() => setTab(t.id)}
               aria-current={on ? "page" : undefined}
-              className={`relative flex min-h-12 items-center justify-center gap-1.5 px-1 text-center text-[0.8rem] leading-tight font-medium transition-colors duration-300 ${i > 0 ? "border-l border-ink" : ""} ${on ? "text-paper" : "hover:bg-brand-soft"}`}
+              className={`relative flex min-h-12 items-center justify-center gap-1.5 px-1 text-center text-[0.8rem] leading-tight font-medium transition-colors duration-300 ${i > 0 ? "border-l border-line" : ""} ${on ? "text-paper" : "hover:bg-brand-soft"}`}
             >
               {t.label}
               {t.id === "checkins" && open.length > 0 && (
@@ -157,7 +157,7 @@ export function DealerApp() {
   );
 }
 
-const CAR_FILL: Record<Tier, string> = { Gold: "var(--color-lime)", Silver: "var(--color-brand)", Standard: "var(--color-paper)", Review: "var(--color-high)" };
+const CAR_FILL: Record<Tier, string> = { Gold: "var(--color-gold)", Silver: "var(--color-silver)", Standard: "var(--color-paper)", Review: "var(--color-high)" };
 
 /** One car parked in the header bay, painted in the dealer's tier colour. */
 function HeaderCar({ tier }: { tier: Tier }) {

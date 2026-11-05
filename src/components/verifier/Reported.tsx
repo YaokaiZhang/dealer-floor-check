@@ -12,7 +12,7 @@ export function Reported({ job, onClose }: { job: Job; onClose: () => void }) {
   const found = cars.filter((c) => confirmed(visit.results[c.vin])).length;
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
-      <section className="border-b border-ink bg-lime px-4 pt-7 pb-6" role="status">
+      <section className="border-b border-line bg-lime px-4 pt-7 pb-6" role="status">
         <span className="flex size-14 animate-pop items-center justify-center bg-ink text-lime" aria-hidden>
           <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" pathLength={1} strokeDasharray={1} className="animate-draw" /></svg>
         </span>
@@ -21,7 +21,7 @@ export function Reported({ job, onClose }: { job: Job; onClose: () => void }) {
         <p className="mt-3 text-base">{found} of {cars.length} cars found at {dealer.name}.</p>
       </section>
 
-      <ul className="divide-y divide-ash-300 border-b border-ink" aria-label="Your report">
+      <ul className="divide-y divide-ash-300 border-b border-line" aria-label="Your report">
         {cars.map((c) => {
           const st = carState(visit.results[c.vin]);
           return (

@@ -101,14 +101,14 @@ export function Explainer({ label, children, align = "left" }: { label: string; 
         aria-label={label}
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         onBlur={() => setOpen(false)}
-        className="inline-flex min-h-8 items-center gap-1 border border-ink bg-paper px-2 tag-text hover:bg-brand"
+        className="inline-flex min-h-8 items-center gap-1 border border-line bg-paper px-2 tag-text hover:bg-brand"
       >
         <span className="font-semibold">i</span> {label}
       </button>
       {open && (
         <span
           role="tooltip"
-          className={`absolute top-full z-50 mt-2 block w-[min(22rem,80vw)] border border-ink bg-paper p-4 text-left text-sm normal-case shadow-lift ${align === "right" ? "right-0" : "left-0"}`}
+          className={`absolute top-full z-50 mt-2 block w-[min(22rem,80vw)] border border-line bg-paper p-4 text-left text-sm normal-case shadow-lift ${align === "right" ? "right-0" : "left-0"}`}
         >
           {children}
         </span>
@@ -119,7 +119,7 @@ export function Explainer({ label, children, align = "left" }: { label: string; 
 
 export function Check({ ok, label }: { ok: boolean; label?: string }) {
   return (
-    <span className={`inline-flex size-4 items-center justify-center border text-[10px] leading-none ${ok ? "border-ink bg-lime" : "border-ash-300 text-ash-500"}`} aria-label={label ?? (ok ? "yes" : "no")}>
+    <span className={`inline-flex size-4 items-center justify-center border text-[10px] leading-none ${ok ? "border-line bg-lime" : "border-ash-300 text-ash-500"}`} aria-label={label ?? (ok ? "yes" : "no")}>
       {ok ? "✓" : "–"}
     </span>
   );

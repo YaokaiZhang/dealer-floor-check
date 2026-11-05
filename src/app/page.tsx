@@ -14,7 +14,7 @@ const LEGEND: { state: Stall; label: string; how: string }[] = [
 ];
 
 const ROLES = [
-  { href: "/dealer", kind: "Phone", title: "Dealer app", body: "A short check-in, at a time they pick.", tone: "bg-lime", icon: <PhoneIcon /> },
+  { href: "/dealer", kind: "Phone", title: "Dealer app", body: "A short check-in, at a time they pick.", tone: "bg-mist", icon: <PhoneIcon /> },
   { href: "/bank", kind: "Desktop", title: "Bank dashboard", body: "Portfolio, live alerts, sampling.", tone: "bg-brand", icon: <ChartIcon /> },
   { href: "/verifier", kind: "Phone", title: "Verifier", body: "Random spot checks, a few cars each.", tone: "bg-brand-soft", icon: <PinIcon /> },
   { href: "/demo", kind: "Stage", title: "Demo control", body: "Fire simulated events.", tone: "bg-paper", icon: <BoltIcon /> },
@@ -36,7 +36,7 @@ export default function Home() {
           </div>
 
           <figure className="relative">
-            <div className="relative overflow-hidden border border-ink bg-ink p-5 text-paper shadow-[10px_10px_0_0_var(--color-brand)] md:p-7">
+            <div className="relative overflow-hidden border border-ink bg-ink p-5 text-paper shadow-lift md:p-7">
               <div className="mb-4 flex items-baseline justify-between gap-4 text-sm">
                 <span className="font-medium">Laakso Autot, Tampere</span>
                 <span className="inline-flex items-baseline gap-1.5 text-paper/60">
@@ -55,7 +55,7 @@ export default function Home() {
             <figcaption className="mt-4 grid gap-3 sm:grid-cols-3">
               {LEGEND.map((l) => (
                 <div key={l.state} className="flex gap-2.5">
-                  <span className={`mt-1 h-4 w-2.5 shrink-0 rounded-[2px] border border-ink ${l.state === "connected" ? "bg-lime" : l.state === "photo" ? "bg-brand" : "bg-paper"}`} aria-hidden />
+                  <span className={`mt-1 h-4 w-2.5 shrink-0 rounded-[2px] border border-line ${l.state === "connected" ? "bg-lime" : l.state === "photo" ? "bg-brand" : "bg-paper"}`} aria-hidden />
                   <span className="text-sm leading-snug">
                     <span className="block font-medium">{l.label}</span>
                     <span className="text-ash-700">{l.how}</span>
@@ -66,14 +66,14 @@ export default function Home() {
           </figure>
         </section>
 
-        <section className="border-t border-ink bg-mist">
+        <section className="border-t border-line bg-mist">
           <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-14 md:grid-cols-2 md:px-8 xl:grid-cols-4">
             {ROLES.map((r) => (
               <a key={r.href} href={r.href} className="group block focus-visible:outline-none">
                 <Card interactive className="flex h-full flex-col p-2">
-                  <div className={`relative flex aspect-[16/9] flex-col justify-between border border-ink p-4 ${r.tone} ${r.tone === "bg-paper" ? "bay-lines-ink" : ""}`}>
+                  <div className={`relative flex aspect-[16/9] flex-col justify-between border border-line p-4 ${r.tone} ${r.tone === "bg-paper" ? "bay-lines-ink" : ""}`}>
                     <div className="flex items-start justify-between">
-                      <span className="flex size-10 items-center justify-center border border-ink bg-paper transition-transform duration-300 group-hover:-rotate-6">{r.icon}</span>
+                      <span className="flex size-10 items-center justify-center border border-line bg-paper transition-transform duration-300 group-hover:-rotate-6">{r.icon}</span>
                       <span className="border border-ink bg-ink px-1.5 py-0.5 text-xs text-paper">{r.kind}</span>
                     </div>
                     <span className="display-lg">{r.title}</span>
@@ -88,7 +88,7 @@ export default function Home() {
           </div>
         </section>
 
-        <footer className="border-t border-ink">
+        <footer className="border-t border-line">
           <div className="mx-auto flex max-w-[1400px] flex-wrap justify-between gap-2 px-4 py-6 text-sm text-ash-700 md:px-8">
             <span>Hackathon prototype. Fictional lender and dealers.</span>
             <span>All external data sources are simulated.</span>

@@ -28,7 +28,7 @@ export default function PlatesPage() {
             <h1 className="mt-2 display-xl">VIN plates</h1>
             <p className="mt-2 max-w-xl text-ash-700">Photograph these from the dealer phone during a check-in, or print the page. Cars drawn in the active check-in come first.</p>
           </div>
-          <select value={dealerId} onChange={(e) => setDealerId(e.target.value)} className="border border-ink bg-paper px-3 py-2">
+          <select value={dealerId} onChange={(e) => setDealerId(e.target.value)} className="border border-line bg-paper px-3 py-2">
             {s.dealers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         </div>
@@ -59,8 +59,8 @@ function Plate({ car }: { car: Car }) {
   const bars = [...car.vin].flatMap((ch, i) => { const k = ch.charCodeAt(0) + i; return [1 + (k % 3), 1 + ((k >> 2) % 2)]; });
   let x = 0;
   return (
-    <figure className="break-inside-avoid border border-ink bg-[#f2f0ea] p-4 shadow-card">
-      <div className="flex items-center justify-between border-b border-ink pb-2 font-mono text-[10px] uppercase tracking-wider">
+    <figure className="break-inside-avoid border border-line bg-[#f2f0ea] p-4 shadow-card">
+      <div className="flex items-center justify-between border-b border-line pb-2 font-mono text-[10px] uppercase tracking-wider">
         <span>{car.make} · Made {car.year}</span>
         <span>GVW 2 150 kg</span>
       </div>
