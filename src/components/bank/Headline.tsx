@@ -2,10 +2,11 @@
 import type { Store } from "@/lib/store";
 import { portfolioStats } from "@/lib/risk";
 import { headline } from "@/lib/costModel";
-import { eurCompact } from "@/lib/format";
+import { eur, eurCompact } from "@/lib/format";
+import { ASSUMPTIONS } from "@/config/assumptions";
 import { isOpen } from "./shared";
 import { Odometer } from "@/components/ui/Odometer";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
   const stats = s.dealers.map((d) => portfolioStats(s, d.id));
@@ -59,8 +60,8 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
             <SevCount n={bySev("low")} cls="bg-low" label="low" />
           </p>
         </button>
-        <div className="col-span-2 border-t border-line p-4 sm:p-5 md:col-span-1 md:border-t-0 md:border-l md:px-6 bg-mist">
-          <p className="tag-text">Floor-check cost</p>
+        <div className="relative col-span-2 border-t border-line p-4 sm:p-5 md:col-span-1 md:border-t-0 md:border-l md:px-6 bg-mist">
+          <p className="flex items-center justify-between gap-2"><span className="tag-text">Floor-check cost</span><CostInfo h={h} /></p>
           <p className="mt-2 figure text-[clamp(2.25rem,3.6vw,3.25rem)]"><Odometer value={`−${h.checkCostReductionPct}%`} ms={1200} /></p>
           <p className="mt-2 text-sm"><Parts items={[`vs traditional checks`, `−${h.fraudLossReductionPct}% fraud loss, ${eurCompact(h.portfolioSavings)}/yr (model)`]} /></p>
         </div>
@@ -89,6 +90,45 @@ function SevCount({ n, cls, label }: { n: number; cls: string; label: string }) 
     <span className={`inline-flex items-center gap-1.5 ${n ? `text-ink ${label === "high" ? "font-semibold" : ""}` : ""}`}>
       <span className={`inline-block size-2 ${cls}`} aria-hidden />
       {n} {label}
+    </span>
+  );
+}
+
+/** "?" next to the cost tile: the model behind the headline numbers, in four lines. */
+function CostInfo({ h }: { h: ReturnType<typeof headline> }) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
+  }, [open]);
+  const t = h.traditional, s = h.signals;
+  return (
+    <span ref={ref} className="-my-2 -mr-2">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        aria-label="How this is calculated"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex size-8 items-center justify-center text-xs font-semibold transition-colors ${open ? "text-ink" : "text-ash-700 hover:text-ink"}`}
+      >
+        <span className={`flex size-[18px] items-center justify-center rounded-full border ${open ? "border-ink bg-ink text-paper" : "border-ash-500"}`} aria-hidden>?</span>
+      </button>
+      {open && (
+        <span id={id} role="dialog" aria-label="How this is calculated" className="absolute top-12 right-3 z-20 block w-[min(20rem,calc(100vw-3rem))] border border-line bg-paper p-4 text-left text-sm leading-snug shadow-lift animate-rise">
+          <span className="block text-ash-700">Model, per dealer per year. Each option at its cheapest setting.</span>
+          <span className="mt-3 block"><b className="font-semibold">Traditional:</b> {t.f} visits × {eur(ASSUMPTIONS.auditorVisitCost)} = {eur(t.checkCost)}. Fraud found after ~{Math.round(t.detectionDays)} days, {eur(t.fraudLoss)} lost.</span>
+          <span className="mt-2 block"><b className="font-semibold">Aurora:</b> check-ins, spot checks and data feeds = {eur(s.checkCost)}. Signals find most fraud in ~{Math.round(s.detectionDays)} days, {eur(s.fraudLoss)} lost.</span>
+          <span className="mt-2 block">{eur(t.checkCost)} → {eur(s.checkCost)} is −{h.checkCostReductionPct}%. Saving {eur(t.total - s.total)} × {ASSUMPTIONS.portfolioDealers} dealers = {eurCompact(h.portfolioSavings)} a year.</span>
+          <span className="mt-3 block text-xs text-ash-700">Illustrative assumptions.</span>
+        </span>
+      )}
     </span>
   );
 }
