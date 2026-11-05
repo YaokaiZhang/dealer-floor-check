@@ -175,10 +175,10 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
               <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden />
               {v.status === "offered" ? "Waiting for a verifier to accept" : v.status === "en_route" ? `${v.name} en route` : `${v.name} on the lot`}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 tag-text text-ash-700">
+            <div className="mt-1 flex flex-wrap items-center gap-x-4 tag-text text-ash-700">
               <span>{secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago</span>
-              <a className="underline underline-offset-4 hover:text-ink" href="/verifier" target="_blank" rel="noreferrer">Verifier app ↗</a>
-              <button type="button" onClick={() => actions.verifierReport(alert.id)} className="underline underline-offset-4 hover:text-ink">Simulate report</button>
+              <a className="py-2 underline underline-offset-4 hover:text-ink" href="/verifier" target="_blank" rel="noreferrer">Verifier app ↗</a>
+              <button type="button" onClick={() => actions.verifierReport(alert.id)} className="py-2 underline underline-offset-4 hover:text-ink">Simulate report</button>
             </div>
           </>
         ) : (
@@ -316,7 +316,7 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
         <rect width={W} height={H} fill="url(#grid)" />
         <circle cx={cx} cy={cy} r={R} fill="#e6e3ff" stroke="#000" strokeWidth="1" />
         <rect x={cx - 3} y={cy - 3} width="6" height="6" fill="#000" />
-        <text x={cx} y={cy + R + 13} textAnchor="middle" fontSize="9" fontFamily="var(--font-mono)" fill="#4d4d4d">{d.name.toUpperCase()}</text>
+        <text x={cx} y={cy + R + 14} textAnchor="middle" fontSize="11" fontFamily="var(--font-mono)" fill="#4d4d4d">{d.name.toUpperCase()}</text>
         {!inside && <line x1={cx} y1={cy} x2={px} y2={py} stroke="#000" strokeWidth="1" strokeDasharray="3 3" />}
         <circle cx={px} cy={py} r="6" fill={inside ? "#c4ff0d" : "#ff4f3f"} stroke="#fff" strokeWidth="2" />
         <circle cx={px} cy={py} r="6" fill="none" stroke="#000" strokeWidth="1" />
@@ -328,7 +328,7 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
         )}
         <g transform={`translate(${W - 16},18)`}>
           <path d="M0 -9 L4 3 L0 0 L-4 3Z" fill="#000" />
-          <text y="12" textAnchor="middle" fontSize="8" fontFamily="var(--font-mono)">N</text>
+          <text y="12" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)">N</text>
         </g>
       </svg>
       <figcaption className="mt-1 tag-text text-ash-500">Not to scale</figcaption>

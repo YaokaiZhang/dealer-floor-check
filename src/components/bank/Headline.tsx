@@ -30,7 +30,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
       </div>
 
       <div className="grid grid-cols-2 md:col-span-7 md:grid-cols-3">
-        <Stat label="Cars financed" value={String(cars)} sub={<><Nb>{eurCompact(exposure)} exposure</Nb> · <Nb>{s.dealers.length} dealers</Nb></>} />
+        <Stat label="Cars financed" value={String(cars)} sub={<Parts items={[`${eurCompact(exposure)} exposure`, `${s.dealers.length} dealers`]} />} />
         <button type="button" onClick={onAlerts} className="border-l border-ink p-5 text-left transition-colors hover:bg-mist md:p-7">
           <p className="tag-text text-ash-700">Open alerts</p>
           <p className="mt-3 figure text-[clamp(2.6rem,5vw,4rem)]">
@@ -46,14 +46,17 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
         <div className="col-span-2 border-t border-ink bg-brand p-5 md:col-span-1 md:border-t-0 md:border-l md:p-7">
           <p className="tag-text">Floor-check cost</p>
           <p className="mt-3 figure text-[clamp(2.6rem,5vw,4rem)]">−{h.checkCostReductionPct}%</p>
-          <p className="mt-2 text-sm"><Nb>−{h.fraudLossReductionPct}% fraud loss</Nb> · <Nb>{eurCompact(h.portfolioSavings)}/yr</Nb></p>
+          <p className="mt-2 text-sm"><Parts items={[`−${h.fraudLossReductionPct}% fraud loss`, `${eurCompact(h.portfolioSavings)}/yr`]} /></p>
         </div>
       </div>
     </section>
   );
 }
 
-const Nb = ({ children }: { children: React.ReactNode }) => <span className="whitespace-nowrap">{children}</span>;
+/** One phrase per line, so nothing breaks mid-phrase or leaves a dangling separator. */
+const Parts = ({ items }: { items: string[] }) => (
+  <>{items.map((t) => <span key={t} className="block">{t}</span>)}</>
+);
 
 function Stat({ label, value, sub }: { label: string; value: string; sub: React.ReactNode }) {
   return (

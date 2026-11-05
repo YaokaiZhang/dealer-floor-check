@@ -252,7 +252,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
               <tr key={c.vin} className="border-t border-ash-100">
                 <td className="p-2 font-mono">{c.vin}</td>
                 <td className="p-2">{c.year} {c.make} {c.model}</td>
-                <td className="p-2 font-mono">{c.plate}</td>
+                <td className="whitespace-nowrap p-2 font-mono">{c.plate}</td>
                 <td className="p-2 text-right tabular-nums">{eur(c.loanAmount)}</td>
                 <td className="p-2"><Check ok={c.connected} /></td>
                 <td className="p-2"><Check ok={isAutoVerified(s, c)} /></td>

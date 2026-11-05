@@ -91,7 +91,7 @@ export function Explainer({ label, children, align = "left" }: { label: string; 
         aria-label={label}
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         onBlur={() => setOpen(false)}
-        className="inline-flex items-center gap-1 border border-ink bg-paper px-1.5 py-0.5 tag-text hover:bg-brand"
+        className="inline-flex min-h-8 items-center gap-1 border border-ink bg-paper px-2 tag-text hover:bg-brand"
       >
         <span className="font-semibold">i</span> {label}
       </button>
