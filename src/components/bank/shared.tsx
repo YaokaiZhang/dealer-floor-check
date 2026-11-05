@@ -52,7 +52,7 @@ export function SourceTag({ source }: { source: AlertSource }) {
   );
 }
 
-function SourceIcon({ source }: { source: AlertSource }) {
+export function SourceIcon({ source }: { source: AlertSource }) {
   const p = { width: 10, height: 10, viewBox: "0 0 10 10", fill: "none", stroke: "currentColor", strokeWidth: 1.3, "aria-hidden": true } as const;
   switch (source) {
     case "connected_car":
@@ -122,5 +122,15 @@ export function Check({ ok, label }: { ok: boolean; label?: string }) {
     <span className={`inline-flex size-4 items-center justify-center border text-[10px] leading-none ${ok ? "border-ink bg-lime" : "border-ash-300 text-ash-500"}`} aria-label={label ?? (ok ? "yes" : "no")}>
       {ok ? "✓" : "–"}
     </span>
+  );
+}
+
+/** Section heading inside a drawer: sentence case, with an optional quiet note beside it. */
+export function H({ children, note, className = "" }: { children: ReactNode; note?: ReactNode; className?: string }) {
+  return (
+    <h3 className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-base font-semibold leading-tight ${className}`}>
+      {children}
+      {note && <span className="text-sm font-normal text-ash-700">{note}</span>}
+    </h3>
   );
 }

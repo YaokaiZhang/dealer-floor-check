@@ -79,9 +79,9 @@ body {
 @keyframes lot-paint { from { fill: #3a3a3a } to { fill: var(--to) } }
 
 /* Odometer digits: each place is a strip of 0–9 that rolls to its value. */
-.odo { display: inline-flex; line-height: 1; height: 1em; overflow: hidden; vertical-align: baseline; }
+.odo { display: inline-flex; line-height: 1; height: 1.15em; margin-block: -0.075em; overflow: hidden; vertical-align: baseline; }
 .odo-strip { display: flex; flex-direction: column; transition: transform var(--odo-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1); }
-.odo-strip > span { height: 1em; line-height: 1; }
+.odo-strip > span { height: 1.15em; line-height: 1.15em; }
 
 /* A new alert arrives: brief lavender wash, then settles. */
 .alert-new { animation: alert-in 1600ms cubic-bezier(0.22, 1, 0.36, 1) both; }

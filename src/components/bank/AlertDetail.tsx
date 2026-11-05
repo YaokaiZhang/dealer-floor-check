@@ -6,11 +6,10 @@ import { distanceM, formatDistance } from "@/lib/geo";
 import { dateFi, eur, timeAgo, timeFi } from "@/lib/format";
 import { ASSUMPTIONS } from "@/config/assumptions";
 import { Button } from "@/components/ui/Button";
-import { SectionTag } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { visitFee } from "@/lib/costModel";
-import { SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow, visitFoundCar } from "./shared";
+import { H, SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow, visitFoundCar } from "./shared";
 
 const LADDER: { step: EscalationStep; title: string; who: string; cost: string }[] = [
   { step: "signal", title: "Signal", who: "Automatic", cost: "€0" },
@@ -38,7 +37,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
             <SeverityTag severity={alert.severity} />
             <SourceTag source={alert.source} />
             <StatusTag alert={alert} visit={visit} />
-            <span className="tag-text text-ash-700">{timeAgo(alert.createdAt, now)} · {timeFi(alert.createdAt)}</span>
+            <span className="ml-auto text-xs tabular-nums text-ash-700">{timeAgo(alert.createdAt, now)}, {timeFi(alert.createdAt)}</span>
           </div>
           <h2 className="mt-4 display-lg">{alert.message}</h2>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -46,18 +45,16 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
               {d.name}, {d.city}
             </button>
             <TierBadge tier={d.tier} />
-            <span className="font-mono text-xs">{car.year} {car.make} {car.model} · {car.plate} · {car.vin}</span>
+            <span className="text-sm">{car.year} {car.make} {car.model}, <span className="font-mono text-xs">{car.plate}</span>, <span className="font-mono text-xs">{car.vin}</span></span>
           </div>
         </header>
 
-        <Ladder stepIdx={stepIdx} alert={alert} />
-
-        <div className="border border-ink p-4">
+        <section className="border border-ink bg-mist p-4" aria-labelledby="next-step-h">
           <div className="flex items-center justify-between gap-2">
-            <SectionTag>Next step</SectionTag>
+            <h3 id="next-step-h" className="text-sm text-ash-700">Next step</h3>
             <Tag tone="outline">Officer decides</Tag>
           </div>
-          <p className="mt-2 font-semibold leading-snug">{recommend(alert, ci, visit)}</p>
+          <p className="mt-1 text-lg font-semibold leading-snug">{recommend(alert, ci, visit)}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button variant="brand" disabled={!open || !!visit || alert.step === "auditor"} onClick={() => actions.bringVisitForward(alert.id)}>
               Bring spot check forward
@@ -72,7 +69,9 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
               Confirm sold out of trust
             </Button>
           </div>
-        </div>
+        </section>
+
+        <Ladder stepIdx={stepIdx} alert={alert} />
 
         {visit && <SpotCheckCard s={s} alert={alert} visit={visit} now={now} />}
 
@@ -81,7 +80,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
         {cc && <ConnectedCar cc={cc} d={d} car={car} />}
 
         <div>
-          <SectionTag>Evidence</SectionTag>
+          <H>Evidence</H>
           <dl className="mt-3 divide-y divide-ash-300 border-y border-ink">
             {alert.evidence.map((e, i) => (
               <div key={i} className="grid gap-1 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
@@ -113,7 +112,7 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
   const closed = !isOpen(alert);
   return (
     <div>
-      <SectionTag>Escalation ladder</SectionTag>
+      <H note="cheapest check first">Escalation</H>
       <ol className="mt-3 grid border border-ink sm:grid-cols-4">
         {LADDER.map((l, i) => {
           const current = i === stepIdx && !closed;
@@ -160,8 +159,8 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
   return (
     <div className={`border border-ink ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink px-4 py-3">
-        <SectionTag className="!text-ink">Spot check · {visit.sampledVins.length} cars · {eur(v.fee)}</SectionTag>
-        <span className="tag-text text-ash-700">{v.name} · {v.visitCode}</span>
+        <H note={`${visit.sampledVins.length} cars, ${eur(v.fee)}`}>Spot check</H>
+        <span className="text-xs text-ash-700">{v.name}, <span className="font-mono">{v.visitCode}</span></span>
       </div>
       <ol className="grid grid-cols-4 border-b border-ink">
         {V_STEPS.map((st, i) => {
@@ -253,7 +252,7 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
   if (!ci) {
     return (
       <div className="border border-ash-300 p-4 text-sm text-ash-700">
-        <SectionTag>Targeted check-in</SectionTag>
+        <H>Targeted check-in</H>
         <p className="mt-1">{severity === "low" ? "Not sent (low)." : "None."}</p>
       </div>
     );
@@ -263,7 +262,7 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
   return (
     <div className="border border-ink p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <SectionTag>Targeted check-in</SectionTag>
+        <H>Targeted check-in</H>
         <Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>
       </div>
       <p className="mt-2 font-semibold">{CI_STATUS[ci.status]}{ci.window ? `: ${ci.window.label}` : ""}</p>
@@ -282,7 +281,7 @@ function ConnectedCar({ cc, d, car }: { cc: ConnectedFeed; d: Dealer; car: Car }
   const inside = dist <= d.geofence.radiusM;
   return (
     <div>
-      <SectionTag>Connected car</SectionTag>
+      <H>Connected car</H>
       <div className="mt-3 grid gap-4 border border-ink p-4 sm:grid-cols-[1fr_15rem]">
         <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-sm">
           <dt className="tag-text text-ash-700">Position</dt>

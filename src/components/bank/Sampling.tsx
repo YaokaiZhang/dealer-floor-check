@@ -77,7 +77,7 @@ function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: numb
   return (
     <figure className="mt-5">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="tag-text">Chance of catching ≥1 missing car</span>
+        <span className="text-sm font-semibold">Chance of catching at least one missing car</span>
         <span className="text-sm tabular-nums">
           n = <b>{sel}</b> → <b>{pct(once(sel), 1)}</b> once · <b>{pct(year(sel), 1)}</b> a year
         </span>
@@ -103,7 +103,7 @@ function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: numb
             </g>
           ))}
           <line x1={L} x2={L + iw} y1={y(confidence)} y2={y(confidence)} stroke="#000" strokeWidth="1" strokeDasharray="2 3" />
-          <text x={L + 4} y={y(confidence) - 4} fontSize="10" fill="#000">target {pct(confidence)}</text>
+          <text x={L + iw - 4} y={y(confidence) + 13} textAnchor="end" fontSize="10" fill="#000" paintOrder="stroke" stroke="#fff" strokeWidth="3">target {pct(confidence)} a year</text>
           {ticks.map((t) => (
             <text key={t} x={x(t)} y={H - 24} textAnchor="middle" fontSize="11" fill="#4d4d4d" className="tabular-nums">{t}</text>
           ))}

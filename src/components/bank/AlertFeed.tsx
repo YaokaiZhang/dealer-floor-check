@@ -2,73 +2,86 @@
 import { useState } from "react";
 import type { Store } from "@/lib/store";
 import { timeAgo, timeFi } from "@/lib/format";
-import { SectionTag } from "@/components/ui/Card";
-import { SEV_BAR, SeverityTag, SourceTag, StatusTag, isOpen, useNow } from "./shared";
+import type { Alert } from "@/lib/types";
+import { SEV_BAR, SOURCE_LABEL, SeverityTag, SourceIcon, StatusTag, isOpen, useNow } from "./shared";
+
+const SEV_RANK = { high: 0, medium: 1, low: 2 } as const;
 
 export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: string | null; onSelect: (id: string) => void }) {
   const now = useNow(5000);
   // Only items that arrive while the page is open animate in; the initial list just appears.
   const [initial] = useState(() => new Set([...s.alerts.map((a) => a.id), ...s.events.map((e) => e.id)]));
   const fresh = (id: string) => !initial.has(id);
-  const alerts = [...s.alerts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const open = alerts.filter(isOpen).length;
+  const newest = (a: Alert, b: Alert) => b.createdAt.localeCompare(a.createdAt);
+  // What needs action first: open alerts by severity, then newest; closed ones below.
+  const open = s.alerts.filter(isOpen).sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || newest(a, b));
+  const closed = s.alerts.filter((a) => !isOpen(a)).sort(newest);
   const connected = s.cars.filter((c) => c.connected && c.status === "in_stock").length;
 
+  const row = (a: Alert) => {
+    const d = s.dealers.find((x) => x.id === a.dealerId)!;
+    const car = s.cars.find((c) => c.vin === a.vin);
+    const done = !isOpen(a);
+    const visit = a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined;
+    return (
+      <li key={a.id} className={fresh(a.id) ? "alert-new" : undefined}>
+        <button
+          type="button"
+          onClick={() => onSelect(a.id)}
+          aria-current={selected === a.id}
+          className={`relative block w-full py-3 pr-4 pl-5 text-left transition-colors hover:bg-mist focus-visible:outline-offset-[-3px] ${selected === a.id ? "bg-brand-soft" : ""}`}
+        >
+          <span className={`absolute inset-y-0 left-0 w-1.5 ${done ? "bg-ash-300" : SEV_BAR[a.severity]}`} aria-hidden />
+          <span className="flex items-baseline justify-between gap-3">
+            <span className={`font-semibold leading-snug ${done ? "text-ash-700" : ""}`}>{d.name}</span>
+            <span className="shrink-0 text-xs tabular-nums text-ash-700" title={timeFi(a.createdAt)}>{timeAgo(a.createdAt, now)}</span>
+          </span>
+          <span className={`mt-0.5 block text-sm leading-snug ${done ? "text-ash-700" : ""}`}>{a.message}</span>
+          <span className="mt-2 flex flex-wrap items-center gap-1.5">
+            {!done && <SeverityTag severity={a.severity} />}
+            <StatusTag alert={a} visit={visit} />
+            <span className="inline-flex items-center gap-1 text-xs text-ash-700">
+              <SourceIcon source={a.source} />
+              {SOURCE_LABEL[a.source]}{car ? `, ${car.make} ${car.model} ${car.plate}` : ""}
+            </span>
+          </span>
+        </button>
+      </li>
+    );
+  };
+
   return (
-    <section aria-label="Live alert feed" className="border border-ink bg-paper ">
+    <section aria-labelledby="alerts-h" className="border border-ink bg-paper">
       <div className="flex items-center justify-between border-b border-ink bg-ink px-4 py-3 text-paper">
-        <h2 className="flex items-center gap-2 display-md">
+        <h2 id="alerts-h" className="flex items-center gap-2 display-md">
           <span className="inline-block size-2 animate-pulse-dot bg-lime" aria-hidden /> Live alerts
         </h2>
-        <span className="tag-text text-brand">{open} open</span>
+        <span className="text-sm tabular-nums">{open.length ? <><b className="font-semibold">{open.length}</b> open</> : "None open"}</span>
       </div>
 
-      <ol aria-live="polite" className="divide-y divide-ink">
-        {alerts.length === 0 && (
-          <li className="p-5">
-            <p className="display-md">All quiet.</p>
-            <p className="mt-1 tag-text text-ash-700">Watching {connected} connected cars · marketplace · registry</p>
+      <ol aria-live="polite" aria-label="Open alerts" className="divide-y divide-ink">
+        {open.length === 0 && (
+          <li className="px-5 py-6">
+            <p className="display-md">All quiet</p>
+            <p className="mt-1 text-sm text-ash-700">Watching {connected} connected cars, marketplaces and the registry.</p>
           </li>
         )}
-        {alerts.map((a) => {
-          const d = s.dealers.find((x) => x.id === a.dealerId)!;
-          const car = s.cars.find((c) => c.vin === a.vin);
-          const closed = !isOpen(a);
-          return (
-            <li key={a.id} className={fresh(a.id) ? "alert-new" : undefined}>
-              <button
-                type="button"
-                onClick={() => onSelect(a.id)}
-                aria-current={selected === a.id}
-                className={`relative flex w-full gap-3 p-4 pl-5 text-left transition-colors hover:bg-mist ${selected === a.id ? "bg-brand-soft" : ""} ${closed ? "opacity-55" : ""}`}
-              >
-                <span className={`absolute inset-y-0 left-0 w-1.5 ${SEV_BAR[a.severity]}`} aria-hidden />
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-1.5">
-                    <SeverityTag severity={a.severity} />
-                    <SourceTag source={a.source} />
-                    <StatusTag alert={a} visit={a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined} />
-                    <span className="ml-auto tag-text text-ash-700" title={timeFi(a.createdAt)}>{timeAgo(a.createdAt, now)}</span>
-                  </span>
-                  <span className="mt-2 block font-semibold">{d.name}</span>
-                  <span className="mt-0.5 block text-sm leading-snug">{a.message}</span>
-                  <span className="mt-1.5 block font-mono text-xs text-ash-700">
-                    {car ? `${car.make} ${car.model} · ${car.plate} · ` : ""}
-                    {a.vin}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
+        {open.map(row)}
       </ol>
 
-      <div className="border-t border-ink p-4">
-        <SectionTag>Activity</SectionTag>
+      {closed.length > 0 && (
+        <>
+          <h3 className="border-y border-ink bg-mist px-4 py-1.5 text-xs text-ash-700">Closed ({closed.length})</h3>
+          <ol aria-label="Closed alerts" className="divide-y divide-ash-300">{closed.map(row)}</ol>
+        </>
+      )}
+
+      <div className="border-t border-ink px-4 py-3">
+        <h3 className="text-xs font-semibold">Activity</h3>
         <ul className="mt-2 space-y-1.5">
           {s.events.slice(0, 6).map((e) => (
-            <li key={e.id} className={`grid grid-cols-[3rem_1fr] gap-2 text-xs ${fresh(e.id) ? "animate-rise" : ""}`}>
-              <span className="font-mono text-ash-500">{timeFi(e.at)}</span>
+            <li key={e.id} className={`grid grid-cols-[2.75rem_1fr] gap-2 text-xs ${fresh(e.id) ? "animate-rise" : ""}`}>
+              <span className="tabular-nums text-ash-500">{timeFi(e.at)}</span>
               <span className="text-ash-700">{e.text}</span>
             </li>
           ))}

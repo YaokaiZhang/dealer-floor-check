@@ -33,27 +33,27 @@ export default function BankPage() {
         <Skeleton />
       ) : (
         <main className="pb-20">
-          <div className="mx-auto max-w-[1400px] px-4 pt-8 md:px-8 md:pt-10">
+          <div className="mx-auto max-w-[1400px] px-4 pt-6 md:px-8 md:pt-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <h1 className="display-xl">Portfolio today</h1>
+              <h1 className="display-lg">Portfolio today</h1>
               <p className="flex items-center gap-2 text-sm text-ash-700">
                 <span className="size-2 animate-pulse-dot bg-lime outline outline-1 outline-ink" aria-hidden />
                 {dateFi(new Date().toISOString())}, simulated feeds
               </p>
             </div>
-            <div className="mt-6">
+            <div className="mt-4">
               <Headline s={s} onAlerts={() => document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
             </div>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_440px]">
-            <div className="order-2 min-w-0 space-y-12 lg:order-1">
-              <section aria-label="Portfolio">
-                <h2 className="mb-4 display-lg">Dealers</h2>
+          <div className="mx-auto mt-8 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="order-2 min-w-0 lg:order-1">
+              <section aria-labelledby="dealers-h">
+                <h2 id="dealers-h" className="mb-3 display-md">Dealers</h2>
                 <Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} />
               </section>
             </div>
-            <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
+            <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2 lg:sticky lg:top-[5.5rem] lg:max-h-[calc(100vh-6.5rem)] lg:self-start lg:overflow-y-auto">
               <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />
             </aside>
           </div>
@@ -72,13 +72,15 @@ export default function BankPage() {
 
 function Skeleton() {
   return (
-    <main className="mx-auto max-w-[1400px] px-4 pt-10 md:px-8" aria-busy="true" aria-label="Loading dashboard">
-      <div className="h-4 w-48 bg-ash-100" />
-      <div className="mt-3 h-12 w-80 bg-ash-100" />
-      <div className="mt-6 h-56 border border-ash-300 bg-mist" />
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_420px]">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[0, 1, 2, 3].map((i) => <div key={i} className="h-64 border border-ash-300 bg-mist" />)}
+    <main className="mx-auto max-w-[1400px] px-4 pt-6 md:px-8 md:pt-8" aria-busy="true" aria-label="Loading dashboard">
+      <div className="h-9 w-64 bg-ash-100" />
+      <div className="mt-4 h-52 border border-ash-300 bg-mist" />
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px]">
+        <div>
+          <div className="h-6 w-28 bg-ash-100" />
+          <div className="mt-3 divide-y divide-ash-300 border border-ash-300">
+            {[0, 1, 2, 3].map((i) => <div key={i} className="h-[68px] bg-mist" />)}
+          </div>
         </div>
         <div className="h-96 border border-ash-300 bg-mist" />
       </div>

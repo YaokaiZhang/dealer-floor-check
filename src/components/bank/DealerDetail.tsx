@@ -7,13 +7,12 @@ import { isAutoVerified, portfolioStats, riskScore, samplingFor } from "@/lib/ri
 import { dateFi, eur, eurCompact, pct, timeFi } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
 import { TIERS, TIER_ORDER } from "@/config/tiers";
-import { SectionTag } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { Button } from "@/components/ui/Button";
 import { RiskBreakdown, riskTone, riskWord } from "./Portfolio";
 import { SamplingFlow } from "./Sampling";
-import { Check, SEV_BAR, SourceTag, isOpen } from "./shared";
+import { Check, H, SEV_BAR, SourceTag, StatusTag, isOpen } from "./shared";
 
 export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: (id: string) => void }) {
   const st = portfolioStats(s, d.id);
@@ -29,31 +28,33 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
       <header className="border-b border-ink bg-mist p-4 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="tag-text text-ash-700">{d.city} · contact {d.contact}</p>
-            <h2 className="mt-2 display-xl">{d.name}</h2>
+            <h2 className="display-xl">{d.name}</h2>
+            <p className="mt-2 text-sm text-ash-700">{d.city}. Contact {d.contact}</p>
           </div>
           <TierBadge tier={d.tier} size="lg" />
         </div>
-        <dl className="mt-6 grid grid-cols-2 gap-px border border-ink bg-ink sm:grid-cols-4">
+        <dl className="mt-5 grid grid-cols-2 gap-px border border-ink bg-ink sm:grid-cols-4">
           <Fig k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
           <Fig k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
           <Fig k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
-          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.topUp.speed} top-up · ~${tier.checkInsPerYear} check‑ins/yr`} />
+          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.topUp.speed} top-up, ~${tier.checkInsPerYear} check‑ins/yr`} />
         </dl>
       </header>
 
       <div className="space-y-10 p-4 md:p-6">
         {alerts.length > 0 && (
           <section>
-            <SectionTag>Alerts</SectionTag>
+            <H note={`${alerts.filter(isOpen).length} open`}>Alerts</H>
             <ul className="mt-3 divide-y divide-ink border border-ink">
               {alerts.map((a) => (
                 <li key={a.id}>
-                  <button type="button" onClick={() => onAlert(a.id)} className={`relative flex w-full flex-wrap items-center gap-2 p-3 pl-4 text-left text-sm hover:bg-mist ${isOpen(a) ? "" : "opacity-55"}`}>
-                    <span className={`absolute inset-y-0 left-0 w-1.5 ${SEV_BAR[a.severity]}`} />
-                    <SourceTag source={a.source} />
-                    <span className="flex-1">{a.message}</span>
-                    <span className="tag-text text-ash-700">{isOpen(a) ? a.step.replace(/_/g, " ") : a.status.replace(/_/g, " ")}</span>
+                  <button type="button" onClick={() => onAlert(a.id)} className={`relative block w-full py-3 pr-3 pl-5 text-left text-sm hover:bg-mist ${isOpen(a) ? "" : "text-ash-700"}`}>
+                    <span className={`absolute inset-y-0 left-0 w-1.5 ${isOpen(a) ? SEV_BAR[a.severity] : "bg-ash-300"}`} aria-hidden />
+                    <span className="block font-medium leading-snug">{a.message}</span>
+                    <span className="mt-1.5 flex flex-wrap gap-1.5">
+                      <SourceTag source={a.source} />
+                      <StatusTag alert={a} visit={a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined} />
+                    </span>
                   </button>
                 </li>
               ))}
@@ -63,10 +64,10 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
         <section className="grid gap-8 md:grid-cols-[14rem_1fr]">
           <div>
-            <SectionTag>Risk score</SectionTag>
+            <H>Risk score</H>
             <p className="mt-2 flex items-baseline gap-2">
               <span className="figure text-7xl">{risk.score}</span>
-              <span className="tag-text text-ash-700">/100 · {riskWord(risk.score)}</span>
+              <span className="text-sm text-ash-700">/ 100, {riskWord(risk.score).toLowerCase()}</span>
             </p>
             <div className="mt-2 h-2 bg-ash-100"><div className={`h-full ${riskTone(risk.score)}`} style={{ width: `${risk.score}%` }} /></div>
           </div>
@@ -74,13 +75,13 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
         </section>
 
         <section>
-          <SectionTag>Next random check-in · sampling</SectionTag>
+          <H note="how many cars the next random check-in asks for">Sampling</H>
           <div className="mt-3"><SamplingFlow e={explanation} /></div>
         </section>
 
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <SectionTag>Spot checks · {tier.visit.perYear}×/yr, unannounced</SectionTag>
+            <H note={`${tier.visit.perYear}× a year, unannounced`}>Spot checks</H>
             <Button variant="secondary" className="py-1.5" disabled={!!visits.find((v) => v.verifier.status !== "reported")} onClick={() => actions.sendSpotCheck(d.id)}>
               Post spot check
             </Button>
@@ -93,7 +94,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <SectionTag>Check-ins · silent checks</SectionTag>
+            <H note="photo checks against the bank's records">Check-ins</H>
             <Tag tone="ink">Bank only</Tag>
           </div>
           {checkIns.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
@@ -105,7 +106,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
         <section className="grid gap-8 md:grid-cols-2">
           <div>
-            <SectionTag>Tier history</SectionTag>
+            <H>Tier history</H>
             <ol className="mt-3 border-l border-ink">
               {[...d.tierHistory].reverse().map((t, i) => (
                 <li key={i} className="relative pb-4 pl-5">
@@ -117,7 +118,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
             </ol>
           </div>
           <div>
-            <SectionTag>Manual tier override</SectionTag>
+            <H>Manual tier override</H>
             <label className="mt-3 block text-sm">
               <span className="sr-only">Tier</span>
               <select
@@ -128,7 +129,11 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
                 {[...TIER_ORDER].reverse().map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </label>
-            <p className="mt-3 tag-text text-ash-700">p {+(tier.sampling.p * 100).toFixed(1)}% · {pct(tier.sampling.confidence)} conf. · top-up {tier.topUp.amount ? eur(tier.topUp.amount) : "paused"}</p>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+              <dt className="text-ash-700">Catch if missing</dt><dd className="tabular-nums">{+(tier.sampling.p * 100).toFixed(1)}%</dd>
+              <dt className="text-ash-700">Detection target</dt><dd className="tabular-nums">{pct(tier.sampling.confidence)} a year</dd>
+              <dt className="text-ash-700">Top-up</dt><dd className="tabular-nums">{tier.topUp.amount ? eur(tier.topUp.amount) : "paused"}</dd>
+            </dl>
           </div>
         </section>
 
@@ -297,11 +302,11 @@ const HO: Record<HistoryEntry["outcome"], string> = { clean: "bg-lime", failed: 
 function History({ entries }: { entries: HistoryEntry[] }) {
   return (
     <div className="mt-6">
-      <p className="tag-text text-ash-700">History</p>
-      <ol className="mt-2 divide-y divide-ash-300 border-y border-ink">
+      <H>History</H>
+      <ol className="mt-3 divide-y divide-ash-300 border-y border-ink">
         {[...entries].reverse().map((h) => (
           <li key={h.id} className="grid grid-cols-[6.5rem_6rem_1fr] items-center gap-2 py-2 text-sm">
-            <span className="tag-text text-ash-700">{dateFi(h.date)}</span>
+            <span className="text-xs tabular-nums text-ash-700">{dateFi(h.date)}</span>
             <span className="flex items-center gap-1.5 tag-text"><span className={`size-2.5 border border-ink ${HO[h.outcome]}`} />{HK[h.kind]}</span>
             <span>{h.note}</span>
           </li>
@@ -319,8 +324,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
   return (
     <section>
       <div className="flex items-baseline justify-between">
-        <SectionTag>Cars ({cars.length})</SectionTag>
-        <span className="tag-text text-ash-700">{cars.filter((c) => c.connected).length} connected</span>
+        <H note={`${cars.filter((c) => c.connected).length} connected`}>Cars ({cars.length})</H>
       </div>
       <div className="mt-3 overflow-x-auto border border-ink">
         <table className="w-full min-w-[640px] text-left text-xs">

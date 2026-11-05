@@ -28,7 +28,7 @@ export function Odometer({ value, ms = 900, className = "" }: { value: string | 
           const d = ready ? Number(c) : 0;
           return (
             <span key={`d${place}`} className="odo">
-              <span className="odo-strip" style={{ transform: `translateY(-${d}em)`, ["--odo-ms" as string]: `${ms + place * 60}ms` }}>
+              <span className="odo-strip" style={{ transform: `translateY(-${d * 1.15}em)`, ["--odo-ms" as string]: `${ms + place * 60}ms` }}>
                 {DIGITS.map((n) => <span key={n}>{n}</span>)}
               </span>
             </span>
