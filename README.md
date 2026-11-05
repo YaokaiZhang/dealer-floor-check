@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aurora Floor Check
 
-## Getting Started
+Hackathon prototype for **TiK x Netlight Mini Hackathon, Case 2 (Floor Check)**.
+Aurora Dealer Finance is a fictional lender and the dealers are fictional too. All external data (connected-car API, marketplace, vehicle registry) is simulated.
 
-First, run the development server:
+> Verify the floor without walking it: data first, people last. Dealers get a friendly ~3-minute check-in now and then, and a physical visit is the last resort.
+
+## Status: frontend with fake data
+
+- State is seeded from `data/seed.json` and lives **in the browser** (localStorage). Tabs on the same machine sync live, so `/demo` → `/bank` updates instantly.
+- The VIN read is **simulated** in `src/lib/verify.ts` (`readVin`). Location (browser Geolocation), freshness and photo reuse (dHash) are real.
+- Next step: move state to an API route (so a real phone and the laptop share it) and swap `readVin` for a Claude vision call.
+
+## Run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Routes:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Route | What |
+|---|---|
+| `/dealer` | Dealer mobile app: check-in inbox, capture flow, tier page, "What we check" |
+| `/bank` | Bank dashboard: portfolio, live alerts, dealer detail, sampling, cost / risk chart |
+| `/demo` | Demo control panel: fire simulated events, reset demo |
+| `/demo/plates` | Rendered VIN plates to photograph on stage |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Phone on the same network
 
-## Learn More
+```bash
+npm run dev -- -H 0.0.0.0
+```
 
-To learn more about Next.js, take a look at the following resources:
+Then open `http://<your-laptop-ip>:3000/dealer` on the phone (`ipconfig getifaddr en0` on macOS). Camera capture works over plain HTTP; Geolocation needs HTTPS or localhost, so on a LAN IP keep **Simulate on-site location** switched on in `/demo` (the bank sees those photos labelled "simulated"). For real GPS use an HTTPS tunnel, e.g. `npx localtunnel --port 3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> In this frontend phase state is per browser, so phone and laptop don't share it yet. For the stage demo until the API lands, drive the dealer flow in a phone-sized browser window on the laptop.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Where things are
 
-## Deploy on Vercel
+| File | Purpose |
+|---|---|
+| `data/seed.json` | 4 dealers, 132 financed cars, mock feed states (regenerate with `node scripts/generate-seed.mjs`) |
+| `src/lib/store.ts` | All state + actions (check-ins, feed events, escalation ladder, bank decisions) |
+| `src/lib/sampling.ts` | `sampleSize()` hypergeometric sampling |
+| `src/lib/risk.ts` | Risk score formula (documented), auto-verification, sampling pool |
+| `src/config/tiers.ts` | Tier rules: check-in rate, sampling tolerance, perks |
+| `src/config/assumptions.ts` | **All business-case assumptions** for the cost / risk chart |
+| `src/lib/costModel.ts` | Cost / risk model and headline |
+| `src/lib/verify.ts` | Silent photo checks (VIN match, location, freshness, reuse) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Risk score (0–100)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Base 20 · open alerts high +35 / medium +15 / low +5 · last 6 check-ins failed +12 / skipped +6 / clean −3 · past alerts +6 each · unconnected share of the portfolio up to +15. One unresolved high-severity alert moves a dealer to Review; only a bank officer clears alerts, confirms fraud or changes terms. Three clean check-ins in a row step a dealer up one tier.
+
+### Sampling
+
+Smallest n so that if at least p of the N cars in the pool were missing, a random sample of n catches one with probability ≥ confidence. Connected cars seen inside the geofence in the last 24 h are auto-verified and leave the pool. The tier sets p and confidence (Gold 5% / 90% … Review 2% / 99%).
+
+## Demo script (~3 min)
+
+Run **Reset demo** in `/demo` first. Keep `/bank`, `/demo` and `/dealer` open in separate tabs.
+
+1. **Bank dashboard**: 4 dealers, most connected cars verified automatically. "Most verification already happened with zero people." Point at the cost headline.
+2. **Dealer phone**: in `/demo` send a check-in to Laakso Autot. In `/dealer`: friendly request → pick a window → Start check-in → cars revealed → photograph the VIN plates (from `/demo/plates`) → "All verified ✓, €40,000 top-up available, you're Gold tier."
+3. **Demo panel**: fire **Sold out of trust**. On `/bank` a high alert appears: listing sold, connected car ~180 km away, registry owner change pending. Koskinen Car Center moves to Review and a targeted check-in goes out. Click **Dispatch verifier (€30)**: the report comes back a few seconds later.
+4. **Close**: dealer detail sampling explainer + the cost / risk slider. "In a high-trust market, the best control is one honest dealers barely notice."

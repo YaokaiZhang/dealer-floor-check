@@ -15,8 +15,8 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${body.variable} ${display.variable} ${mono.variable} antialiased`}>{children}</body>
+    <html lang="en" className={`${body.variable} ${display.variable} ${mono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
