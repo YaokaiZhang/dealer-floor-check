@@ -4,7 +4,7 @@
  * same server all see the same state.
  *
  * Persistence: a JSON snapshot in `.data/state.json` (written at most every 500 ms), photos as JPEG
- * files in `.data/photos/`. Survives `next dev` reloads and server restarts. Set KERB_DATA_DIR to
+ * files in `.data/photos/`. Survives `next dev` reloads and server restarts. Set CURB_DATA_DIR to
  * move it; on a read-only filesystem it quietly runs in memory only.
  */
 import fs from "node:fs";
@@ -14,12 +14,12 @@ import { buildInitialState, ops, VERSION, type Store } from "@/lib/engine";
 type Listener = (rev: number) => void;
 interface Db { state: Store; rev: number; listeners: Set<Listener>; saveTimer?: ReturnType<typeof setTimeout>; ticker?: ReturnType<typeof setInterval>; lastTick: number }
 
-const DIR = process.env.KERB_DATA_DIR || process.env.AURORA_DATA_DIR || path.join(process.cwd(), ".data");
+const DIR = process.env.CURB_DATA_DIR || process.env.AURORA_DATA_DIR || path.join(process.cwd(), ".data");
 const FILE = path.join(DIR, "state.json");
 const PHOTOS = path.join(DIR, "photos");
 const TICK_MS = 3000;
 
-const g = globalThis as unknown as { __kerbDb?: Db };
+const g = globalThis as unknown as { __curbDb?: Db };
 
 function loadFromDisk(): Store | null {
   try {
@@ -31,9 +31,9 @@ function loadFromDisk(): Store | null {
 }
 
 function db(): Db {
-  if (g.__kerbDb) return g.__kerbDb;
+  if (g.__curbDb) return g.__curbDb;
   const d: Db = { state: loadFromDisk() ?? buildInitialState(), rev: 1, listeners: new Set(), lastTick: Date.now() };
-  g.__kerbDb = d;
+  g.__curbDb = d;
   d.ticker = setInterval(tick, TICK_MS);
   d.ticker.unref?.();
   return d;

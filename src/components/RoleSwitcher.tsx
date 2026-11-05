@@ -37,7 +37,7 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
         </nav>
       </div>
       {hydrated && !live && (
-        <p role="status" className="border-t border-line bg-medium-soft px-4 py-1 text-center tag-text">Reconnecting to the server…</p>
+        <p role="status" className="border-t border-ink bg-medium-soft px-4 py-1 text-center tag-text">Reconnecting to the server…</p>
       )}
     </header>
   );

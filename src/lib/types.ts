@@ -74,7 +74,7 @@ export interface VerifierJob {
   dispatchedAt: string;
   name: string;
   status: VerifierStatus;
-  /** Shown to dealer staff on arrival so they can confirm the visit with Kerb. */
+  /** Shown to dealer staff on arrival so they can confirm the visit with Curb. */
   visitCode: string;
   fee: number;
   acceptedAt?: string;

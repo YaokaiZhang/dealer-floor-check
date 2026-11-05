@@ -7,11 +7,11 @@ import { getPosition } from "@/lib/verify";
 import { formatDistance } from "@/lib/geo";
 import { eur } from "@/lib/format";
 import { CarCheck } from "./CarCheck";
-import { carState, Plate, STATE_LABEL, StateMark, Swatch, type CarState, type Job } from "./shared";
+import { carState, Plate, ScreenTitle, STATE_LABEL, StateMark, Swatch, type CarState, type Job } from "./shared";
 
 /** Bottom bar for the one next action, within thumb reach. */
 export function ActionBar({ children }: { children: React.ReactNode }) {
-  return <div className="sticky bottom-0 z-10 mt-auto border-t border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{children}</div>;
+  return <div className="sticky bottom-0 z-10 mt-auto border-t border-ink bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{children}</div>;
 }
 
 /** The lot ahead: rows of unknown cars, with this visit's cars outlined somewhere among them. */
@@ -29,28 +29,35 @@ function VisitHeader({ job }: { job: Job }) {
   const states = cars.map((c) => carState(visit.results[c.vin]));
   const checked = states.filter((s) => s !== "todo").length;
   return (
-    <section className="border-b border-line bg-brand px-4 pt-5 pb-4 bay-lines-ink">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm text-ink/70">{dealer.city}</p>
-          <h1 className="mt-1 display-lg">{dealer.name}</h1>
+    <>
+      <ScreenTitle long sub={dealer.city}>{dealer.name}</ScreenTitle>
+      <dl className="grid grid-cols-2 border-t border-ink">
+        <div className="px-4 py-4">
+          <dt className="text-sm text-ash-700">Visit code</dt>
+          <dd className="mt-2 figure text-3xl tracking-[0.08em]">{visit.verifier.visitCode}</dd>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="text-xs text-ink/70">Visit code</p>
-          <p className="mt-1 border border-line bg-paper px-2 py-1 font-mono text-lg font-medium tracking-[0.12em]">{visit.verifier.visitCode}</p>
+        <div className="border-l border-ink px-4 py-4">
+          {onSite ? (
+            <>
+              <dt className="text-sm text-ash-700">Checked</dt>
+              <dd className="mt-2 figure text-3xl tabular-nums">{checked}/{cars.length}</dd>
+            </>
+          ) : (
+            <>
+              <dt className="text-sm text-ash-700">Fee</dt>
+              <dd className="mt-2 figure text-3xl">{eur(visit.verifier.fee)}</dd>
+            </>
+          )}
         </div>
-      </div>
+      </dl>
       {onSite ? (
-        <div className="mt-4 flex items-center gap-3">
-          <ol className="grid flex-1 gap-1" style={{ gridTemplateColumns: `repeat(${cars.length}, 1fr)` }} aria-hidden>
-            {states.map((s, i) => <li key={i} className={`h-2.5 border border-line transition-colors duration-300 ${SEGMENT[s]}`} />)}
-          </ol>
-          <p className="shrink-0 text-sm font-medium tabular-nums">{checked} of {cars.length} checked</p>
-        </div>
+        <ol className="grid h-2.5 border-y border-ink" style={{ gridTemplateColumns: `repeat(${cars.length}, 1fr)` }} aria-hidden>
+          {states.map((s, i) => <li key={i} className={`transition-colors duration-300 ${i > 0 ? "border-l border-ink" : ""} ${SEGMENT[s]}`} />)}
+        </ol>
       ) : (
-        <p className="mt-4 text-sm">Staff see this code too.</p>
+        <div className="border-t border-ink" />
       )}
-    </section>
+    </>
   );
 }
 
@@ -89,11 +96,11 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
     return (
       <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
         <VisitHeader job={job} />
-        <div className="space-y-5 px-4 pt-6 pb-8">
-          <Lot stalls={travelLot(cars.length)} cols={10} className="mx-auto w-full max-w-[260px] text-ink" />
-          <p className="text-lg leading-snug">{cars.length} cars to photograph. You get <b>{eur(v.fee)}</b> when you send the report, found or not.</p>
+        <div className="space-y-6 px-4 pt-8 pb-8">
+          <Lot stalls={travelLot(cars.length)} cols={10} className="mx-auto w-full max-w-[300px] text-ink" />
+          <p className="display-md">{cars.length} cars to photograph</p>
           {tooFar !== null && (
-            <p className="border border-line bg-high-soft p-3 text-sm" role="status">
+            <p className="border border-high bg-high-soft p-3 text-sm" role="status">
               {tooFar < 0 ? "No location. Allow location access and try again." : <>You&apos;re <b>{formatDistance(tooFar)}</b> from the lot. Get closer and try again.</>}
             </p>
           )}
@@ -108,20 +115,20 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
       <VisitHeader job={job} />
-      <ul className="divide-y divide-line border-b border-line" aria-label="Cars to confirm">
+      <ul className="divide-y divide-line border-b border-ink" aria-label="Cars to confirm">
         {cars.map((c, i) => {
           const st = states[i];
           const done = st === "found" || st === "missing";
           return (
             <li key={c.vin}>
-              <button type="button" onClick={() => openCar(c.vin)} className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-brand-soft active:bg-brand-soft">
+              <button type="button" onClick={() => openCar(c.vin)} className="flex min-h-22 w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-brand-soft focus-visible:bg-brand-soft active:bg-brand-soft">
                 <StateMark state={st} />
                 <span className="min-w-0 flex-1">
                   <span className={`block truncate text-base font-medium ${done ? "text-ash-700" : ""}`}>{c.make} {c.model}</span>
                   <span className="mt-1 flex items-center gap-1.5 text-sm text-ash-700">
                     <Swatch color={c.color} />
                     <span className="truncate">{c.color}</span>
-                    <span className="ml-1.5 font-mono text-xs whitespace-nowrap">VIN …{c.vin.slice(-6)}</span>
+                    <span className="ml-1.5 whitespace-nowrap tabular-nums">VIN …{c.vin.slice(-6)}</span>
                   </span>
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-1.5">
@@ -135,9 +142,9 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
       </ul>
 
       {!next && (
-        <label className="block px-4 pt-5 pb-6">
-          <span className="text-sm text-ash-700">Note for the lender (optional)</span>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1.5 block w-full border border-line bg-paper p-3 text-base" />
+        <label className="block px-4 pt-8 pb-8">
+          <span className="text-sm text-ash-700">Note (optional)</span>
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-2 block w-full resize-none border border-ink bg-paper p-3 text-base" />
         </label>
       )}
 
@@ -145,11 +152,11 @@ export function ActiveVisit({ job, s }: { job: Job; s: Store }) {
         {next ? (
           <Button arrow className="min-h-14 w-full text-base" onClick={() => openCar(next.vin)}>
             <span className="min-w-0 truncate">Next: {next.make} {next.model}</span>
-            <span className="shrink-0 border border-paper/60 px-1.5 py-0.5 font-mono text-sm tracking-wider">{next.plate}</span>
+            <span className="shrink-0 border border-paper/60 px-1.5 py-0.5 figure text-sm tracking-[0.06em]">{next.plate}</span>
           </Button>
         ) : (
           <>
-            {retakes > 0 && <p className="mb-2 text-sm">{retakes === 1 ? "1 car" : `${retakes} cars`} couldn&apos;t be confirmed. Retake, or send as is.</p>}
+            {retakes > 0 && <p className="mb-2 text-sm">{retakes === 1 ? "1 car" : `${retakes} cars`} not confirmed</p>}
             <Button arrow className="min-h-14 w-full text-base" onClick={() => { actions.verifierSubmit(visit.id, note || undefined); window.scrollTo({ top: 0 }); }}>
               Send report <span className="figure text-lg">{eur(v.fee)}</span>
             </Button>

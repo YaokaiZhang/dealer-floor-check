@@ -7,7 +7,7 @@ import { eur, timeFi } from "@/lib/format";
 import { ActiveVisit } from "./ActiveVisit";
 import { OfferCard } from "./OfferCard";
 import { Reported } from "./Reported";
-import { confirmed, type Job } from "./shared";
+import { confirmed, ScreenTitle, type Job } from "./shared";
 
 /**
  * The freelancer's phone app. A vetted local person takes a paid spot check: an unannounced visit
@@ -30,9 +30,9 @@ function jobsOf(s: Store): Job[] {
 
 function VerifierShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh bg-mist">
+    <div className="min-h-dvh overflow-x-clip bg-paper">
       <RoleSwitcher compact />
-      <main className="mx-auto min-h-[calc(100dvh-3.5rem)] w-full max-w-md border-x border-line bg-paper">{children}</main>
+      <main className="mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full max-w-md flex-col border-ink bg-paper sm:border-x">{children}</main>
     </div>
   );
 }
@@ -46,12 +46,10 @@ export function VerifierApp() {
   if (!hydrated) {
     return (
       <VerifierShell>
-        <div aria-hidden>
-          <div className="h-48 border-b border-line bg-brand-soft" />
-          <div className="animate-pulse space-y-3 p-4">
-            <div className="h-6 w-1/2 bg-ash-100" />
-            <div className="h-44 w-full bg-ash-100" />
-          </div>
+        <div aria-hidden className="animate-pulse">
+          <div className="px-4 pt-10 pb-6"><div className="h-14 w-3/4 bg-ash-100" /></div>
+          <div className="h-28 border-y border-ink" />
+          <div className="m-4 h-44 bg-ash-100" />
         </div>
       </VerifierShell>
     );
@@ -73,62 +71,52 @@ export function VerifierApp() {
 
   return (
     <VerifierShell>
-      <section className="border-b border-line bg-brand px-4 pt-6 pb-5 bay-lines-ink">
-        <h1 className="display-xl">Hi {me.split(" ")[0]}</h1>
-        <dl className="mt-4 grid grid-cols-2 border border-line bg-paper">
-          <div className="px-3 py-2.5">
-            <dt className="text-xs text-ash-700">Earned today</dt>
-            <dd className="mt-1 figure text-3xl"><Odometer value={eur(earned)} /></dd>
+      <ScreenTitle>Hi {me.split(" ")[0]}</ScreenTitle>
+      <dl className="grid grid-cols-2 border-y border-ink">
+        <div className="px-4 py-5">
+          <dt className="text-sm text-ash-700">Earned today</dt>
+          <dd className="mt-3 figure text-5xl"><Odometer value={eur(earned)} /></dd>
+        </div>
+        <div className="border-l border-ink px-4 py-5">
+          <dt className="text-sm text-ash-700">Visits done</dt>
+          <dd className="mt-3 figure text-5xl"><Odometer value={done.length} /></dd>
+        </div>
+      </dl>
+
+      <section aria-labelledby="near" className="pb-4">
+        <h2 id="near" className="px-4 pt-12 pb-5 display-lg">Near you</h2>
+        {offered.length === 0 ? (
+          <div className="border-t border-ink px-4 py-8">
+            <p className="display-md text-ash-700">Nothing nearby</p>
+            <a href="/demo" className="mt-4 inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4" target="_blank" rel="noreferrer">Post one from the demo panel ↗</a>
           </div>
-          <div className="border-l border-line px-3 py-2.5">
-            <dt className="text-xs text-ash-700">Visits done</dt>
-            <dd className="mt-1 figure text-3xl"><Odometer value={done.length} /></dd>
-          </div>
-        </dl>
+        ) : (
+          <ul className="border-b border-ink">
+            {offered.map((j) => (
+              <li key={j.visit.id} className="border-t border-ink">
+                <OfferCard job={j} onAccept={() => { actions.verifierAccept(j.visit.id); setOpenId(j.visit.id); }} onDecline={() => setDeclined((d) => [...d, j.visit.id])} />
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
-      <div className="space-y-8 px-4 pt-6 pb-16">
-        <section>
-          <h2 className="mb-3 display-md">Spot checks near you</h2>
-          {offered.length === 0 ? (
-            <div className="border border-dashed border-ash-500 px-4 py-6">
-              <p className="font-medium">Nothing nearby right now</p>
-              <p className="mt-1 text-sm text-ash-700">New visits show up here.</p>
-              <a href="/demo" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4" target="_blank" rel="noreferrer">Post one from the demo panel ↗</a>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {offered.map((j) => (
-                <li key={j.visit.id}>
-                  <OfferCard job={j} onAccept={() => { actions.verifierAccept(j.visit.id); setOpenId(j.visit.id); }} onDecline={() => setDeclined((d) => [...d, j.visit.id])} />
-                </li>
-              ))}
-            </ul>
-          )}
+      {done.length > 0 && (
+        <section aria-labelledby="done" className="pb-16">
+          <h2 id="done" className="px-4 pt-12 pb-5 display-lg">Done today</h2>
+          <ul className="divide-y divide-line border-y border-ink">
+            {done.map((j) => (
+              <li key={j.visit.id} className="flex items-center justify-between gap-3 px-4 py-4">
+                <span className="min-w-0">
+                  <span className="block truncate font-medium">{j.dealer.name}</span>
+                  <span className="mt-0.5 block text-sm text-ash-700">{j.cars.filter((c) => confirmed(j.visit.results[c.vin])).length} of {j.cars.length} found · {timeFi(j.visit.verifier.reportedAt!)}</span>
+                </span>
+                <span className="shrink-0 figure text-2xl">+{eur(j.visit.verifier.fee)}</span>
+              </li>
+            ))}
+          </ul>
         </section>
-
-        {done.length > 0 && (
-          <section>
-            <h2 className="mb-3 display-md">Done today</h2>
-            <ul className="divide-y divide-ash-300 border-y border-line">
-              {done.map((j) => (
-                <li key={j.visit.id} className="flex items-center justify-between gap-3 py-3">
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium">{j.dealer.name}</span>
-                    <span className="block text-sm text-ash-700">{j.cars.filter((c) => confirmed(j.visit.results[c.vin])).length} of {j.cars.length} found</span>
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block figure text-xl">+{eur(j.visit.verifier.fee)}</span>
-                    <span className="block font-mono text-xs text-ash-700">{timeFi(j.visit.verifier.reportedAt!)}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <p className="max-w-[32ch] text-sm text-ash-700">Visits are unannounced, take about 30 minutes, and pay whether the cars are there or not.</p>
-      </div>
+      )}
     </VerifierShell>
   );
 }
