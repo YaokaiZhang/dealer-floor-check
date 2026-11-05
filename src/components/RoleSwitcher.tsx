@@ -5,6 +5,7 @@ import { Wordmark } from "./ui/Wordmark";
 
 const ROLES = [
   { href: "/dealer", label: "Dealer" },
+  { href: "/verifier", label: "Verifier" },
   { href: "/bank", label: "Bank" },
   { href: "/demo", label: "Demo control" },
 ];

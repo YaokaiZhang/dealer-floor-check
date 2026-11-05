@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { SectionTag } from "@/components/ui/Card";
-import { Marquee } from "@/components/ui/Marquee";
 import { actions, useDemo, useHydrated } from "@/lib/store";
 import { dateFi } from "@/lib/format";
 import { Headline } from "@/components/bank/Headline";
@@ -47,10 +46,6 @@ export default function BankPage() {
             <div className="mt-6">
               <Headline s={s} onAlerts={() => document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
             </div>
-          </div>
-
-          <div className="mt-8">
-            <Marquee tone="ink" duration={60} items={[...s.events.slice(0, 4).map((e) => e.text), "Data first, people last", "A check-in, never an audit"]} />
           </div>
 
           <div className="mx-auto mt-10 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_440px]">

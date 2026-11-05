@@ -7,6 +7,7 @@ import { Tag } from "@/components/ui/Tag";
 const ROLES = [
   { href: "/dealer", tag: "Mobile web", title: "Dealer app", body: "A friendly check-in, about three minutes, at a time the dealer picks. Clean check-ins unlock an instant credit-line top-up.", tone: "bg-lime" },
   { href: "/bank", tag: "Dashboard", title: "Bank dashboard", body: "Portfolio, live alerts from connected cars, marketplace and registry, statistically sized sampling and the cost / risk trade-off.", tone: "bg-brand" },
+  { href: "/verifier", tag: "Mobile web", title: "Freelance verifier", body: "When signals agree, a vetted local freelancer takes a €30 one-car job, photographs the VIN plate on the lot and reports back within the hour.", tone: "bg-brand-soft" },
   { href: "/demo", tag: "Stage", title: "Demo control", body: "Fire simulated events: check-in requests, marketplace sales, registry changes, cars leaving the lot. Reset to seed.", tone: "bg-paper" },
 ];
 
@@ -28,7 +29,7 @@ export default function Home() {
           </div>
         </section>
         <Marquee items={["Data first, people last", "Trust grows over time", "A check-in, never an audit", "Open about the rules"]} />
-        <section className="mx-auto grid max-w-[1400px] gap-6 px-4 py-16 md:grid-cols-3 md:px-8">
+        <section className="mx-auto grid max-w-[1400px] gap-6 px-4 py-16 md:grid-cols-2 md:px-8 xl:grid-cols-4">
           {ROLES.map((r) => (
             <a key={r.href} href={r.href} className="group block focus-visible:outline-none">
               <Card interactive className="flex h-full flex-col p-2">

@@ -46,6 +46,7 @@ export default function DemoPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <ButtonLink href="/verifier" variant="secondary" arrow>Verifier app</ButtonLink>
             <ButtonLink href="/demo/plates" variant="secondary" arrow>VIN plates to photograph</ButtonLink>
             <Button variant="danger" onClick={() => { if (confirm("Reset the demo to seed data?")) fire("Demo reset", actions.reset); }}>Reset demo</Button>
           </div>
@@ -143,6 +144,12 @@ export default function DemoPage() {
                   help="If the phone's GPS is unavailable or not at the dealer, place it on the dealer lot. The bank sees it labelled “simulated”."
                   checked={hydrated && s.flags.simulateOnSite}
                   onChange={(v) => actions.setFlag("simulateOnSite", v)}
+                />
+                <Toggle
+                  label="Auto-complete verifier jobs"
+                  help="Off: someone plays the freelancer on /verifier. On: a dispatched job reports back by itself after ~6 s."
+                  checked={hydrated && s.flags.autoVerifier}
+                  onChange={(v) => actions.setFlag("autoVerifier", v)}
                 />
                 <Toggle
                   label="Next photo can't be read"

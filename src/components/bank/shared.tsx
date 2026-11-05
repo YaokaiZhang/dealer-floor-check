@@ -72,7 +72,8 @@ export const STEP_ORDER: EscalationStep[] = ["signal", "targeted_check_in", "gig
 export function StatusTag({ alert }: { alert: Alert }) {
   if (alert.status === "resolved_ok") return <Tag tone="lime">Cleared</Tag>;
   if (alert.status === "confirmed_fraud") return <Tag tone="ink">Sold out of trust</Tag>;
-  if (alert.verifier?.status === "en_route") return <Tag tone="brand"><span className="size-1.5 animate-pulse-dot bg-ink" />Verifier en route</Tag>;
+  if (alert.verifier && alert.verifier.status !== "reported")
+    return <Tag tone="brand"><span className="size-1.5 animate-pulse-dot bg-ink" />{({ offered: "Verifier job posted", en_route: "Verifier en route", on_site: "Verifier on site" } as const)[alert.verifier.status]}</Tag>;
   if (alert.verifier?.status === "reported") return <Tag tone={alert.verifier.found ? "lime" : "high"}>Verifier: {alert.verifier.found ? "found" : "not found"}</Tag>;
   if (alert.step === "auditor") return <Tag tone="ink">Auditor assigned</Tag>;
   if (alert.step === "targeted_check_in") return <Tag tone="muted">Check-in sent</Tag>;

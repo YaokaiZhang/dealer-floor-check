@@ -23,6 +23,7 @@ Open http://localhost:3000. Routes:
 | Route | What |
 |---|---|
 | `/dealer` | Dealer mobile app: check-in inbox, capture flow, tier page, "What we check" |
+| `/verifier` | Freelance verifier mobile app: accept a €30 one-car job, check in on site, photograph the VIN plate or report why the car isn't there |
 | `/bank` | Bank dashboard: portfolio, live alerts, dealer detail, sampling, cost / risk chart |
 | `/demo` | Demo control panel: fire simulated events, reset demo |
 | `/demo/plates` | Rendered VIN plates to photograph on stage |
@@ -49,6 +50,7 @@ Then open `http://<your-laptop-ip>:3000/dealer` on the phone (`ipconfig getifadd
 | `src/config/assumptions.ts` | **All business-case assumptions** for the cost / risk chart |
 | `src/lib/costModel.ts` | Cost / risk model and headline |
 | `src/lib/verify.ts` | Silent photo checks (VIN match, location, freshness, reuse) |
+| `src/components/verifier/` | Freelance verifier app (job board, on-site check-in, report) |
 
 ### Risk score (0–100)
 
@@ -60,9 +62,12 @@ Smallest n so that if at least p of the N cars in the pool were missing, a rando
 
 ## Demo script (~3 min)
 
-Run **Reset demo** in `/demo` first. Keep `/bank`, `/demo` and `/dealer` open in separate tabs.
+Run **Reset demo** in `/demo` first. Keep `/bank`, `/demo`, `/dealer` and `/verifier` open in separate tabs.
 
 1. **Bank dashboard**: 4 dealers, most connected cars verified automatically. "Most verification already happened with zero people." Point at the cost headline.
 2. **Dealer phone**: in `/demo` send a check-in to Laakso Autot. In `/dealer`: friendly request → pick a window → Start check-in → cars revealed → photograph the VIN plates (from `/demo/plates`) → "All verified ✓, €40,000 top-up available, you're Gold tier."
-3. **Demo panel**: fire **Sold out of trust**. On `/bank` a high alert appears: listing sold, connected car ~180 km away, registry owner change pending. Koskinen Car Center moves to Review and a targeted check-in goes out. Click **Dispatch verifier (€30)**: the report comes back a few seconds later.
+3. **Demo panel**: fire **Sold out of trust**. On `/bank` a high alert appears: listing sold, connected car ~180 km away, registry owner change pending. Koskinen Car Center moves to Review and a targeted check-in goes out. Click **Dispatch verifier (€30)**: a job is posted to local freelancers.
+   - **Freelancer phone** (`/verifier`): the job appears ("Confirm one car is on the lot", €30). The freelancer never sees why the car was picked, so visits stay neutral. Accept → **I'm at the lot** (location checked once against the dealer geofence) → the dealer app shows "Sanna M. is visiting on behalf of Aurora" with the same visit code → **Car isn't here** → "Staff say it's out on a test drive" → **Send report**. On `/bank` the verifier card fills in step by step (posted → accepted → on site → report) and recommends escalating or confirming.
+   - Alternative: **Car is here** → photograph the VIN plate (same silent checks as the dealer flow) → the bank sees the photo, VIN match, arrival distance and odometer.
+   - No second person? Use **Skip ahead: simulate the report** on the bank card, or turn on **Auto-complete verifier jobs** in `/demo`.
 4. **Close**: dealer detail sampling explainer + the cost / risk slider. "In a high-trust market, the best control is one honest dealers barely notice."

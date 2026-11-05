@@ -16,12 +16,13 @@ import { drawRandom } from "./sampling";
 import { samplingFor } from "./risk";
 import { distanceM, formatDistance } from "./geo";
 import { eur } from "./format";
+import { ASSUMPTIONS } from "@/config/assumptions";
 
 const KEY = "aurora-floor-check-demo";
-const VERSION = 3;
+const VERSION = 4;
 const HOUR = 3600_000;
 
-export interface DemoFlags { simulateOnSite: boolean; nextPhotoUnreadable: boolean }
+export interface DemoFlags { simulateOnSite: boolean; nextPhotoUnreadable: boolean; autoVerifier: boolean }
 type Store = DemoState & { flags: DemoFlags };
 
 const uid = (p: string) => `${p}_${Math.random().toString(36).slice(2, 8)}`;
@@ -55,7 +56,7 @@ export function buildInitialState(now = Date.now()): Store {
     photoHashes: [],
     demo: s.demo,
     events: [{ id: uid("ev"), at: new Date(now).toISOString(), text: "Demo reset to seed data" }],
-    flags: { simulateOnSite: true, nextPhotoUnreadable: false },
+    flags: { simulateOnSite: true, nextPhotoUnreadable: false, autoVerifier: false },
   };
 }
 
@@ -98,11 +99,13 @@ if (typeof window !== "undefined") {
   });
 }
 
-/** Verifier reports are simulated with a timer; re-arm it if the tab was reloaded meanwhile. */
+/** With the "auto-complete verifier jobs" flag, reports are simulated with a timer; re-arm it after a reload. */
 const armed = new Set<string>();
 function armVerifierTimers() {
-  for (const a of load().alerts) {
-    if (a.verifier?.status !== "en_route" || armed.has(a.id)) continue;
+  const s = load();
+  if (!s.flags.autoVerifier) return;
+  for (const a of s.alerts) {
+    if (!a.verifier || a.verifier.status === "reported" || armed.has(a.id)) continue;
     armed.add(a.id);
     const wait = Math.max(0, new Date(a.verifier.dispatchedAt).getTime() + 6000 - Date.now());
     setTimeout(() => actions.verifierReport(a.id), wait);
@@ -203,6 +206,7 @@ export const actions = {
 
   setFlag<K extends keyof DemoFlags>(k: K, v: DemoFlags[K]) {
     commit((s) => { s.flags[k] = v; });
+    if (k === "autoVerifier" && v) armVerifierTimers();
   },
 
   /** Random check-in request. In production the risk engine picks the moment; here the demo panel does. */
@@ -380,12 +384,59 @@ export const actions = {
       const a = s.alerts.find((x) => x.id === alertId)!;
       a.step = "gig_verifier";
       a.status = "investigating";
-      a.verifier = { dispatchedAt: new Date().toISOString(), name: pickVerifier(dealerOf(s, a.dealerId).city), status: "en_route" };
-      log(s, `Gig verifier dispatched to ${dealerOf(s, a.dealerId).name} for ${a.vin} (€30)`);
+      a.verifier = {
+        dispatchedAt: new Date().toISOString(),
+        name: pickVerifier(dealerOf(s, a.dealerId).city),
+        status: "offered",
+        visitCode: `AV-${Math.floor(1000 + Math.random() * 9000)}`,
+        fee: ASSUMPTIONS.gigCheckCost,
+      };
+      log(s, `Verifier job posted near ${dealerOf(s, a.dealerId).name} for ${a.vin} (${eur(ASSUMPTIONS.gigCheckCost)})`);
     });
     armVerifierTimers();
   },
 
+  // ----- freelance verifier app (/verifier)
+
+  verifierAccept(alertId: string) {
+    commit((s) => {
+      const a = s.alerts.find((x) => x.id === alertId);
+      if (!a?.verifier || a.verifier.status !== "offered") return;
+      a.verifier.status = "en_route";
+      a.verifier.acceptedAt = new Date().toISOString();
+      log(s, `${a.verifier.name} accepted the verifier job at ${dealerOf(s, a.dealerId).name}`);
+    });
+  },
+
+  verifierArrive(alertId: string, arrival: PhotoCheck["location"]) {
+    commit((s) => {
+      const a = s.alerts.find((x) => x.id === alertId);
+      if (!a?.verifier || a.verifier.status !== "en_route") return;
+      a.verifier.status = "on_site";
+      a.verifier.arrivedAt = new Date().toISOString();
+      a.verifier.arrival = arrival;
+      log(s, `${a.verifier.name} checked in on site at ${dealerOf(s, a.dealerId).name}${arrival?.simulated ? " (simulated location)" : ""}`);
+    });
+  },
+
+  verifierSubmit(alertId: string, r: { found: boolean; photo?: PhotoCheck; odometerKm?: number; notFoundReason?: string; note?: string }) {
+    commit((s) => {
+      const a = s.alerts.find((x) => x.id === alertId);
+      if (!a?.verifier || a.verifier.status === "reported") return;
+      const v = a.verifier;
+      const d = dealerOf(s, a.dealerId);
+      Object.assign(v, r, { status: "reported", reportedAt: new Date().toISOString() });
+      v.report = r.found
+        ? `Car found on the lot. VIN plate photographed${r.photo?.verified ? " and matched" : ""}${r.odometerKm ? `, odometer ${r.odometerKm.toLocaleString("en")} km` : ""}.${r.note ? ` Note: ${r.note}` : ""}`
+        : `Car not on the lot.${r.notFoundReason ? ` ${r.notFoundReason}.` : ""}${r.note ? ` Note: ${r.note}` : ""}`;
+      if (r.photo) s.photoHashes.push({ hash: r.photo.reuse.hash, dealerId: d.id, vin: a.vin, at: v.reportedAt! });
+      a.evidence.push({ label: "Gig verifier", value: v.report });
+      d.history.push({ id: uid("h"), date: today(), kind: "verifier", outcome: r.found ? "clean" : "failed", note: `Verifier visit for ${a.vin}: ${r.found ? "car found" : "car not on the lot"}` });
+      log(s, `Verifier report for ${a.vin}: ${r.found ? "car found ✓" : "car NOT found"}`);
+    });
+  },
+
+  /** Auto-completed report (flag "autoVerifier", or "Simulate report" on the bank). */
   verifierReport(alertId: string) {
     commit((s) => {
       const a = s.alerts.find((x) => x.id === alertId);
@@ -393,6 +444,8 @@ export const actions = {
       const car = carOf(s, a.vin);
       // Demo: the sold-out-of-trust car is not on the lot; other cars are found.
       const found = car.demoScenario !== "sold_out_of_trust" && a.source !== "registry";
+      a.verifier.simulated = true;
+      a.verifier.reportedAt = new Date().toISOString();
       a.verifier.status = "reported";
       a.verifier.found = found;
       a.verifier.report = found

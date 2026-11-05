@@ -62,8 +62,32 @@ export interface Alert {
   /** Escalation ladder position. */
   step: EscalationStep;
   evidence: { label: string; value: string }[];
-  verifier?: { dispatchedAt: string; name: string; status: "en_route" | "reported"; report?: string; found?: boolean };
+  verifier?: VerifierJob;
   targetedCheckInId?: string;
+}
+
+export type VerifierStatus = "offered" | "en_route" | "on_site" | "reported";
+
+/** A paid, one-car job for a local freelance verifier. The verifier never sees why the car was picked. */
+export interface VerifierJob {
+  dispatchedAt: string;
+  name: string;
+  status: VerifierStatus;
+  /** Shown to dealer staff on arrival so they can confirm the visit with Aurora. */
+  visitCode: string;
+  fee: number;
+  acceptedAt?: string;
+  arrivedAt?: string;
+  arrival?: PhotoCheck["location"];
+  reportedAt?: string;
+  photo?: PhotoCheck;
+  odometerKm?: number;
+  notFoundReason?: string;
+  note?: string;
+  /** True when the demo auto-completed the job instead of someone using /verifier. */
+  simulated?: boolean;
+  report?: string;
+  found?: boolean;
 }
 
 /** Silent checks run per photo. Visible to the bank only. */

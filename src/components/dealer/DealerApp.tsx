@@ -90,6 +90,15 @@ export function DealerApp() {
         <h1 className="mt-3 display-xl">Hi {dealer.name}</h1>
       </section>
 
+      {state.alerts
+        .filter((a) => a.dealerId === dealer.id && a.verifier?.status === "on_site")
+        .map((a) => (
+          <div key={a.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
+            <p className="text-sm"><b>{a.verifier!.name}</b> is visiting on behalf of Aurora today. They&apos;ll show this code.</p>
+            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]">{a.verifier!.visitCode}</span>
+          </div>
+        ))}
+
       <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-3 border-y border-ink bg-paper">
         {TABS.map((t, i) => {
           const on = tab === t.id;

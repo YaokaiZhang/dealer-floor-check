@@ -108,10 +108,12 @@ function recommend(a: Alert, ci?: CheckIn): string {
   if (a.status === "resolved_ok") return "Case closed. The dealer returns to their previous tier once no high alert is open.";
   if (a.status === "confirmed_fraud") return "Confirmed. Hand over to recovery and review the dealer's credit line with the account manager.";
   if (a.step === "auditor") return "Auditor and account manager assigned. Decide after their visit: clear, or confirm sold out of trust.";
-  if (a.verifier?.status === "en_route") return `${a.verifier.name} is on the way. Report expected within minutes (seconds in this demo).`;
+  if (a.verifier?.status === "offered") return "Job posted to vetted local verifiers. Usually accepted within minutes; the report follows in about an hour.";
+  if (a.verifier?.status === "en_route") return `${a.verifier.name} accepted and is on the way. They only know which car to confirm, not why.`;
+  if (a.verifier?.status === "on_site") return `${a.verifier.name} is on the lot now. The report arrives with a VIN photo or a reason the car isn't there.`;
   if (a.verifier?.status === "reported")
     return a.verifier.found
-      ? "Verifier found the car on the lot. Clear the alert to lift Review; no auditor needed."
+      ? "Verifier found the car on the lot. Clear the alert (this also lifts a Review it caused); no auditor needed."
       : "Verifier could not find the car. Escalate to an auditor / account manager, or confirm sold out of trust.";
   if (a.severity === "high")
     return `Several signals agree. Dispatch a gig verifier now (€${ASSUMPTIONS.gigCheckCost}) instead of sending an auditor (€${ASSUMPTIONS.auditorVisitCost}). The targeted check-in stays open in parallel.`;
@@ -155,31 +157,83 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
   );
 }
 
+const V_STEPS = [
+  { key: "dispatchedAt", label: "Job posted" },
+  { key: "acceptedAt", label: "Accepted" },
+  { key: "arrivedAt", label: "On site" },
+  { key: "reportedAt", label: "Report" },
+] as const;
+
 function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
   const v = alert.verifier!;
+  const reported = v.status === "reported";
   const secs = Math.max(0, Math.round((now - Date.parse(v.dispatchedAt)) / 1000));
   return (
-    <div className={`border border-ink p-4 ${v.status === "reported" ? (v.found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <SectionTag className="!text-ink">Gig verifier · €{ASSUMPTIONS.gigCheckCost}</SectionTag>
-        <span className="tag-text text-ash-700">Dispatched {timeFi(v.dispatchedAt)}</span>
+    <div className={`border border-ink ${reported ? (v.found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink px-4 py-3">
+        <SectionTag className="!text-ink">Gig verifier · {eur(v.fee)}</SectionTag>
+        <span className="tag-text text-ash-700">{v.name} · visit code {v.visitCode}</span>
       </div>
-      {v.status === "en_route" ? (
-        <div className="mt-2">
-          <p className="flex items-center gap-2 display-md">
-            <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden /> {v.name} en route
-          </p>
-          <div className="mt-3 h-1.5 overflow-hidden bg-ash-100" aria-hidden>
-            <div className="h-full bg-brand-deep transition-[width] duration-1000 ease-linear" style={{ width: `${Math.min(100, (secs / 6) * 100)}%` }} />
+      <ol className="grid grid-cols-4 border-b border-ink">
+        {V_STEPS.map((st, i) => {
+          const at = v[st.key];
+          return (
+            <li key={st.key} className={`px-3 py-2 ${i > 0 ? "border-l border-ink" : ""} ${at ? "" : "text-ash-500"}`}>
+              <span className="block tag-text">{at ? "✓ " : ""}{st.label}</span>
+              <span className="block font-mono text-xs">{at ? timeFi(at) : "—"}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="p-4">
+        {!reported ? (
+          <>
+            <p className="flex items-center gap-2 display-md">
+              <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden />
+              {v.status === "offered" ? "Waiting for a verifier to accept" : v.status === "en_route" ? `${v.name} en route` : `${v.name} on the lot`}
+            </p>
+            <p className="mt-2 text-sm text-ash-700">
+              Posted {secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago. Open <a className="underline underline-offset-4" href="/verifier" target="_blank" rel="noreferrer">/verifier</a> on a phone to play the freelancer.
+            </p>
+            <button type="button" onClick={() => actions.verifierReport(alert.id)} className="mt-3 tag-text text-ash-700 underline underline-offset-4 hover:text-ink">
+              Skip ahead: simulate the report
+            </button>
+          </>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+            <div>
+              <p className="display-md">{v.found ? "Car found ✓" : "Car not on the lot"}</p>
+              <p className="mt-1 text-sm">{v.report}</p>
+              <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                {v.arrival && (
+                  <>
+                    <dt className="tag-text text-ash-700">Arrival location</dt>
+                    <dd className="font-mono">{formatDistance(v.arrival.distanceM)} from lot{v.arrival.simulated ? " (simulated)" : ""}</dd>
+                  </>
+                )}
+                {v.photo && (
+                  <>
+                    <dt className="tag-text text-ash-700">VIN read</dt>
+                    <dd className="font-mono">{v.photo.readVin ?? "unreadable"} · {v.photo.vinMatch}</dd>
+                    <dt className="tag-text text-ash-700">Photo reuse</dt>
+                    <dd className="font-mono">{v.photo.reuse.duplicate ? "DUPLICATE" : `none (nearest ${v.photo.reuse.nearestDistance} bits)`}</dd>
+                  </>
+                )}
+                {v.simulated && (
+                  <>
+                    <dt className="tag-text text-ash-700">Source</dt>
+                    <dd className="font-mono">simulated report</dd>
+                  </>
+                )}
+              </dl>
+            </div>
+            {v.photo?.thumbnail && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={v.photo.thumbnail} alt={`Verifier photo of the VIN plate for ${alert.vin}`} className="w-40 border border-ink object-cover" />
+            )}
           </div>
-          <p className="mt-2 text-sm text-ash-700">Checking the VIN plate and odometer on the lot.</p>
-        </div>
-      ) : (
-        <div className="mt-2">
-          <p className="display-md">{v.found ? "Car found ✓" : "Car not on the lot"}</p>
-          <p className="mt-1 text-sm">{v.name}: {v.report}</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
