@@ -98,7 +98,19 @@ if (typeof window !== "undefined") {
   });
 }
 
+/** Verifier reports are simulated with a timer; re-arm it if the tab was reloaded meanwhile. */
+const armed = new Set<string>();
+function armVerifierTimers() {
+  for (const a of load().alerts) {
+    if (a.verifier?.status !== "en_route" || armed.has(a.id)) continue;
+    armed.add(a.id);
+    const wait = Math.max(0, new Date(a.verifier.dispatchedAt).getTime() + 6000 - Date.now());
+    setTimeout(() => actions.verifierReport(a.id), wait);
+  }
+}
+
 function subscribe(l: () => void) {
+  if (listeners.size === 0) queueMicrotask(armVerifierTimers);
   listeners.add(l);
   return () => listeners.delete(l);
 }
@@ -371,7 +383,7 @@ export const actions = {
       a.verifier = { dispatchedAt: new Date().toISOString(), name: pickVerifier(dealerOf(s, a.dealerId).city), status: "en_route" };
       log(s, `Gig verifier dispatched to ${dealerOf(s, a.dealerId).name} for ${a.vin} (€30)`);
     });
-    setTimeout(() => actions.verifierReport(alertId), 6000);
+    armVerifierTimers();
   },
 
   verifierReport(alertId: string) {
