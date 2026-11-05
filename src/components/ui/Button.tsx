@@ -7,7 +7,7 @@ const V: Record<Variant, string> = {
   secondary: "bg-paper text-ink border-ink hover:bg-mist",
   brand: "bg-brand text-ink border-ink hover:bg-[#b4adff]",
   ghost: "bg-transparent text-ink border-transparent hover:border-ink",
-  danger: "bg-high text-paper border-high hover:brightness-95",
+  danger: "bg-high text-ink border-high hover:brightness-95",
 };
 const base =
   "group/button inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-medium transition-[background,transform,box-shadow] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40";

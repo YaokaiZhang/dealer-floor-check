@@ -38,10 +38,10 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
           <TierBadge tier={d.tier} />
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-3 border-t border-ink pt-4">
+        <div className="mt-5 grid grid-cols-[auto_1fr_1fr] gap-x-6 gap-y-3 border-t border-ink pt-4">
           <div>
             <p className="tag-text text-ash-700">Risk</p>
-            <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
+            <p className="mt-1 flex items-baseline gap-1.5">
               <span className="figure text-4xl">{risk.score}</span>
               <span className="tag-text text-ash-700">/100</span>
             </p>
@@ -60,7 +60,7 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
             <div className="mt-1 flex gap-1" aria-label={`${sev("high")} high, ${sev("medium")} medium, ${sev("low")} low`}>
               {(["high", "medium", "low"] as const).map((k) =>
                 sev(k) ? (
-                  <span key={k} className={`px-1 tag-text ${k === "high" ? "bg-high text-paper" : k === "medium" ? "bg-medium" : "bg-low-soft"}`}>
+                  <span key={k} className={`px-1 tag-text ${k === "high" ? "bg-high text-ink" : k === "medium" ? "bg-medium" : "bg-low-soft"}`}>
                     {sev(k)} {k[0].toUpperCase()}
                   </span>
                 ) : null,

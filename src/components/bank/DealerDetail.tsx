@@ -36,7 +36,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
           <Fig k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
           <Fig k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
           <Fig k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
-          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.topUp.speed} top-up · ~${tier.checkInsPerYear} check-ins/yr`} />
+          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.topUp.speed} top-up · ~${tier.checkInsPerYear} check‑ins/yr`} />
         </dl>
       </header>
 

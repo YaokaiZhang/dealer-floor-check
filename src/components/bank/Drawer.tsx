@@ -22,7 +22,7 @@ export function Drawer({ open, onClose, label, wide, children }: { open: boolean
       <div className={`relative flex h-full w-full flex-col border-l border-ink bg-paper shadow-lift animate-[slide-in_260ms_cubic-bezier(0.22,1,0.36,1)_both] ${wide ? "max-w-4xl" : "max-w-2xl"}`}>
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-ink px-4 md:px-6">
           <span className="tag-text text-ash-700">{label}</span>
-          <button type="button" onClick={onClose} className="flex items-center gap-2 border border-ink px-2 py-1 tag-text hover:bg-brand">
+          <button type="button" onClick={onClose} className="flex min-h-9 items-center gap-2 border border-ink px-3 tag-text hover:bg-brand">
             Close <span aria-hidden>✕</span>
           </button>
         </div>

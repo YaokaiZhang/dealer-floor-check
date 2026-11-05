@@ -20,7 +20,7 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
     <div>
       <ol className="grid grid-cols-2 border border-ink sm:grid-cols-4">
         {steps.map((s, i) => (
-          <li key={s.k} className={`relative p-3 ${s.cls} ${i % 2 ? "border-l border-ink" : ""} ${i >= 2 ? "border-t border-ink sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
+          <li key={s.k} className={`relative p-3 ${i > 0 ? "sm:pl-6" : ""} ${s.cls} ${i % 2 ? "border-l border-ink" : ""} ${i >= 2 ? "border-t border-ink sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
             <p className="tag-text">{s.k}</p>
             <p className="mt-1 figure text-5xl">{s.v}</p>
             <p className="mt-1 text-xs">{s.sub}</p>
@@ -53,7 +53,7 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
 function DetectionCurve({ N, M, n, confidence }: { N: number; M: number; n: number; confidence: number }) {
   const [ref, w] = useWidth<HTMLDivElement>(560);
   const [hover, setHover] = useState<number | null>(null);
-  const H = 180, L = 40, R = 12, T = 12, B = 30;
+  const H = 190, L = 40, R = 12, T = 12, B = 40;
   const iw = Math.max(100, w - L - R), ih = H - T - B;
   const pts = Array.from({ length: N + 1 }, (_, k) => ({ k, p: detectionProbability(N, M, k) }));
   const x = (k: number) => L + (k / N) * iw;
@@ -94,9 +94,9 @@ function DetectionCurve({ N, M, n, confidence }: { N: number; M: number; n: numb
           <line x1={L} x2={L + iw} y1={y(confidence)} y2={y(confidence)} stroke="#000" strokeWidth="1" />
           <text x={L + iw} y={y(confidence) - 4} textAnchor="end" fontSize="10" fill="#000">target {pct(confidence)}</text>
           {ticks.map((t) => (
-            <text key={t} x={x(t)} y={H - 10} textAnchor="middle" fontSize="10" fill="#4d4d4d" className="tabular-nums">{t}</text>
+            <text key={t} x={x(t)} y={H - 24} textAnchor="middle" fontSize="11" fill="#4d4d4d" className="tabular-nums">{t}</text>
           ))}
-          <text x={L} y={H - 0} fontSize="9" fill="#8a8a8a">cars checked (n)</text>
+          <text x={L + iw / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="#4d4d4d">cars checked (n)</text>
           <path d={`${path}L${x(N)},${y(0)}L${x(0)},${y(0)}Z`} fill="#5b4fe0" opacity="0.1" />
           <path d={path} fill="none" stroke="#5b4fe0" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
           <line x1={x(sel)} x2={x(sel)} y1={T} y2={T + ih} stroke="#8a8a8a" strokeWidth="1" />

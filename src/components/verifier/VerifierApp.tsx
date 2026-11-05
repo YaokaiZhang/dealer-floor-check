@@ -95,7 +95,7 @@ export function VerifierApp() {
               {offered.length === 0 ? (
                 <Card className="p-5">
                   <p className="font-medium">No jobs nearby</p>
-                  <a href="/bank" className="mt-1 inline-block tag-text text-ash-700 underline underline-offset-4" target="_blank" rel="noreferrer">Dispatch one from the bank ↗</a>
+                  <a href="/bank" className="mt-1 inline-block py-2 tag-text text-ash-700 underline underline-offset-4" target="_blank" rel="noreferrer">Dispatch one from the bank ↗</a>
                 </Card>
               ) : (
                 <ul className="space-y-3">

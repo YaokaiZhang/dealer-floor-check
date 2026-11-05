@@ -40,7 +40,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           </div>
           <h2 className="mt-4 display-lg">{alert.message}</h2>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <button type="button" onClick={() => onDealer(d.id)} className="inline-flex items-center gap-2 font-semibold underline decoration-brand decoration-2 underline-offset-4 hover:decoration-ink">
+            <button type="button" onClick={() => onDealer(d.id)} className="inline-flex min-h-9 items-center gap-2 font-semibold underline decoration-brand decoration-2 underline-offset-4 hover:decoration-ink">
               {d.name}, {d.city}
             </button>
             <TierBadge tier={d.tier} />
@@ -141,7 +141,7 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
 }
 
 const V_STEPS = [
-  { key: "dispatchedAt", label: "Job posted" },
+  { key: "dispatchedAt", label: "Posted" },
   { key: "acceptedAt", label: "Accepted" },
   { key: "arrivedAt", label: "On site" },
   { key: "reportedAt", label: "Report" },
@@ -161,7 +161,7 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
         {V_STEPS.map((st, i) => {
           const at = v[st.key];
           return (
-            <li key={st.key} className={`px-3 py-2 ${i > 0 ? "border-l border-ink" : ""} ${at ? "" : "text-ash-500"}`}>
+            <li key={st.key} className={`min-w-0 px-2 py-2 sm:px-3 ${i > 0 ? "border-l border-ink" : ""} ${at ? "" : "text-ash-500"}`}>
               <span className="block tag-text">{at ? "✓ " : ""}{st.label}</span>
               <span className="block font-mono text-xs">{at ? timeFi(at) : "—"}</span>
             </li>
