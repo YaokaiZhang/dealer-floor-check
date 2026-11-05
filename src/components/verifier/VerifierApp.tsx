@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { actions, useDemo, useHydrated, type Store } from "@/lib/store";
-import { getPosition, lastOdometer, submitShots, type Fix, type Shots } from "@/lib/verify";
+import { getPosition, submitShots, type Fix, type Shots } from "@/lib/verify";
 import { ShotSequence } from "@/components/capture/ShotSequence";
-import { distanceM, formatDistance } from "@/lib/geo";
+import { formatDistance } from "@/lib/geo";
 import { eur, timeFi } from "@/lib/format";
-import type { Car, Dealer, PhotoCheck, SpotCheck, VisitCarResult } from "@/lib/types";
+import type { Car, Dealer, SpotCheck, VisitCarResult } from "@/lib/types";
 
 /**
  * The freelancer's phone app. A vetted local person takes a paid spot check: an unannounced visit
@@ -203,20 +203,8 @@ function ActiveJob({ job, s }: { job: Job; s: Store }) {
     setBusy(true);
     setTooFar(null);
     try {
-      const pos = await getPosition();
-      const g = dealer.geofence;
-      let arrival: PhotoCheck["location"] = null;
-      if (pos) {
-        const p = { lat: pos.lat, lng: pos.lng };
-        const d = distanceM(p, g);
-        arrival = { ...p, accuracyM: Math.round(pos.accuracy), distanceM: Math.round(d), inside: d <= g.radiusM + Math.min(pos.accuracy, 150), simulated: false };
-      }
-      if ((!arrival || !arrival.inside) && s.flags.simulateOnSite) {
-        const p = { lat: g.lat + (Math.random() - 0.5) * 0.001, lng: g.lng + (Math.random() - 0.5) * 0.001 };
-        arrival = { ...p, accuracyM: 10, distanceM: Math.round(distanceM(p, g)), inside: true, simulated: true };
-      }
-      if (!arrival?.inside) { setTooFar(arrival?.distanceM ?? -1); return; }
-      actions.verifierArrive(visit.id, arrival);
+      const r = await actions.verifierArrive(visit.id, await getPosition());
+      if (r && !r.inside) setTooFar(r.distanceM ?? -1);
     } finally {
       setBusy(false);
     }
@@ -307,15 +295,7 @@ function CarCheck({ visit, dealer, car, s, onBack }: { visit: SpotCheck; dealer:
     setBusy(true);
     setFailed(false);
     try {
-      const check = await submitShots({
-        shots, positions, simulated, car,
-        geofence: dealer.geofence,
-        lastKnownOdometerKm: lastOdometer(s, car.vin),
-        simulateOnSite: s.flags.simulateOnSite,
-        forceUnreadable: s.flags.nextPhotoUnreadable,
-      });
-      if (s.flags.nextPhotoUnreadable) actions.setFlag("nextPhotoUnreadable", false);
-      actions.verifierCar(visit.id, car.vin, { status: "found", photo: check });
+      await submitShots({ job: "spot_check", id: visit.id, carVin: car.vin, shots, positions, simulated });
     } catch {
       setFailed(true);
     } finally {

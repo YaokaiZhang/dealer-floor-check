@@ -1,22 +1,18 @@
 /**
- * Server-side photo checks. Runs only in the Next.js route handler, never in the dealer's browser,
- * so the dealer can't change a result. Timestamps come from the server clock and the photo-reuse
- * index lives on the server.
+ * Server-side photo checks. Runs only in the route handler, never in the dealer's browser, so the
+ * dealer can't change a result. The context (expected VIN and plate, geofence, window, last
+ * odometer, earlier photo hashes) comes from the server's own state, never from the request.
  *
- * FRONTEND PHASE:
- *  - The VIN, licence plate and odometer reads are simulated. Swap `readShot` for the vision API.
- *  - The demo has no database, so the browser sends the check-in context (geofence, window, expected
- *    plate, last odometer). In production the server loads it from its own records by check-in id.
- *  - The reuse index is in memory: it resets when the server restarts.
+ * VIN, plate and odometer reads: Claude vision when ANTHROPIC_API_KEY is set and the photos come
+ * from a real camera; otherwise (or if the call fails) a simulated read with the same shape.
  */
 import sharp from "sharp";
 import { compareVin } from "@/lib/vin";
-import { distanceM } from "@/lib/geo";
+import { locateOnLot, type Position } from "@/lib/engine";
 import type { CheckInWindow, Geofence, PhotoCheck, ShotKind } from "@/lib/types";
+import { readShotsWithClaude, visionEnabled, type VisionRead } from "./vision";
 
 export const SHOT_KINDS: ShotKind[] = ["vin", "car", "odometer"];
-
-export interface Position { lat: number; lng: number; accuracy: number }
 
 export interface CheckContext {
   requestedVin: string;
@@ -27,6 +23,8 @@ export interface CheckContext {
   /** Phone position at each shot, in shot order; null when location was unavailable. */
   positions: (Position | null)[];
   capture: "camera" | "simulated";
+  /** Perceptual hashes of every earlier photo. */
+  earlierHashes: string[];
   /** Demo helpers. */
   simulateOnSite: boolean;
   forceUnreadable: boolean;
@@ -37,11 +35,6 @@ const DUPLICATE_BITS = 6;
 /** An in-stock car shouldn't gain more than this between check-ins. */
 const MAX_PLAUSIBLE_KM = 500;
 
-type Index = { hash: string; vin: string; at: string }[];
-const g = globalThis as unknown as { __photoIndex?: Index };
-const index = (): Index => (g.__photoIndex ??= []);
-export const clearPhotoIndex = () => { g.__photoIndex = []; };
-
 /** dHash (difference hash), 256 bits, from a 17×16 greyscale thumbnail. */
 async function dHash(img: Buffer): Promise<string> {
   const W = 17, H = 16;
@@ -51,10 +44,7 @@ async function dHash(img: Buffer): Promise<string> {
   return BigInt("0b" + bits).toString(16).padStart(64, "0");
 }
 
-async function thumbnail(img: Buffer): Promise<string> {
-  const jpg = await sharp(img).rotate().resize({ width: 240 }).jpeg({ quality: 60 }).toBuffer();
-  return `data:image/jpeg;base64,${jpg.toString("base64")}`;
-}
+export const thumbnail = (img: Buffer) => sharp(img).rotate().resize({ width: 480, withoutEnlargement: true }).jpeg({ quality: 70 }).toBuffer();
 
 function hamming(a: string, b: string): number {
   let x = BigInt("0x" + a) ^ BigInt("0x" + b), n = 0;
@@ -67,67 +57,49 @@ const normPlate = (p: string | null) => (p ?? "").toUpperCase().replace(/[^A-Z0-
 /** Stand-in odometer for cars with no earlier reading, stable per VIN. */
 const baseOdometer = (vin: string) => 8000 + ([...vin].reduce((s, c) => s + c.charCodeAt(0) * 131, 0) % 90000);
 
-/** Simulated vision reads. Return the strict shape the real model will. */
-async function readShots(ctx: CheckContext): Promise<{ vin: string | null; confidence: number; plate: string | null; odometerKm: number | null }> {
+async function simulatedRead(ctx: CheckContext): Promise<VisionRead> {
   await new Promise((r) => setTimeout(r, 900 + Math.random() * 600));
-  if (ctx.forceUnreadable) return { vin: null, confidence: 0.2, plate: ctx.expectedPlate, odometerKm: null };
   const last = ctx.lastKnownOdometerKm ?? baseOdometer(ctx.requestedVin);
-  return {
-    vin: ctx.requestedVin,
-    confidence: 0.94 + Math.random() * 0.05,
-    plate: ctx.expectedPlate,
-    odometerKm: last + Math.round(Math.random() * 40),
-  };
+  return { vin: ctx.requestedVin, confidence: 0.94 + Math.random() * 0.05, plate: ctx.expectedPlate, odometerKm: last + Math.round(Math.random() * 40) };
 }
 
-function locate(ctx: CheckContext): PhotoCheck["location"] {
-  const f = ctx.geofence;
-  const fixes = ctx.positions.filter((p): p is Position => !!p);
-  let location: PhotoCheck["location"] = null;
-  // Every shot must be on the lot (with up to 150 m GPS slack); report the farthest one.
-  if (fixes.length === ctx.positions.length && fixes.length > 0) {
-    const worst = fixes
-      .map((p) => ({ p, d: distanceM(p, f) }))
-      .reduce((m, x) => (x.d - Math.min(x.p.accuracy, 150) > m.d - Math.min(m.p.accuracy, 150) ? x : m));
-    location = {
-      lat: worst.p.lat, lng: worst.p.lng, accuracyM: Math.round(worst.p.accuracy), distanceM: Math.round(worst.d),
-      inside: worst.d <= f.radiusM + Math.min(worst.p.accuracy, 150), simulated: false,
-    };
+async function read(shots: Record<ShotKind, Buffer>, ctx: CheckContext): Promise<{ read: VisionRead; reader: "claude" | "simulated" }> {
+  if (ctx.forceUnreadable) return { read: { vin: null, confidence: 0.2, plate: ctx.expectedPlate, odometerKm: null }, reader: "simulated" };
+  if (visionEnabled() && ctx.capture === "camera") {
+    try {
+      return { read: await readShotsWithClaude(shots, { expectedPlateCountry: "Finland" }), reader: "claude" };
+    } catch (e) {
+      console.warn(`[photo-checks] vision read failed, using simulated read: ${(e as Error).message}`);
+    }
   }
-  if ((!location || !location.inside) && ctx.simulateOnSite) {
-    // Demo fallback (e.g. on stage in Helsinki): place the phone on the dealer lot and label it as simulated.
-    const jitter = () => (Math.random() - 0.5) * 0.002;
-    const p = { lat: f.lat + jitter(), lng: f.lng + jitter() };
-    location = { ...p, accuracyM: 12, distanceM: Math.round(distanceM(p, f)), inside: true, simulated: true };
-  }
-  return location;
+  return { read: await simulatedRead(ctx), reader: "simulated" };
 }
 
-export async function checkShots(shots: Record<ShotKind, Buffer>, ctx: CheckContext): Promise<PhotoCheck> {
+export interface CheckOutput { check: PhotoCheck; hashes: string[]; thumbs: Record<ShotKind, Buffer> }
+
+export async function checkShots(shots: Record<ShotKind, Buffer>, ctx: CheckContext): Promise<CheckOutput> {
   const receivedAt = new Date();
-  const [hashes, thumbs, read] = await Promise.all([
+  const [hashes, thumbList, { read: r, reader }] = await Promise.all([
     Promise.all(SHOT_KINDS.map((k) => dHash(shots[k]))),
     Promise.all(SHOT_KINDS.map((k) => thumbnail(shots[k]))),
-    readShots(ctx),
+    read(shots, ctx),
   ]);
 
   // Reuse: against every earlier photo, and the three shots against each other.
-  const earlier = index();
   let nearest = 256;
   hashes.forEach((h, i) => {
-    for (const e of earlier) nearest = Math.min(nearest, hamming(e.hash, h));
+    for (const e of ctx.earlierHashes) nearest = Math.min(nearest, hamming(e, h));
     for (let j = 0; j < i; j++) nearest = Math.min(nearest, hamming(hashes[j], h));
   });
   const duplicate = nearest <= DUPLICATE_BITS;
-  for (const h of hashes) earlier.push({ hash: h, vin: ctx.requestedVin, at: receivedAt.toISOString() });
 
-  const vinMatch = compareVin(ctx.requestedVin, read.vin);
-  const plateMatch = !!read.plate && normPlate(read.plate) === normPlate(ctx.expectedPlate);
+  const vinMatch = compareVin(ctx.requestedVin, r.vin);
+  const plateMatch = !!r.plate && normPlate(r.plate) === normPlate(ctx.expectedPlate);
   const last = ctx.lastKnownOdometerKm;
-  const delta = read.odometerKm !== null && last !== null ? read.odometerKm - last : null;
-  const plausible = read.odometerKm !== null && (delta === null || (delta >= 0 && delta <= MAX_PLAUSIBLE_KM));
+  const delta = r.odometerKm !== null && last !== null ? r.odometerKm - last : null;
+  const plausible = r.odometerKm !== null && (delta === null || (delta >= 0 && delta <= MAX_PLAUSIBLE_KM));
 
-  const location = locate(ctx);
+  const location = locateOnLot(ctx.geofence, ctx.positions, ctx.simulateOnSite);
   const insideWindow = ctx.window
     ? receivedAt >= new Date(new Date(ctx.window.start).getTime() - 15 * 60_000) && receivedAt <= new Date(ctx.window.end)
     : true;
@@ -135,18 +107,21 @@ export async function checkShots(shots: Record<ShotKind, Buffer>, ctx: CheckCont
   const verified = (vinMatch === "exact" || vinMatch === "ocr_tolerant") && plateMatch && plausible && !!location?.inside && insideWindow && !duplicate;
 
   return {
-    vin: ctx.requestedVin,
-    readVin: read.vin,
-    confidence: +read.confidence.toFixed(2),
-    vinMatch,
-    plate: { expected: ctx.expectedPlate, read: read.plate, match: plateMatch },
-    odometer: { readKm: read.odometerKm, lastKnownKm: last, deltaKm: delta, plausible },
-    capture: ctx.capture,
-    location,
-    freshness: { receivedAt: receivedAt.toISOString(), insideWindow },
-    reuse: { hash: hashes[0], nearestDistance: nearest, duplicate },
-    verified,
-    thumbnail: thumbs[0],
-    thumbnails: { vin: thumbs[0], car: thumbs[1], odometer: thumbs[2] },
+    hashes,
+    thumbs: { vin: thumbList[0], car: thumbList[1], odometer: thumbList[2] },
+    check: {
+      vin: ctx.requestedVin,
+      readVin: r.vin,
+      confidence: +r.confidence.toFixed(2),
+      vinMatch,
+      plate: { expected: ctx.expectedPlate, read: r.plate, match: plateMatch },
+      odometer: { readKm: r.odometerKm, lastKnownKm: last, deltaKm: delta, plausible },
+      capture: ctx.capture,
+      reader,
+      location,
+      freshness: { receivedAt: receivedAt.toISOString(), insideWindow },
+      reuse: { hash: hashes[0], nearestDistance: nearest, duplicate },
+      verified,
+    },
   };
 }

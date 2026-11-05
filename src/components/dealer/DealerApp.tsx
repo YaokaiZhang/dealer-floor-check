@@ -128,7 +128,6 @@ export function DealerApp() {
             <CaptureFlow
               key={active.id}
               checkIn={active}
-              dealer={dealer}
               onComplete={() => {
                 setDone({ id: active.id, tierBefore: dealer.tier });
                 actions.completeCheckIn(active.id);

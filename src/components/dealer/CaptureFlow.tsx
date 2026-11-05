@@ -3,16 +3,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { actions, useDemo } from "@/lib/store";
-import { lastOdometer, submitShots, type Fix, type Shots } from "@/lib/verify";
+import { submitShots, type Fix, type Shots } from "@/lib/verify";
 import { ShotSequence } from "@/components/capture/ShotSequence";
-import type { CheckIn, Dealer, PhotoCheck } from "@/lib/types";
+import type { CheckIn, PhotoCheck } from "@/lib/types";
 
 type Result = CheckIn["results"][string] | undefined;
 const isSkipped = (r: Result): r is { skipped: true } => !!r && "skipped" in r;
 const isVerified = (r: Result) => !!r && !isSkipped(r) && (r as PhotoCheck).verified;
 const settled = (r: Result) => isSkipped(r) || isVerified(r);
 
-export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn; dealer: Dealer; onComplete: () => void }) {
+export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onComplete: () => void }) {
   const state = useDemo();
   const [ackVin, setAckVin] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -32,15 +32,7 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
     setBusy(true);
     setFailed(false);
     try {
-      const check = await submitShots({
-        shots, positions, simulated, car,
-        geofence: dealer.geofence,
-        lastKnownOdometerKm: lastOdometer(state, car.vin),
-        window: checkIn.window,
-        simulateOnSite: state.flags.simulateOnSite,
-        forceUnreadable: state.flags.nextPhotoUnreadable,
-      });
-      actions.recordPhoto(checkIn.id, shownVin, check);
+      const check = await submitShots({ job: "check_in", id: checkIn.id, carVin: car.vin, shots, positions, simulated });
       if (check.verified) setAckVin(shownVin);
     } catch {
       setFailed(true);

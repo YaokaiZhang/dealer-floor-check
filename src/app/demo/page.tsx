@@ -40,12 +40,12 @@ export default function DemoPage() {
           <div>
             <SectionTag>Stage control · simulated feeds</SectionTag>
             <h1 className="mt-3 display-xl">Demo control</h1>
-            <p className="mt-3 tag-text text-ash-700">Live in other tabs of this browser</p>
+            <p className="mt-3 tag-text text-ash-700">Live on every device connected to this server</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href="/verifier" variant="secondary" arrow>Verifier app</ButtonLink>
             <ButtonLink href="/demo/plates" variant="secondary" arrow>VIN plates to photograph</ButtonLink>
-            <Button variant="danger" onClick={() => { if (confirm("Reset the demo to seed data?")) fire("Demo reset", actions.reset); }}>Reset demo</Button>
+            <Button variant="danger" onClick={() => { if (confirm("Reset the demo to seed data?")) fire("Demo reset", () => void actions.reset()); }}>Reset demo</Button>
           </div>
         </div>
 
@@ -146,6 +146,12 @@ export default function DemoPage() {
                   help="GPS fallback, labelled “simulated”"
                   checked={hydrated && s.flags.simulateOnSite}
                   onChange={(v) => actions.setFlag("simulateOnSite", v)}
+                />
+                <Toggle
+                  label="Run the schedule"
+                  help="Random check-ins and spot checks at each tier's rate. 1 year ≈ 10 min"
+                  checked={hydrated && s.flags.autoSchedule}
+                  onChange={(v) => actions.setFlag("autoSchedule", v)}
                 />
                 <Toggle
                   label="Auto-complete spot checks"

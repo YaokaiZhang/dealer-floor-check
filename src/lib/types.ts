@@ -125,8 +125,12 @@ export interface PhotoCheck {
   odometer?: { readKm: number | null; lastKnownKm: number | null; deltaKm: number | null; plausible: boolean };
   /** "camera": live in-app camera; "simulated": demo camera on a device without one. */
   capture?: "camera" | "simulated";
+  /** Who read the VIN, plate and odometer: Claude vision, or the demo stand-in. */
+  reader?: "claude" | "simulated";
   verified: boolean;
-  thumbnail?: string; // VIN plate, small data URL for the bank evidence view
+  /** VIN plate photo URL, for the bank evidence view. */
+  thumbnail?: string;
+  /** Photo URLs (served by /api/photos/[id]). */
   thumbnails?: Partial<Record<ShotKind, string>>;
 }
 
@@ -188,7 +192,7 @@ export interface DemoState {
   checkIns: CheckIn[];
   spotChecks: SpotCheck[];
   /** Perceptual hashes of all earlier check-in photos across dealers (reuse detection). */
-  photoHashes: { hash: string; dealerId: string; vin: string; at: string }[];
+  photoHashes: { hash: string; dealerId: string; vin: string; at: string; kind?: ShotKind }[];
   demo: { soldCarVin: string; soldCarAwayPosition: { lat: number; lng: number } };
   /** Live event ticker for the bank/demo screens. */
   events: { id: string; at: string; text: string }[];

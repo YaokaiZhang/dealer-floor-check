@@ -2,8 +2,10 @@
 /**
  * Client side of the photo checks: capture context and send the three shots to the server.
  * All checks run in /api/check-photo (src/server/photoChecks.ts), so the browser can't change a result.
+ * The browser sends only the photos, the phone positions and which check and car they belong to.
  */
-import type { Car, CheckInWindow, DemoState, Geofence, PhotoCheck, ShotKind } from "./types";
+import type { PhotoCheck, ShotKind } from "./types";
+import { acceptSnapshot } from "./store";
 
 export type Shots = Record<ShotKind, Blob>;
 export type Fix = { lat: number; lng: number; accuracy: number } | null;
@@ -19,48 +21,21 @@ export function getPosition(timeoutMs = 5000): Promise<Fix> {
   });
 }
 
-/** Latest odometer we know for a car: connected-car feed, else the newest photo reading. */
-export function lastOdometer(s: DemoState, vin: string): number | null {
-  const feed = s.feeds.connected[vin]?.odometerKm;
-  if (feed !== undefined) return feed;
-  let best: { at: string; km: number } | null = null;
-  const consider = (r: PhotoCheck | undefined) => {
-    const km = r?.odometer?.readKm;
-    if (r && km != null && (!best || r.freshness.receivedAt > best.at)) best = { at: r.freshness.receivedAt, km };
-  };
-  for (const ci of s.checkIns) { const r = ci.results[vin]; if (r && !("skipped" in r)) consider(r); }
-  for (const v of s.spotChecks) { const r = v.results[vin]; if (r?.status === "found") consider(r.photo); }
-  return (best as { km: number } | null)?.km ?? null;
-}
-
+/** Sends one car's three shots. The server looks up the rest, runs the checks and records the result. */
 export async function submitShots(opts: {
+  job: "check_in" | "spot_check";
+  id: string;
+  carVin: string;
   shots: Shots;
   positions: Fix[];
   simulated: boolean;
-  car: Car;
-  geofence: Geofence;
-  lastKnownOdometerKm: number | null;
-  window?: CheckInWindow;
-  simulateOnSite: boolean;
-  forceUnreadable: boolean;
 }): Promise<PhotoCheck> {
   const form = new FormData();
   for (const [k, b] of Object.entries(opts.shots)) form.append(k, b, `${k}.jpg`);
-  form.append("context", JSON.stringify({
-    requestedVin: opts.car.vin,
-    expectedPlate: opts.car.plate,
-    lastKnownOdometerKm: opts.lastKnownOdometerKm,
-    geofence: opts.geofence,
-    window: opts.window,
-    positions: opts.positions,
-    capture: opts.simulated ? "simulated" : "camera",
-    simulateOnSite: opts.simulateOnSite,
-    forceUnreadable: opts.forceUnreadable,
-  }));
+  form.append("meta", JSON.stringify({ job: opts.job, id: opts.id, carVin: opts.carVin, positions: opts.positions, capture: opts.simulated ? "simulated" : "camera" }));
   const res = await fetch("/api/check-photo", { method: "POST", body: form });
   if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? `Check failed (${res.status})`);
-  return res.json();
+  const { check, rev, state } = await res.json();
+  acceptSnapshot({ rev, state });
+  return check;
 }
-
-/** Demo reset: clear the server's photo-reuse index too. */
-export const resetServerChecks = () => fetch("/api/check-photo", { method: "DELETE" }).catch(() => undefined);

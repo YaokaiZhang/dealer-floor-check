@@ -5,13 +5,24 @@ Aurora Dealer Finance is a fictional lender and the dealers are fictional too. A
 
 > Verify the floor without walking it: data first, people last. Dealers get a friendly ~5-minute check-in now and then, a local verifier drops by at random, and an auditor is the last resort.
 
-## Status: frontend with fake data
+## Status: working prototype, simulated feeds
 
-- State is seeded from `data/seed.json` and lives **in the browser** (localStorage). Tabs on the same machine sync live, so `/demo` → `/bank` updates instantly.
-- Photos come from the **in-app camera only** (no gallery uploads): VIN plate, whole car with licence plate, odometer.
-- Photo checks run **on the server** in `/api/check-photo` (`src/server/photoChecks.ts`): VIN, plate and odometer reads, location, server-side time, photo reuse (dHash). The VIN, plate and odometer reads are **simulated** (`readShots`); the rest is real. The reuse index is in server memory.
-- Because there is no database yet, the browser sends the check-in context (geofence, window, expected plate, last odometer) with the photos. In production the server loads it itself.
-- Next step: move state to the server (so a real phone and the laptop share it) and swap `readShots` for a Claude vision call.
+- **One shared state on the server** (`src/server/db.ts`). Every browser mirrors it live over Server-Sent Events (`/api/stream`) and sends actions to `/api/actions`, so a real phone running `/dealer` or `/verifier` and the laptop running `/bank` and `/demo` see the same thing. State is saved to `.data/state.json` and survives restarts. **Reset demo** wipes it.
+- **All rules run on the server** (`src/lib/engine.ts`): sampling, tiers, the escalation ladder, spot checks. Browsers can only send the actions in `CLIENT_OPS`. Each action is validated and either applies in full or not at all.
+- **Photo checks use only the server's own records.** The phone sends just the three photos, its GPS fixes and which check-in or spot check they belong to. The server looks up the expected VIN, plate, geofence, window, last odometer and all earlier photo hashes, runs the checks and records the result. Photos are stored in `.data/photos/` and served from `/api/photos/[id]`.
+- **VIN, plate and odometer reads:** Claude vision (`src/server/vision.ts`) when `ANTHROPIC_API_KEY` is set and the shots come from a real camera. The model reads blind and is never told the expected values. Otherwise, or if the call fails, a simulated read with the same shape is used. The bank sees which one was used.
+- **Schedule:** in production the risk engine sends random check-ins and spot checks. Here the **Run the schedule** toggle in `/demo` does it at each tier's yearly rate on a compressed clock (1 year ≈ 10 min). **Auto-complete spot checks** files simulated verifier reports.
+- Simulated: connected-car, marketplace and registry feeds (fired from `/demo`). There is no login: switch roles from the top bar.
+
+### Environment
+
+| Variable | Default | |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | unset | Turns on Claude vision reads |
+| `AURORA_VISION_MODEL` | `claude-haiku-5-5` | Vision model |
+| `AURORA_DATA_DIR` | `./.data` | Where state and photos are saved |
+
+Runs as one Node process (`npm run dev` or `npm run build && npm start`). The state lives in that process, so serverless hosting with several instances would need a real database behind `src/server/db.ts`.
 
 ## Run
 
@@ -38,22 +49,26 @@ npm run dev -- -H 0.0.0.0
 
 Then open `http://<your-laptop-ip>:3000/dealer` on the phone (`ipconfig getifaddr en0` on macOS). The camera and Geolocation both need HTTPS or localhost. On a plain LAN IP keep **Simulate on-site location** and **Demo camera fallback** switched on in `/demo` (the bank sees those photos labelled "simulated"). For the real camera and GPS use an HTTPS tunnel, e.g. `npx localtunnel --port 3000`.
 
-> In this frontend phase state is per browser, so phone and laptop don't share it yet. For the stage demo until the API lands, drive the dealer flow in a phone-sized browser window on the laptop.
+State is shared through the server, so the phone and the laptop update each other live.
 
 ## Where things are
 
 | File | Purpose |
 |---|---|
 | `data/seed.json` | 4 dealers, 132 financed cars, mock feed states (regenerate with `node scripts/generate-seed.mjs`) |
-| `src/lib/store.ts` | All state + actions (check-ins, feed events, escalation ladder, bank decisions) |
+| `src/lib/engine.ts` | All rules and actions (check-ins, spot checks, feed events, escalation ladder, bank decisions, schedule) |
+| `src/server/db.ts` | Server state: apply actions, persist, notify the live stream |
+| `src/app/api/*` | `state`, `actions`, `stream` (SSE), `check-photo`, `photos/[id]` |
+| `src/lib/store.ts` | Browser mirror of the server state (`useDemo`, `actions`) |
 | `src/lib/sampling.ts` | `sampleSize()` hypergeometric sampling over a year of check-ins |
 | `src/lib/risk.ts` | Risk score formula (documented), auto-verification, sampling pool |
 | `src/config/tiers.ts` | Tier rules: check-in rate, sampling target, cars per check-in cap, perks |
 | `src/config/assumptions.ts` | **All business-case assumptions** behind the cost headline |
 | `src/lib/costModel.ts` | Cost / risk model and headline |
 | `src/components/capture/ShotSequence.tsx` | In-app camera, three shots per car |
-| `src/lib/verify.ts` | Client side: position, last odometer, send shots to the server |
+| `src/lib/verify.ts` | Client side: position, send shots to the server |
 | `src/server/photoChecks.ts` | Server-side silent checks (VIN, plate, odometer, location, freshness, reuse) |
+| `src/server/vision.ts` | Claude vision read of the three shots |
 | `src/components/verifier/` | Freelance verifier app (spot checks near you, on-site check-in, per-car report) |
 
 ### Risk score (0–100)

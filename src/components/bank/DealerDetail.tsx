@@ -252,6 +252,7 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
             </span>
           : <span className="flex h-12 w-16 items-center justify-center border border-ash-300 bg-mist tag-text text-ash-500">no img</span>}
         {r.capture === "simulated" && <Tag tone="muted" className="mt-1">simulated camera</Tag>}
+        {r.reader === "claude" && <Tag tone="muted" className="mt-1">read by Claude vision</Tag>}
       </td>
       <td className="p-2">
         <span className="block font-mono">{r.readVin ?? "unreadable"}</span>
