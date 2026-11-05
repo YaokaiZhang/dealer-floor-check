@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { ScanCar } from "@/components/ui/ScanCar";
 import { actions, useDemo } from "@/lib/store";
 import { submitShots, type Fix, type Shots } from "@/lib/verify";
 import { ShotSequence } from "@/components/capture/ShotSequence";
 import type { Car, CheckIn, PhotoCheck } from "@/lib/types";
+import { Bar, Check, TextAction } from "./Bar";
 
 type Result = CheckIn["results"][string] | undefined;
 const isSkipped = (r: Result): r is { skipped: true } => !!r && "skipped" in r;
@@ -65,45 +65,41 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
       <Progress checkIn={checkIn} currentVin={shownVin} index={car ? index : undefined} />
 
       {!car ? (
-        <div className="mt-6">
-          <p className="display-lg">That&apos;s every car</p>
-          <Button arrow className="mt-5 min-h-14 w-full text-base" onClick={onComplete}>Finish check-in</Button>
+        <div>
+          <h2 className="px-4 pt-10 pb-8 display-wide text-[2.25rem]">That&apos;s every car</h2>
+          <Bar onClick={onComplete}>Finish check-in</Bar>
         </div>
       ) : (
-        <section key={car.vin} className="mt-5 animate-rise" aria-label={`${car.make} ${car.model}`}>
+        <section key={car.vin} className="animate-rise" aria-label={`${car.make} ${car.model}`}>
           <CarId car={car} />
 
-          <div className="mt-4">
+          <div className="border-t border-ink">
             {busy ? (
-              <div className="relative border border-line bg-mist" role="status" aria-live="polite">
-                <ScanCar scale={0.36} className="block aspect-[16/10] w-full" title="" />
-                <p className="absolute bottom-3 left-4 font-medium">Checking the photos…</p>
+              <div className="relative border-b border-ink bg-mist" role="status" aria-live="polite">
+                <ScanCar scale={0.36} className="block aspect-[4/3] w-full" title="" />
+                <p className="absolute bottom-4 left-4 display-md">Checking the photos…</p>
               </div>
             ) : isVerified(result) ? (
               <div role="status" aria-live="polite">
-                <div className="flex items-center gap-4 border border-line bg-lime p-4">
-                  <span className="flex size-12 shrink-0 items-center justify-center bg-ink text-lime animate-pop" aria-hidden>
-                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" pathLength={1} strokeDasharray="1" className="animate-draw" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
-                  </span>
-                  <p className="display-md">Verified</p>
+                <div className="flex items-center justify-between gap-4 bg-lime px-4 py-8">
+                  <p className="display-wide text-[2.25rem]">Verified</p>
+                  <Check size={56} draw />
                 </div>
-                <Button arrow className="mt-4 min-h-14 w-full text-base" onClick={next}>{isLast ? "Finish check-in" : "Next car"}</Button>
+                <Bar onClick={next}>{isLast ? "Finish check-in" : "Next car"}</Bar>
               </div>
             ) : (result && !isSkipped(result)) || failed ? (
               <div>
-                <div className="animate-rise border border-line border-l-4 border-l-medium bg-paper px-4 py-3" role="status" aria-live="polite">
+                <div className="animate-rise border-b border-ink border-l-4 border-l-medium bg-medium-soft px-4 py-3" role="status" aria-live="polite">
                   <p className="font-medium">{failed ? "Couldn't send the photos" : "We couldn't confirm this car"}</p>
                   <p className="mt-0.5 text-sm text-ash-700">{failed ? "Check the connection and retake." : "Retake: closer, no glare."}</p>
                 </div>
-                <div className="mt-4"><ShotSequence key={attempt} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
-                <Button variant="secondary" className="mt-3 min-h-12 w-full" onClick={skip}>Skip for now</Button>
+                <div className="px-4 pt-4"><ShotSequence key={attempt} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
+                <TextAction className="mt-2" onClick={skip}>Skip for now</TextAction>
               </div>
             ) : (
               <>
-                <ShotSequence key={`${car.vin}-${attempt}`} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} />
-                <button type="button" onClick={skip} className="mt-1 min-h-11 w-full text-sm font-medium text-ash-700 underline underline-offset-4">
-                  Can&apos;t find it? Skip for now
-                </button>
+                <div className="px-4 pt-4"><ShotSequence key={`${car.vin}-${attempt}`} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
+                <TextAction className="mt-2" onClick={skip}>Can&apos;t find it? Skip for now</TextAction>
               </>
             )}
           </div>
@@ -116,16 +112,23 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 /** Just enough to spot the car on the lot: model, colour, plate, end of the VIN. */
 function CarId({ car }: { car: Car }) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
-      <div className="min-w-0">
-        <h2 className="display-lg">{car.make} {car.model}</h2>
-        <p className="mt-1.5 text-sm text-ash-700">{car.color}, {car.year}</p>
-      </div>
-      <dl className="shrink-0 text-right">
-        <dt className="sr-only">Plate</dt>
-        <dd><span className="inline-block border-2 border-line px-2 py-0.5 font-mono text-base font-semibold tracking-wider">{car.plate}</span></dd>
-        <dt className="mt-1.5 text-xs text-ash-700">VIN ends</dt>
-        <dd className="font-mono text-sm font-medium tracking-[0.15em]">{car.vin.slice(-6)}</dd>
+    <div className="px-4 pt-8 pb-6">
+      <h2 className="display-wide text-[clamp(2.2rem,10vw,3rem)] [overflow-wrap:anywhere]">{car.make}<br />{car.model}</h2>
+      <dl className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-3">
+        <div>
+          <dt className="sr-only">Colour and year</dt>
+          <dd className="text-sm text-ash-700">{car.color}, {car.year}</dd>
+        </div>
+        <div className="ml-auto flex items-end gap-4">
+          <div className="text-right">
+            <dt className="text-sm text-ash-700">VIN ends</dt>
+            <dd className="figure text-lg tracking-[0.08em]">{car.vin.slice(-6)}</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Plate</dt>
+            <dd><span className="inline-block border-2 border-ink px-2 py-1 figure text-xl tracking-[0.06em]">{car.plate}</span></dd>
+          </div>
+        </div>
       </dl>
     </div>
   );
@@ -135,16 +138,16 @@ function Progress({ checkIn, currentVin, index }: { checkIn: CheckIn; currentVin
   const vins = checkIn.sampledVins;
   const doneCount = vins.filter((v) => settled(checkIn.results[v])).length;
   return (
-    <div>
+    <div className="border-b border-ink px-4 pt-4 pb-4">
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <p className="font-medium">{checkIn.reason === "targeted" ? "Quick photo" : "Check-in"}</p>
         {index !== undefined && vins.length > 1 && <p className="text-ash-700 tabular-nums">Car {index + 1} of {vins.length}</p>}
       </div>
-      <ol className="mt-2 flex gap-1" aria-label={`${doneCount} of ${vins.length} cars done`}>
+      <ol className="mt-3 flex gap-1" aria-label={`${doneCount} of ${vins.length} cars done`}>
         {vins.map((v) => {
           const r = checkIn.results[v];
-          const cls = isVerified(r) ? "bg-lime" : isSkipped(r) ? "bg-ash-300" : v === currentVin ? "bg-ink" : "bg-paper";
-          return <li key={v} className={`h-2 flex-1 border border-line transition-colors duration-300 ${cls}`} />;
+          const cls = isVerified(r) ? "bg-lime border-lime" : isSkipped(r) ? "bg-ash-300 border-ash-300" : v === currentVin ? "bg-ink border-ink" : "bg-paper border-ink";
+          return <li key={v} className={`h-2 flex-1 border transition-colors duration-300 ${cls}`} />;
         })}
       </ol>
     </div>

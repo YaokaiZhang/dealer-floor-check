@@ -129,12 +129,12 @@ export function ShotSequence({ car, allowDemo, onDone }: {
 
   return (
     <div>
-      <ol className="grid grid-cols-3 border border-line" aria-label="Photos for this car">
+      <ol className="grid grid-cols-3 border border-ink" aria-label="Photos for this car">
         {STEPS.map((s, i) => {
           const t = taken[s.id];
           return (
             <li key={s.id} aria-current={i === step ? "step" : undefined}
-              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 px-1.5 py-1.5 text-center tag-text transition-colors duration-200 ${i > 0 ? "border-l border-line" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : "text-ash-700"}`}>
+              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 px-1.5 py-1.5 text-center tag-text transition-colors duration-200 ${i > 0 ? "border-l border-ink" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : "text-ash-700"}`}>
               {t
                 ? // eslint-disable-next-line @next/next/no-img-element
                   <img src={t.url} alt="" className="size-8 shrink-0 border border-line object-cover animate-pop" />
@@ -145,7 +145,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
         })}
       </ol>
 
-      <div className="relative mt-3 aspect-[4/3] overflow-hidden border border-line bg-ink">
+      <div className="relative mt-3 aspect-[4/3] overflow-hidden border border-ink bg-ink">
         <video ref={videoRef} playsInline muted autoPlay className={`absolute inset-0 size-full object-cover ${mode === "live" ? "" : "hidden"}`} />
         <canvas ref={previewRef} width={1280} height={960} className={`absolute inset-0 size-full object-cover ${mode === "demo" ? "" : "hidden"}`} />
         {ready && step < STEPS.length && (
@@ -180,7 +180,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
         type="button"
         onClick={() => void shoot()}
         disabled={!ready || step >= STEPS.length}
-        className="mt-3 flex min-h-[4.5rem] w-full items-center justify-center gap-3 border border-ink bg-ink px-4 py-4 text-paper transition-[transform,box-shadow] duration-150 hover:shadow-lift active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-3 flex min-h-[4.5rem] w-full items-center justify-center gap-3 border border-ink bg-ink px-4 py-4 text-paper transition-colors duration-150 hover:bg-ink/85 focus-visible:-outline-offset-4 focus-visible:outline-paper active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg width="28" height="28" viewBox="0 0 30 30" fill="none" aria-hidden>
           <path d="M4 9h5l2-3h8l2 3h5v15H4z" stroke="currentColor" strokeWidth="1.6" />

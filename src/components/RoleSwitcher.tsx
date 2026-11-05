@@ -18,7 +18,7 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
   const hydrated = useHydrated();
   return (
     <header className="sticky top-0 z-40 border-b border-ink bg-paper/90 backdrop-blur-sm">
-      <div className={`mx-auto flex items-center justify-between gap-3 px-4 ${compact ? "h-14 max-w-xl" : "h-16 max-w-[1600px] md:px-8"}`}>
+      <div className={`mx-auto flex items-center justify-between gap-3 px-4 ${compact ? "h-14 max-w-md" : "h-16 max-w-[1600px] md:px-8"}`}>
         <Wordmark />
         <nav aria-label="Role" className="flex items-center">
           {ROLES.map((r) => {

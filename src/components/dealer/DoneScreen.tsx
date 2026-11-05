@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIERS } from "@/config/tiers";
 import type { CheckIn, Dealer, Tier } from "@/lib/types";
+import { Bar, Check, TextAction } from "./Bar";
 
 export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { checkIn: CheckIn; dealer: Dealer; tierBefore: Tier; onBack: () => void; onTier: () => void }) {
   const [requested, setRequested] = useState(false);
@@ -14,54 +13,51 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
 
   if (!clean) {
     return (
-      <Card className="p-5">
-        <h2 className="display-lg">Thanks, {dealer.name}</h2>
-        <p className="mt-3 text-ash-700">Check-in done.</p>
-        <Button variant="secondary" className="mt-6 min-h-12 w-full" onClick={onBack}>Back to check-ins</Button>
-      </Card>
+      <div>
+        <h2 className="px-4 pt-10 pb-8 display-wide text-[2.25rem]" role="status"><span className="whitespace-nowrap">Check-in</span> done</h2>
+        <Bar tone="paper" onClick={onBack}>Back to check-ins</Bar>
+        <div className="border-t border-ink" />
+      </div>
     );
   }
 
   const n = checkIn.sampledVins.length;
   return (
-    <div className="space-y-4">
-      <Card className="overflow-hidden">
-        <div className="flex flex-col items-start gap-4 border-b border-line bg-lime px-5 py-6">
-          <span className="flex size-14 items-center justify-center bg-ink text-lime animate-pop" aria-hidden>
-            <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" pathLength={1} strokeDasharray="1" className="animate-draw" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
-          </span>
-          <div role="status">
-            <h2 className="display-xl">All verified.<br />Thanks!</h2>
-            <p className="mt-2 text-sm">{n} of {n} car{n === 1 ? "" : "s"} confirmed</p>
-          </div>
-        </div>
+    <div>
+      <section className="bg-lime px-4 pt-10 pb-8" role="status">
+        <Check size={56} draw />
+        <h2 className="mt-8 display-wide text-[clamp(2.4rem,11.5vw,3.4rem)]">All<br />verified</h2>
+        <p className="mt-5 flex items-baseline gap-2">
+          <span className="figure text-3xl">{n}/{n}</span>
+          <span className="text-sm">car{n === 1 ? "" : "s"} confirmed</span>
+        </p>
+      </section>
 
-        {lineReview && (
-          <div className="p-5">
-            <p className="display-md">Eligible for a line review</p>
-            <p className="mt-2 text-sm text-ash-700">Our credit team replies within {lineReview}.</p>
-            {requested ? (
-              <div className="mt-5 flex items-center gap-3 border border-line bg-brand-soft p-4" role="status" aria-live="polite">
-                <svg aria-hidden width="18" height="18" viewBox="0 0 20 20" fill="none" className="shrink-0"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square" /></svg>
-                <p><span className="font-medium">Line review requested.</span> <span className="text-ash-700">We&apos;ll reply within {lineReview}.</span></p>
-              </div>
-            ) : (
-              <Button variant="brand" arrow className="mt-5 min-h-14 w-full text-base" onClick={() => setRequested(true)}>
-                Request a line review
-              </Button>
-            )}
+      {lineReview && (
+        <section className="border-t border-ink">
+          <div className="px-4 pt-8 pb-6">
+            <h3 className="display-wide text-[1.5rem]">Line review</h3>
+            <p className="mt-2 text-sm text-ash-700">Reply within {lineReview}</p>
           </div>
-        )}
-      </Card>
+          {requested ? (
+            <div className="flex items-center gap-3 border-t border-ink bg-brand-soft px-4 py-5" role="status" aria-live="polite">
+              <Check size={28} />
+              <p className="font-medium">Line review requested</p>
+            </div>
+          ) : (
+            <Bar tone="brand" onClick={() => setRequested(true)}>Request a line review</Bar>
+          )}
+        </section>
+      )}
 
-      <button type="button" onClick={onTier} className="group flex min-h-16 w-full items-center gap-3 border border-line px-5 py-4 text-left transition-colors hover:bg-brand-soft">
+      <button type="button" onClick={onTier} className="group flex min-h-16 w-full items-center gap-3 border-y border-ink px-4 py-4 text-left transition-colors duration-300 hover:bg-ink hover:text-paper focus-visible:-outline-offset-4">
         <TierBadge tier={dealer.tier} />
         <span className="flex-1 font-medium">{movedUp ? `You've moved up to ${dealer.tier}` : `You're ${dealer.tier} tier`}</span>
-        <span className="text-sm text-ash-700 underline underline-offset-4">Benefits</span>
-        <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+        <span className="text-sm">Benefits</span>
+        <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
       </button>
 
-      <Button variant="ghost" className="min-h-12 w-full" onClick={onBack}>Back to check-ins</Button>
+      <TextAction className="mt-2" onClick={onBack}>Back to check-ins</TextAction>
     </div>
   );
 }
