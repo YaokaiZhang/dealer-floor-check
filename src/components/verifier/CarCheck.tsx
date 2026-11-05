@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { ShotSequence } from "@/components/capture/ShotSequence";
+import { ScanCar } from "@/components/ui/ScanCar";
 import { actions, type Store } from "@/lib/store";
 import { submitShots, type Fix, type Shots } from "@/lib/verify";
 import type { Car, Dealer, SpotCheck } from "@/lib/types";
@@ -162,13 +163,12 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
   );
 }
 
-/** Photos are being read on the server: a beam sweeps the frame until the answer is back. */
+/** Photos are being read on the server: the car is scanned until the answer is back. */
 function Checking() {
   return (
-    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border border-line bg-ink text-paper" role="status">
-      <style>{`@keyframes vf-sweep { from { transform: translateX(-100%) } to { transform: translateX(400%) } }`}</style>
-      <span aria-hidden className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-brand/50 to-transparent animate-[vf-sweep_1400ms_cubic-bezier(0.65,0,0.35,1)_infinite]" />
-      <p className="relative display-md">Checking the photos…</p>
+    <div className="relative aspect-[4/3] overflow-hidden border border-line bg-ink text-paper" role="status">
+      <ScanCar tone="dark" scale={0.36} className="absolute inset-0 h-full w-full" title="" />
+      <p className="absolute bottom-3 left-4 display-md">Checking the photos…</p>
     </div>
   );
 }

@@ -18,6 +18,7 @@
   --color-brand-soft: #eef3f9;
   --color-brand-deep: #1f4f9e;   /* bank blue: links, focus, the one accent */
   --color-lime: #b6e0cb;         /* muted aurora green: verified */
+  --color-go: #1e7a4f;           /* deep green: verified marks on white */
   --color-gold: #ead9a8;         /* tier: gold */
   --color-silver: #dfe3ea;       /* tier: silver */
   --color-high: #c23b2e;
@@ -71,6 +72,15 @@ body {
 @utility display-md { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1.05; font-size: 1.25rem; }
 @utility tag-text { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; }
 @utility figure { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 0.95; }
+
+/* Wide display: Archivo stretched out, like lettering on a showroom fascia. */
+@utility display-wide { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.035em; }
+
+/* Home intro: the cover lifts away once, revealing the page. */
+.intro { transition: transform 1000ms cubic-bezier(0.85, 0, 0.15, 1); }
+.intro[data-gone] { transform: translateY(-100%); }
+html[data-entered] .intro { display: none; }
+html:not([data-entered]):has(.intro:not([data-gone])) { overflow: hidden; }
 
 /* Lot motif: cars settle into their stalls once, on first paint. */
 .lot-car { animation: lot-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-box: fill-box; transform-origin: center; }

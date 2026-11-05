@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ScanCar } from "@/components/ui/ScanCar";
 import { actions, useDemo } from "@/lib/store";
 import { submitShots, type Fix, type Shots } from "@/lib/verify";
 import { ShotSequence } from "@/components/capture/ShotSequence";
@@ -74,11 +75,9 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 
           <div className="mt-4">
             {busy ? (
-              <div className="flex min-h-48 flex-col items-center justify-center gap-3 border border-line bg-mist text-center" role="status" aria-live="polite">
-                <span className="flex gap-1.5" aria-hidden>
-                  {[0, 1, 2].map((i) => <span key={i} className="size-2 animate-pulse-dot bg-ink" style={{ animationDelay: `${i * 0.2}s` }} />)}
-                </span>
-                <p className="font-medium">Checking the photos…</p>
+              <div className="relative border border-line bg-mist" role="status" aria-live="polite">
+                <ScanCar scale={0.36} className="block aspect-[16/10] w-full" title="" />
+                <p className="absolute bottom-3 left-4 font-medium">Checking the photos…</p>
               </div>
             ) : isVerified(result) ? (
               <div role="status" aria-live="polite">
