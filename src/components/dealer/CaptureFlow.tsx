@@ -15,8 +15,8 @@ const settled = (r: Result) => isSkipped(r) || isVerified(r);
 /** Where VIN plates usually are, by make. Purely a finding aid. */
 function vinHint(make: string): string {
   const m = make.toLowerCase();
-  if (["tesla", "volvo", "polestar"].includes(m)) return "Look through the windscreen, bottom left on the driver's side. There's also a sticker on the driver's door pillar.";
-  return "Usually at the bottom left of the windscreen, seen from outside. If it's hard to see, try the sticker on the driver's door pillar.";
+  if (["tesla", "volvo", "polestar"].includes(m)) return "Windscreen, driver's side · or door pillar";
+  return "Windscreen, bottom left · or driver's door pillar";
 }
 
 export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn; dealer: Dealer; onComplete: () => void }) {
@@ -124,7 +124,6 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
                   </span>
                   <div>
                     <p className="display-md">Verified</p>
-                    <p className="text-sm">Thanks, that&apos;s this one done.</p>
                   </div>
                 </div>
                 <Button arrow className="mt-5 min-h-14 w-full text-base" onClick={next}>{isLast ? "Finish check-in" : "Next car"}</Button>
@@ -133,7 +132,7 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
               <div className="animate-rise" role="status" aria-live="polite">
                 <div className="border border-ink bg-mist p-4">
                   <p className="font-medium">We couldn&apos;t read this one</p>
-                  <p className="mt-1 text-sm text-ash-700">Try another photo, a little closer and without glare, or skip it for now.</p>
+                  <p className="mt-1 text-sm text-ash-700">Closer, no glare.</p>
                 </div>
                 <PhotoButton inputRef={inputRef} onFile={onFile} label="Try another photo" />
                 <Button variant="secondary" className="mt-3 min-h-12 w-full" onClick={skip}>Skip for now</Button>

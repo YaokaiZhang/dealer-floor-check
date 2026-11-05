@@ -17,9 +17,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
     return (
       <Card className="animate-rise p-5">
         <h2 className="display-lg">Thanks, {dealer.name}</h2>
-        <p className="mt-3 text-ash-700">
-          That&apos;s the check-in done. We appreciate you taking the time. We&apos;ll be in touch if we need anything.
-        </p>
+        <p className="mt-3 text-ash-700">Check-in done.</p>
         <Button variant="secondary" className="mt-6 min-h-12 w-full" onClick={onBack}>Back to check-ins</Button>
       </Card>
     );
@@ -34,20 +32,19 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
           </span>
           <h2 className="display-xl">All verified ✓<br />Thanks!</h2>
           <p className="text-sm">
-            {checkIn.sampledVins.length} of {checkIn.sampledVins.length} car{checkIn.sampledVins.length === 1 ? "" : "s"} confirmed. That&apos;s all for now.
+            {checkIn.sampledVins.length} of {checkIn.sampledVins.length} car{checkIn.sampledVins.length === 1 ? "" : "s"} confirmed
           </p>
         </div>
 
         {topUp.amount > 0 && (
           <div className="p-5">
             <p className="tag-text text-ash-700">Credit line</p>
-            <p className="mt-2 text-lg leading-snug">
-              A credit-line top-up of <span className="font-semibold">{eur(topUp.amount)}</span> is available.
-            </p>
+            <p className="mt-2 figure text-4xl">{eur(topUp.amount)}</p>
+            <p className="mt-1 text-sm text-ash-700">top-up available</p>
             {requested ? (
               <div className="mt-5 border border-ink bg-brand-soft p-4" role="status" aria-live="polite">
-                <p className="font-medium">Top-up requested, it&apos;s on its way</p>
-                <p className="mt-1 text-sm text-ash-700">{topUp.speed === "Instant" ? "Instant: it will show on your credit line in a moment." : `${topUp.speed}.`}</p>
+                <p className="font-medium">Top-up requested ✓</p>
+                <p className="mt-1 tag-text text-ash-700">{topUp.speed}</p>
               </div>
             ) : (
               <Button variant="brand" arrow className="mt-5 min-h-14 w-full text-base" onClick={() => setRequested(true)}>
@@ -65,10 +62,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
             <span className="display-lg">You&apos;re {dealer.tier} tier</span>
             <TierBadge tier={dealer.tier} size="lg" />
           </div>
-          <p className="mt-3 text-sm text-ash-700">
-            {movedUp ? "Thanks to your clean check-ins. Fewer check-ins and better terms from here." : "Clean check-ins like this one keep your benefits in place."}{" "}
-            <span className="font-medium text-ink underline underline-offset-4">See benefits</span>
-          </p>
+          <p className="mt-3 text-sm font-medium underline underline-offset-4">Benefits →</p>
         </Card>
       </button>
 

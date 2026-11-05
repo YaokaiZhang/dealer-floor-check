@@ -16,16 +16,14 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
         <h2 className="flex items-center gap-2 display-md">
           <span className="inline-block size-2 animate-pulse-dot bg-lime" aria-hidden /> Live alerts
         </h2>
-        <span className="tag-text text-brand">{open} open · newest first</span>
+        <span className="tag-text text-brand">{open} open</span>
       </div>
 
       <ol aria-live="polite" className="divide-y divide-ink">
         {alerts.length === 0 && (
           <li className="p-5">
             <p className="display-md">All quiet.</p>
-            <p className="mt-1 text-sm text-ash-700">
-              Watching {connected} connected cars, marketplace listings and the vehicle registry for every financed car. Fire an event from Demo control to see one arrive here.
-            </p>
+            <p className="mt-1 tag-text text-ash-700">Watching {connected} connected cars · marketplace · registry</p>
           </li>
         )}
         {alerts.map((a) => {

@@ -6,7 +6,6 @@ import { portfolioStats, riskScore } from "@/lib/risk";
 import { eurCompact } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
-import { Arrow } from "@/components/ui/Button";
 
 export const riskTone = (score: number) => (score >= 60 ? "bg-high" : score >= 35 ? "bg-medium" : "bg-lime");
 export const riskWord = (score: number) => (score >= 60 ? "Act now" : score >= 35 ? "Watch" : "Low");
@@ -73,18 +72,13 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
 
         <div className="mt-5">
           <div className="flex items-baseline justify-between text-sm">
-            <span>
-              <strong className="font-semibold tabular-nums">{st.autoVerified.length}</strong> of {st.cars.length} verified automatically
-            </span>
+            <span className="tag-text text-ash-700">Auto-verified</span>
             <span className="tabular-nums text-ash-700">{Math.round(autoPct * 100)}%</span>
           </div>
           <div className="mt-1.5 flex h-2 border border-ink" aria-hidden>
             <div className="h-full bg-lime transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />
           </div>
         </div>
-        <span className="mt-4 inline-flex items-center gap-1 tag-text text-brand-deep">
-          Open dealer <Arrow />
-        </span>
       </button>
 
       <div className="border-t border-ink">
@@ -94,7 +88,7 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
           aria-expanded={why}
           className="flex w-full items-center justify-between px-5 py-2 tag-text hover:bg-mist"
         >
-          <span>Why {risk.score}? Risk breakdown</span>
+          <span>Risk breakdown</span>
           <span aria-hidden>{why ? "−" : "+"}</span>
         </button>
         {why && (
@@ -127,7 +121,7 @@ export function RiskBreakdown({ parts, score }: { parts: { label: string; points
         ))}
       </ul>
       <p className="mt-2 flex justify-between border-t border-ink pt-1.5 text-sm font-semibold">
-        <span>Score (clamped 0–100) · {riskWord(score)}</span>
+        <span>Score · {riskWord(score)}</span>
         <span className="tabular-nums">{score}</span>
       </p>
     </div>

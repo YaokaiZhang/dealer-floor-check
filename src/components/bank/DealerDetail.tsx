@@ -67,22 +67,21 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
               <span className="tag-text text-ash-700">/100 · {riskWord(risk.score)}</span>
             </p>
             <div className="mt-2 h-2 bg-ash-100"><div className={`h-full ${riskTone(risk.score)}`} style={{ width: `${risk.score}%` }} /></div>
-            <p className="mt-3 text-sm text-ash-700">Explainable by design: every point comes from a rule on the right.</p>
           </div>
           <RiskBreakdown parts={risk.parts} score={risk.score} />
         </section>
 
         <section>
           <SectionTag>Next random check-in · sampling</SectionTag>
-          <div className="mt-3"><SamplingFlow e={explanation} tier={d.tier} /></div>
+          <div className="mt-3"><SamplingFlow e={explanation} /></div>
         </section>
 
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <SectionTag>Check-ins · silent checks per photo</SectionTag>
-            <Tag tone="ink">Bank only, never shown to the dealer</Tag>
+            <SectionTag>Check-ins · silent checks</SectionTag>
+            <Tag tone="ink">Bank only</Tag>
           </div>
-          {checkIns.length === 0 && <p className="mt-3 text-sm text-ash-700">No check-ins in this demo session yet. Earlier ones are in the history below.</p>}
+          {checkIns.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
           <div className="mt-3 space-y-4">
             {checkIns.map((c) => <CheckInCard key={c.id} c={c} s={s} />)}
           </div>
@@ -105,7 +104,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
           <div>
             <SectionTag>Manual tier override</SectionTag>
             <label className="mt-3 block text-sm">
-              <span className="text-ash-700">Account manager decision, logged in tier history.</span>
+              <span className="sr-only">Tier</span>
               <select
                 value={d.tier}
                 onChange={(e) => actions.overrideTier(d.id, e.target.value as Tier)}
@@ -114,7 +113,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
                 {[...TIER_ORDER].reverse().map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </label>
-            <p className="mt-3 text-sm text-ash-700">{tier.blurb} Sampling: p = {+(tier.sampling.p * 100).toFixed(1)}%, confidence {pct(tier.sampling.confidence)}. Top-up {tier.topUp.amount ? eur(tier.topUp.amount) : "paused"}.</p>
+            <p className="mt-3 tag-text text-ash-700">p {+(tier.sampling.p * 100).toFixed(1)}% · {pct(tier.sampling.confidence)} conf. · top-up {tier.topUp.amount ? eur(tier.topUp.amount) : "paused"}</p>
           </div>
         </section>
 

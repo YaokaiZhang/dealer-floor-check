@@ -40,13 +40,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
           <SectionTag>What happens now</SectionTag>
           <Card className="mt-3 p-5">
             <p className="display-md">We&apos;d like to talk it through together</p>
-            <p className="mt-2 text-ash-700">
-              Something in our data needs a closer look. Your account manager will reach out to go through it with you.
-              Nothing changes on your credit line or terms without a conversation first.
-            </p>
-            <p className="mt-3 text-ash-700">
-              In the meantime you may get a check-in a little more often. Once things are cleared up, you return to your previous tier.
-            </p>
+            <p className="mt-2 text-ash-700">Your account manager will reach out. Nothing changes without a conversation.</p>
           </Card>
         </section>
       ) : (
@@ -63,19 +57,16 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
                 </ol>
                 <p className="mt-3 text-sm text-ash-700">
                   {CLEAN_STREAK_TO_STEP_UP - streak > 0
-                    ? `${CLEAN_STREAK_TO_STEP_UP - streak} more clean check-in${CLEAN_STREAK_TO_STEP_UP - streak === 1 ? "" : "s"} and you move up to ${nextTier}.`
-                    : `You're ready to move up to ${nextTier}.`}
+                    ? `${CLEAN_STREAK_TO_STEP_UP - streak} more to ${nextTier}`
+                    : `Ready for ${nextTier}`}
                 </p>
               </>
             ) : (
               <>
                 <p className="display-md">You&apos;re at the top</p>
-                <p className="mt-2 text-sm text-ash-700">
-                  {dealer.cleanStreak > 0
-                    ? `${dealer.cleanStreak} clean check-in${dealer.cleanStreak === 1 ? "" : "s"} in a row since you reached Gold. `
-                    : ""}
-                  Keep doing what you&apos;re doing and Gold stays yours.
-                </p>
+                {dealer.cleanStreak > 0 && (
+                  <p className="mt-2 text-sm text-ash-700">{dealer.cleanStreak} clean in a row</p>
+                )}
               </>
             )}
           </Card>
@@ -85,17 +76,10 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
       <section>
         <SectionTag>{tier === "Gold" ? "How to keep it" : tier === "Review" ? "What helps" : "How to move up"}</SectionTag>
         <ol className="mt-3 border border-ink">
-          {[
-            ["Clean check-ins", "Photograph the cars we ask about when it suits you. Clean check-ins are what move you up."],
-            ["Keep connected-car consent on", "Cars we can see on your lot count as checked, so we ask you for fewer photos."],
-            ["Pay off sold cars promptly", "Settle the loan on a car soon after it's sold. It keeps your records simple."],
-          ].map(([h, b], i) => (
-            <li key={h} className={`flex gap-4 p-4 ${i > 0 ? "border-t border-ink" : ""}`}>
+          {["Clean check-ins", "Connected-car consent on", "Pay off sold cars promptly"].map((h, i) => (
+            <li key={h} className={`flex items-center gap-4 p-4 ${i > 0 ? "border-t border-ink" : ""}`}>
               <span className="figure text-2xl text-brand-deep">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <p className="font-medium">{h}</p>
-                <p className="mt-1 text-sm text-ash-700">{b}</p>
-              </div>
+              <p className="font-medium">{h}</p>
             </li>
           ))}
         </ol>
@@ -113,7 +97,6 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
                   <TierBadge tier={name} />
                   {on && <Tag tone="ink">You are here</Tag>}
                 </div>
-                <p className="mt-2 text-sm">{x.blurb}</p>
                 <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 tag-text text-ash-700">
                   <li>{FREQUENCY[name]}</li>
                   <li>{x.topUp.amount > 0 ? `${eur(x.topUp.amount)} top-up · ${x.topUp.speed}` : "Top-up after review"}</li>
@@ -123,9 +106,6 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
             );
           })}
         </ol>
-        <p className="mt-3 text-sm text-ash-700">
-          Tiers move one step at a time. Review never changes your terms on its own: a person at Aurora always talks it through with you first.
-        </p>
       </section>
     </div>
   );

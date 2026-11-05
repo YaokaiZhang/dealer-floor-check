@@ -94,7 +94,7 @@ export function DealerApp() {
         .filter((a) => a.dealerId === dealer.id && a.verifier?.status === "on_site")
         .map((a) => (
           <div key={a.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
-            <p className="text-sm"><b>{a.verifier!.name}</b> is visiting on behalf of Aurora today. They&apos;ll show this code.</p>
+            <p className="text-sm"><b>{a.verifier!.name}</b> from Aurora visits today</p>
             <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]">{a.verifier!.visitCode}</span>
           </div>
         ))}

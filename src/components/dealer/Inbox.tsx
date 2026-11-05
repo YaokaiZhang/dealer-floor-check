@@ -28,10 +28,7 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
         <div className="flex size-11 items-center justify-center border border-ink bg-lime" aria-hidden>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
         </div>
-        <h2 className="mt-4 display-lg">Nothing to do right now</h2>
-        <p className="mt-2 text-ash-700">
-          Your cars are in good order. When we&apos;d like a quick check-in, it will show up here and you can pick a time that suits you.
-        </p>
+        <h2 className="mt-4 display-lg">All good. Nothing to do.</h2>
       </Card>
 
       <button type="button" onClick={onTier} className="group mt-5 block w-full text-left">
@@ -46,14 +43,24 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
             )}
             <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Check-ins</dt><dd className="font-medium">{FREQUENCY[dealer.tier]}</dd></div>
           </dl>
-          <span className="mt-3 inline-block text-sm font-medium underline underline-offset-4">See your benefits</span>
+          <span className="mt-3 inline-block text-sm font-medium underline underline-offset-4">Benefits →</span>
         </Card>
       </button>
     </div>
   );
 }
 
-function CheckInCard({ checkIn, dealer }: { checkIn: CheckIn; dealer: Dealer }) {
+function Chips({ targeted }: { targeted: boolean }) {
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {[targeted ? "1 car" : "A few cars", targeted ? "~1 min" : "~3 min", "VIN photo", "On your lot"].map((c) => (
+        <li key={c}><Tag tone="outline">{c}</Tag></li>
+      ))}
+    </ul>
+  );
+}
+
+function CheckInCard({ checkIn }: { checkIn: CheckIn; dealer: Dealer }) {
   const [changing, setChanging] = useState(false);
   const targeted = checkIn.reason === "targeted";
   const scheduled = checkIn.status === "scheduled" && checkIn.window && !changing;
@@ -61,23 +68,13 @@ function CheckInCard({ checkIn, dealer }: { checkIn: CheckIn; dealer: Dealer }) 
   return (
     <Card className="animate-rise overflow-hidden">
       <div className={`border-b border-ink px-5 py-4 ${scheduled ? "bg-lime" : "bg-brand"}`}>
-        <Tag tone="ink">{scheduled ? "Ready when you are" : targeted ? "Quick photo" : "Check-in"}</Tag>
-        {scheduled ? (
-          <p className="mt-3 display-lg">Booked for {bookedLabel(checkIn.window!)}</p>
-        ) : (
-          <p className="mt-3 text-[1.05rem] leading-snug font-medium">
-            {targeted
-              ? <>Hi {dealer.name}, we&apos;d like a quick photo of just one car to keep our records up to date. Pick a time that suits you.</>
-              : <>Hi {dealer.name}, we&apos;d like to do a quick check-in of a few cars. Pick a time that suits you.</>}
-          </p>
-        )}
+        <Tag tone="ink">{scheduled ? "Booked" : "Pick a time"}</Tag>
+        <p className="mt-3 display-lg">{scheduled ? bookedLabel(checkIn.window!) : targeted ? "One quick photo" : "Quick check-in"}</p>
       </div>
 
       {scheduled ? (
         <div className="p-5">
-          <p className="text-ash-700">
-            Start whenever you&apos;re ready. {targeted ? "It's one car" : "We'll show you a few cars one at a time"}, and you photograph the VIN plate on each. About {targeted ? "a minute" : "3 minutes"}.
-          </p>
+          <Chips targeted={targeted} />
           <Button variant="primary" arrow className="mt-5 min-h-14 w-full text-base" onClick={() => { actions.startCheckIn(checkIn.id); window.scrollTo({ top: 0 }); }}>
             Start check-in
           </Button>
@@ -102,11 +99,7 @@ function WindowPicker({ targeted, onPick }: { targeted: boolean; onPick: (w: Che
 
   return (
     <div className="p-5">
-      <ul className="flex flex-wrap gap-x-4 gap-y-1 tag-text text-ash-700">
-        <li>About {targeted ? "1 minute" : "3 minutes"}</li>
-        <li>On your lot</li>
-        <li>Phone camera</li>
-      </ul>
+      <Chips targeted={targeted} />
       <fieldset className="mt-5">
         <legend className="mb-2 text-sm font-medium">When suits you?</legend>
         <div className="divide-y divide-ink border border-ink">
@@ -128,7 +121,7 @@ function WindowPicker({ targeted, onPick }: { targeted: boolean; onPick: (w: Che
       <Button variant="primary" arrow disabled={!chosen} className="mt-5 min-h-14 w-full text-base" onClick={() => chosen && onPick(chosen)}>
         {chosen ? `Book ${chosen.label === "Right now" ? "for right now" : chosen.label}` : "Pick a time"}
       </Button>
-      <p className="mt-3 text-center text-xs text-ash-700">Any time that works is fine. You can change it later.</p>
+      <p className="mt-3 text-center text-xs text-ash-700">You can change it later.</p>
     </div>
   );
 }

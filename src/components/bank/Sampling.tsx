@@ -7,7 +7,7 @@ import { Explainer, useWidth } from "./shared";
 
 const fmtP = (p: number) => `${+(p * 100).toFixed(1)}%`;
 
-export function SamplingFlow({ e, tier }: { e: SamplingExplanation; tier: string }) {
+export function SamplingFlow({ e }: { e: SamplingExplanation }) {
   const M = e.missingToDetect;
   const pMissAll = e.pool ? 1 - detectionProbability(e.pool, M, e.n) : 0;
   const steps = [
@@ -28,12 +28,8 @@ export function SamplingFlow({ e, tier }: { e: SamplingExplanation; tier: string
           </li>
         ))}
       </ol>
-      <p className="mt-4 text-lg leading-snug">
-        Fleet {e.fleet} → {e.autoVerified} verified automatically by connected cars → pool {e.pool} →{" "}
-        <strong>check {e.n} for {pct(e.confidence)} confidence that ≤{fmtP(e.p)} are missing.</strong>
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ash-700">
-        <span>{tier} tier sets p = {fmtP(e.p)} and confidence = {pct(e.confidence)}.</span>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <p className="text-lg leading-snug"><strong>{pct(e.confidence)}</strong> confidence ≤{fmtP(e.p)} missing</p>
         <Explainer label="How is n chosen?">
           <span className="block font-semibold">Hypergeometric sampling</span>
           <span className="mt-2 block">

@@ -3,7 +3,6 @@ import type { Store } from "@/lib/store";
 import { portfolioStats } from "@/lib/risk";
 import { headline } from "@/lib/costModel";
 import { eurCompact } from "@/lib/format";
-import { ASSUMPTIONS } from "@/config/assumptions";
 import { isOpen } from "./shared";
 
 export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
@@ -28,8 +27,6 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
         <div className="mt-4 h-2 border border-ink bg-paper" aria-hidden>
           <div className="h-full bg-ink transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />
         </div>
-        <p className="mt-4 max-w-sm display-md">Most verification already happened with zero people.</p>
-        <p className="mt-1 text-sm text-ink/70">Connected cars seen inside the dealer lot in the last 24 h, no open alert.</p>
       </div>
 
       <div className="grid grid-cols-2 md:col-span-7 md:grid-cols-3">
@@ -47,12 +44,9 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
           </p>
         </button>
         <div className="col-span-2 border-t border-ink bg-brand p-5 md:col-span-1 md:border-t-0 md:border-l md:p-7">
-          <p className="tag-text">Annual floor-check cost</p>
+          <p className="tag-text">Floor-check cost</p>
           <p className="mt-3 figure text-[clamp(2.6rem,5vw,4rem)]">−{h.checkCostReductionPct}%</p>
-          <p className="mt-2 text-sm">
-            at equal or lower fraud exposure (−{h.fraudLossReductionPct}% expected loss). {eurCompact(h.portfolioSavings)}/yr across {ASSUMPTIONS.portfolioDealers} dealers.
-          </p>
-          <p className="mt-2 tag-text text-ink/60">Assumptions, see chart below</p>
+          <p className="mt-2 text-sm">−{h.fraudLossReductionPct}% fraud loss · {eurCompact(h.portfolioSavings)}/yr</p>
         </div>
       </div>
     </section>

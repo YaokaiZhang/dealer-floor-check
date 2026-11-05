@@ -94,11 +94,8 @@ export function VerifierApp() {
               <h2 className="mb-3 display-md">Jobs near you</h2>
               {offered.length === 0 ? (
                 <Card className="p-5">
-                  <p className="font-medium">No jobs nearby right now</p>
-                  <p className="mt-1 text-sm text-ash-700">
-                    New jobs appear here when the lender asks for a visit. In the demo: open an alert on{" "}
-                    <a href="/bank" className="underline underline-offset-4" target="_blank" rel="noreferrer">/bank</a> and press “Dispatch verifier”.
-                  </p>
+                  <p className="font-medium">No jobs nearby</p>
+                  <a href="/bank" className="mt-1 inline-block tag-text text-ash-700 underline underline-offset-4" target="_blank" rel="noreferrer">Dispatch one from the bank ↗</a>
                 </Card>
               ) : (
                 <ul className="space-y-3">
@@ -128,13 +125,15 @@ export function VerifierApp() {
               </section>
             )}
 
-            <section className="border border-ink bg-brand-soft p-4 text-sm">
-              <p className="tag-text">How jobs work</p>
-              <ul className="mt-2 list-disc space-y-1 pl-4">
-                <li>One car per job, about 20 minutes on site.</li>
-                <li>You confirm the car is there. You won&apos;t be told why it was picked; that keeps every visit neutral.</li>
-                <li>Be friendly: show your visit code, ask staff to point you to the car, photograph the VIN plate.</li>
-                <li>Paid per completed report, found or not.</li>
+            <section>
+              <p className="mb-2 tag-text text-ash-700">How jobs work</p>
+              <ul className="grid grid-cols-2 border border-ink bg-brand-soft">
+                {[["1 car", "per job"], ["~20 min", "on site"], ["Paid", "found or not"], ["Neutral", "you're not told why"]].map(([k, sub], i) => (
+                  <li key={k} className={`p-3 ${i % 2 ? "border-l border-ink" : ""} ${i > 1 ? "border-t border-ink" : ""}`}>
+                    <p className="figure text-xl">{k}</p>
+                    <p className="tag-text text-ash-700">{sub}</p>
+                  </li>
+                ))}
               </ul>
             </section>
           </>
@@ -158,8 +157,8 @@ function OfferCard({ job, onAccept, onDecline }: { job: Job; onAccept: () => voi
         <span className="figure text-3xl">{eur(alert.verifier!.fee)}</span>
       </div>
       <div className="px-4 py-3 text-sm">
-        <p>Confirm one car is on the lot: <b>{car.year} {car.make} {car.model}</b>, {car.color.toLowerCase()}.</p>
-        <p className="mt-1 tag-text text-ash-700">~20 min on site · posted {timeFi(alert.verifier!.dispatchedAt)}</p>
+        <p><b>{car.year} {car.make} {car.model}</b> · {car.color.toLowerCase()}</p>
+        <p className="mt-1 tag-text text-ash-700">~20 min · posted {timeFi(alert.verifier!.dispatchedAt)}</p>
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-2 border-t border-ink p-3">
         <Button arrow className="min-h-12" onClick={onAccept}>Accept job</Button>
@@ -243,10 +242,9 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
           </span>
           <div>
             <p className="display-md">Report sent</p>
-            <p className="text-sm">{eur(v.fee)} added to today&apos;s earnings.</p>
+            <p className="text-sm">+{eur(v.fee)}</p>
           </div>
         </div>
-        <p className="text-sm text-ash-700">Thanks. The lender reviews your report; you don&apos;t need to do anything else for this job.</p>
         <Button arrow className="min-h-12 w-full" onClick={onClose}>Back to jobs</Button>
       </div>
     );
@@ -288,16 +286,15 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
           <p className="tag-text text-ash-700">Your visit code</p>
           <p className="mt-1 font-mono text-2xl font-medium tracking-[0.15em]">{v.visitCode}</p>
         </div>
-        <p className="max-w-[11rem] text-xs text-ash-700">Staff see the same code in their Aurora app, so they know you&apos;re expected.</p>
+        <p className="max-w-[9rem] text-right text-xs text-ash-700">Staff see this code too</p>
       </div>
 
       {v.status === "en_route" ? (
         <div>
-          <p className="text-sm text-ash-700">Head to the lot. Check in when you&apos;re there; we use your location once, to confirm you&apos;re on site.</p>
-          <Button arrow className="mt-4 min-h-14 w-full text-base" disabled={busy} onClick={arrive}>{busy ? "Checking location…" : "I'm at the lot"}</Button>
+          <Button arrow className="min-h-14 w-full text-base" disabled={busy} onClick={arrive}>{busy ? "Checking location…" : "I'm at the lot"}</Button>
           {tooFar !== null && (
             <p className="mt-3 border border-ink bg-mist p-3 text-sm" role="status">
-              {tooFar < 0 ? "We couldn't get your location. Allow location access and try again." : `You seem to be ${formatDistance(tooFar)} from the lot. Try again when you're there.`}
+              {tooFar < 0 ? "No location. Allow access and retry." : `${formatDistance(tooFar)} from the lot.`}
             </p>
           )}
         </div>
@@ -322,7 +319,7 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
                   {photo.thumbnail && <img src={photo.thumbnail} alt="" className="size-16 border border-ink object-cover" />}
                   <div className="text-sm">
                     <p className="font-medium">{photo.verified ? "VIN plate matches ✓" : "Couldn't confirm the VIN"}</p>
-                    <p className="text-ash-700">{photo.verified ? "Looks good." : "Try a sharper photo, closer and without glare."}</p>
+                    {!photo.verified && <p className="text-ash-700">Closer, no glare.</p>}
                     <button type="button" className="mt-1 underline underline-offset-4" onClick={() => inputRef.current?.click()}>Retake</button>
                   </div>
                 </div>

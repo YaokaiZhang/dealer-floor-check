@@ -40,10 +40,7 @@ export default function DemoPage() {
           <div>
             <SectionTag>Stage control · simulated feeds</SectionTag>
             <h1 className="mt-3 display-xl">Demo control</h1>
-            <p className="mt-3 max-w-2xl text-ash-700">
-              Each button fires a simulated event. Alerts appear live on <a className="underline underline-offset-4" href="/bank">/bank</a> and check-ins on{" "}
-              <a className="underline underline-offset-4" href="/dealer">/dealer</a> (open them in other tabs on this machine).
-            </p>
+            <p className="mt-3 tag-text text-ash-700">Live in other tabs of this browser</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href="/verifier" variant="secondary" arrow>Verifier app</ButtonLink>
@@ -63,8 +60,7 @@ export default function DemoPage() {
               <Tag tone="ink">Demo script · step 3</Tag>
               <h2 className="mt-4 display-lg">Sold out of trust</h2>
               <p className="mt-3 max-w-2xl">
-                {demoCar.year} {demoCar.make} {demoCar.model} ({demoCar.plate}) at {demoDealer.name} is listed as <b>sold</b> on the marketplace while its loan is open.
-                Connected-car data puts it ~180 km away and the registry shows a pending owner change. The dealer moves to Review and a targeted check-in goes out.
+                {demoCar.year} {demoCar.make} {demoCar.model} ({demoCar.plate}) at {demoDealer.name}: listed <b>sold</b>, loan open, ~180 km away, owner change pending.
               </p>
               <p className="mt-2 tag-text">VIN {demoCar.vin}</p>
             </div>
@@ -141,19 +137,19 @@ export default function DemoPage() {
               <Card className="divide-y divide-ash-100">
                 <Toggle
                   label="Simulate on-site location"
-                  help="If the phone's GPS is unavailable or not at the dealer, place it on the dealer lot. The bank sees it labelled “simulated”."
+                  help="GPS fallback, labelled “simulated”"
                   checked={hydrated && s.flags.simulateOnSite}
                   onChange={(v) => actions.setFlag("simulateOnSite", v)}
                 />
                 <Toggle
                   label="Auto-complete verifier jobs"
-                  help="Off: someone plays the freelancer on /verifier. On: a dispatched job reports back by itself after ~6 s."
+                  help="Reports back after ~6 s"
                   checked={hydrated && s.flags.autoVerifier}
                   onChange={(v) => actions.setFlag("autoVerifier", v)}
                 />
                 <Toggle
                   label="Next photo can't be read"
-                  help="The next VIN photo returns no reading, to show the neutral “try another photo” message. Resets after one use."
+                  help="One time"
                   checked={hydrated && s.flags.nextPhotoUnreadable}
                   onChange={(v) => actions.setFlag("nextPhotoUnreadable", v)}
                 />

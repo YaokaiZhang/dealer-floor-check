@@ -12,10 +12,10 @@ import { TierBadge } from "@/components/ui/TierBadge";
 import { SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow } from "./shared";
 
 const LADDER: { step: EscalationStep; title: string; who: string; cost: string }[] = [
-  { step: "signal", title: "Signal", who: "Data feeds, automatic", cost: "€0" },
-  { step: "targeted_check_in", title: "Targeted check-in", who: "Dealer photographs that one VIN", cost: `€${ASSUMPTIONS.checkInHandlingCost}` },
-  { step: "gig_verifier", title: "Gig verifier", who: "Local verifier visits the lot", cost: `€${ASSUMPTIONS.gigCheckCost}` },
-  { step: "auditor", title: "Auditor / account manager", who: "Only for confirmed problems", cost: `€${ASSUMPTIONS.auditorVisitCost}` },
+  { step: "signal", title: "Signal", who: "Automatic", cost: "€0" },
+  { step: "targeted_check_in", title: "Check-in", who: "Dealer photo", cost: `€${ASSUMPTIONS.checkInHandlingCost}` },
+  { step: "gig_verifier", title: "Verifier", who: "Local visit", cost: `€${ASSUMPTIONS.gigCheckCost}` },
+  { step: "auditor", title: "Auditor", who: "Last resort", cost: `€${ASSUMPTIONS.auditorVisitCost}` },
 ];
 
 export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; onDealer: (id: string) => void }) {
@@ -48,18 +48,13 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           </div>
         </header>
 
-        {/* Human review */}
-        <div className="border border-ink bg-brand-soft p-4">
-          <p className="tag-text">Human review</p>
-          <p className="mt-1 text-sm">
-            Signals only raise how closely we look (more check-ins, Review tier). Loan status and the dealer&apos;s terms change only after a bank officer clears or confirms the case here.
-          </p>
-        </div>
-
         <Ladder stepIdx={stepIdx} alert={alert} />
 
         <div className="border border-ink p-4">
-          <SectionTag>Recommended next step</SectionTag>
+          <div className="flex items-center justify-between gap-2">
+            <SectionTag>Next step</SectionTag>
+            <Tag tone="outline">Officer decides</Tag>
+          </div>
           <p className="mt-2 font-semibold leading-snug">{recommend(alert, ci)}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button variant="brand" disabled={!open || !!alert.verifier || alert.step === "auditor"} onClick={() => actions.dispatchVerifier(alert.id)}>
@@ -75,11 +70,6 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
               Confirm sold out of trust
             </Button>
           </div>
-          {!open && (
-            <p className="mt-3 text-sm text-ash-700">
-              Closed by bank review: {alert.status === "resolved_ok" ? "cleared, no action against the dealer." : "confirmed sold out of trust, loan flagged for recovery."}
-            </p>
-          )}
         </div>
 
         {alert.verifier && <VerifierCard alert={alert} now={now} />}
@@ -105,31 +95,24 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
 }
 
 function recommend(a: Alert, ci?: CheckIn): string {
-  if (a.status === "resolved_ok") return "Case closed. The dealer returns to their previous tier once no high alert is open.";
-  if (a.status === "confirmed_fraud") return "Confirmed. Hand over to recovery and review the dealer's credit line with the account manager.";
-  if (a.step === "auditor") return "Auditor and account manager assigned. Decide after their visit: clear, or confirm sold out of trust.";
-  if (a.verifier?.status === "offered") return "Job posted to vetted local verifiers. Usually accepted within minutes; the report follows in about an hour.";
-  if (a.verifier?.status === "en_route") return `${a.verifier.name} accepted and is on the way. They only know which car to confirm, not why.`;
-  if (a.verifier?.status === "on_site") return `${a.verifier.name} is on the lot now. The report arrives with a VIN photo or a reason the car isn't there.`;
-  if (a.verifier?.status === "reported")
-    return a.verifier.found
-      ? "Verifier found the car on the lot. Clear the alert (this also lifts a Review it caused); no auditor needed."
-      : "Verifier could not find the car. Escalate to an auditor / account manager, or confirm sold out of trust.";
-  if (a.severity === "high")
-    return `Several signals agree. Dispatch a gig verifier now (€${ASSUMPTIONS.gigCheckCost}) instead of sending an auditor (€${ASSUMPTIONS.auditorVisitCost}). The targeted check-in stays open in parallel.`;
-  if (ci && ci.status !== "completed") return "Give the dealer time to answer the friendly targeted check-in. If it isn't done within a day, dispatch a gig verifier.";
-  if (ci?.status === "completed") return ci.outcome === "clean" ? "Dealer photographed the car on site. Clear if the signal is explained." : "The car couldn't be verified at the check-in. Dispatch a gig verifier.";
-  return "Low severity: keep watching. Clear it if the signal is explained.";
+  if (a.status === "resolved_ok") return "Cleared.";
+  if (a.status === "confirmed_fraud") return "Confirmed. Hand over to recovery.";
+  if (a.step === "auditor") return "Auditor assigned. Decide after the visit.";
+  if (a.verifier?.status === "offered") return "Waiting for a verifier.";
+  if (a.verifier?.status === "en_route") return `${a.verifier.name} en route.`;
+  if (a.verifier?.status === "on_site") return `${a.verifier.name} on the lot.`;
+  if (a.verifier?.status === "reported") return a.verifier.found ? "Car found. Clear the alert." : "Car not found. Escalate or confirm.";
+  if (a.severity === "high") return `Dispatch a verifier (€${ASSUMPTIONS.gigCheckCost}), not an auditor (€${ASSUMPTIONS.auditorVisitCost}).`;
+  if (ci && ci.status !== "completed") return "Wait for the dealer's check-in.";
+  if (ci?.status === "completed") return ci.outcome === "clean" ? "Photographed on site. Clear it." : "Check-in failed. Dispatch a verifier.";
+  return "Low severity. Keep watching.";
 }
 
 function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
   const closed = !isOpen(alert);
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <SectionTag>Escalation ladder</SectionTag>
-        <span className="tag-text text-ash-700">Cheapest effective step first</span>
-      </div>
+      <SectionTag>Escalation ladder</SectionTag>
       <ol className="mt-3 grid border border-ink sm:grid-cols-4">
         {LADDER.map((l, i) => {
           const current = i === stepIdx && !closed;
@@ -172,7 +155,7 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
     <div className={`border border-ink ${reported ? (v.found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ink px-4 py-3">
         <SectionTag className="!text-ink">Gig verifier · {eur(v.fee)}</SectionTag>
-        <span className="tag-text text-ash-700">{v.name} · visit code {v.visitCode}</span>
+        <span className="tag-text text-ash-700">{v.name} · {v.visitCode}</span>
       </div>
       <ol className="grid grid-cols-4 border-b border-ink">
         {V_STEPS.map((st, i) => {
@@ -192,12 +175,11 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
               <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden />
               {v.status === "offered" ? "Waiting for a verifier to accept" : v.status === "en_route" ? `${v.name} en route` : `${v.name} on the lot`}
             </p>
-            <p className="mt-2 text-sm text-ash-700">
-              Posted {secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago. Open <a className="underline underline-offset-4" href="/verifier" target="_blank" rel="noreferrer">/verifier</a> on a phone to play the freelancer.
-            </p>
-            <button type="button" onClick={() => actions.verifierReport(alert.id)} className="mt-3 tag-text text-ash-700 underline underline-offset-4 hover:text-ink">
-              Skip ahead: simulate the report
-            </button>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 tag-text text-ash-700">
+              <span>{secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago</span>
+              <a className="underline underline-offset-4 hover:text-ink" href="/verifier" target="_blank" rel="noreferrer">Verifier app ↗</a>
+              <button type="button" onClick={() => actions.verifierReport(alert.id)} className="underline underline-offset-4 hover:text-ink">Simulate report</button>
+            </div>
           </>
         ) : (
           <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
@@ -239,9 +221,9 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
 }
 
 const CI_STATUS: Record<CheckIn["status"], string> = {
-  requested: "Sent to the dealer, waiting for them to pick a time",
-  scheduled: "Dealer picked a time window",
-  in_progress: "Dealer is doing the check-in now",
+  requested: "Waiting for the dealer",
+  scheduled: "Booked",
+  in_progress: "In progress",
   completed: "Completed",
 };
 
@@ -250,7 +232,7 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
     return (
       <div className="border border-ash-300 p-4 text-sm text-ash-700">
         <SectionTag>Targeted check-in</SectionTag>
-        <p className="mt-1">{severity === "low" ? "Not sent for low-severity alerts." : "None linked."}</p>
+        <p className="mt-1">{severity === "low" ? "Not sent (low)." : "None."}</p>
       </div>
     );
   }
@@ -259,13 +241,10 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
   return (
     <div className="border border-ink p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <SectionTag>Targeted check-in · step 1</SectionTag>
+        <SectionTag>Targeted check-in</SectionTag>
         <Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>
       </div>
       <p className="mt-2 font-semibold">{CI_STATUS[ci.status]}{ci.window ? `: ${ci.window.label}` : ""}</p>
-      <p className="mt-1 text-sm text-ash-700">
-        Friendly request for this one car, sent {timeFi(ci.createdAt)}. The dealer sees a normal check-in, never the alert.
-      </p>
       {r && "skipped" in r && <p className="mt-2 text-sm">Dealer skipped this car.</p>}
       {photo && (
         <p className="mt-2 text-sm">
@@ -352,7 +331,7 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
           <text y="12" textAnchor="middle" fontSize="8" fontFamily="var(--font-mono)">N</text>
         </g>
       </svg>
-      <figcaption className="mt-1 tag-text text-ash-500">Schematic, not to scale</figcaption>
+      <figcaption className="mt-1 tag-text text-ash-500">Not to scale</figcaption>
     </figure>
   );
 }
