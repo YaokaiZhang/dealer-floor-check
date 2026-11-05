@@ -12,7 +12,7 @@ const TONES: Record<Tone, string> = {
   muted: "border-ash-300 text-ash-700 bg-paper",
 };
 
-/** Small bordered uppercase mono label. */
+/** Small bordered small label. */
 export function Tag({ children, tone = "outline", className = "" }: { children: ReactNode; tone?: Tone; className?: string }) {
   return (
     <span className={`inline-flex w-fit shrink-0 items-center gap-1 border px-1.5 py-0.5 whitespace-nowrap tag-text ${TONES[tone]} ${className}`}>

@@ -3,7 +3,6 @@ import { useId, useState } from "react";
 import { curve, headline, traditional, withSignals, type CostPoint } from "@/lib/costModel";
 import { ASSUMPTIONS } from "@/config/assumptions";
 import { eur, eurCompact } from "@/lib/format";
-import { SectionTag } from "@/components/ui/Card";
 import { useWidth } from "./shared";
 
 /* Series colours validated with the dataviz palette checker (light surface, all pairs pass CVD + contrast).
@@ -63,25 +62,18 @@ export function CostChart() {
 
   // Direct labels placed where curves are well separated.
   const labels = [
-    { text: "Aurora with signals", fx: narrow ? 1.2 : 0.9, v: sig[1].total, dy: 18, color: C.signals, bold: true },
+    { text: "Curb with signals", fx: narrow ? 1.2 : 0.9, v: sig[1].total, dy: 18, color: C.signals, bold: true },
     { text: "Traditional total", fx: 9.4, v: trad[9].total, dy: -12, color: C.total, bold: true },
     { text: "Check cost", fx: 10.4, v: trad[10].checkCost, dy: -10, color: C.check },
     { text: "Fraud loss", fx: 3.8, v: traditional(3.8).fraudLoss, dy: 16, color: C.fraud },
   ];
 
   return (
-    <section aria-label="Cost and risk trade-off" className="border border-line bg-paper shadow-card">
-      <div className="grid gap-4 border-b border-line p-5 md:grid-cols-[1fr_auto] md:items-end md:p-6">
-        <div>
-          <SectionTag>Cost / risk per dealer per year</SectionTag>
-          <h2 className="mt-2 display-lg">Fewer visits, less fraud loss.</h2>
-          <p className="mt-2 max-w-2xl text-sm text-ash-700">
-            Traditional floor checks trade visit cost against fraud found late; the best mix is {tMin.f} visits a year at {eurCompact(tMin.total)}.
-            With live signals, fraud is caught in days, so the optimum drops to {sMin.f} scheduled visits at {eurCompact(sMin.total)}.
-          </p>
-        </div>
-        <div className="flex w-fit gap-px border border-line bg-line">
-          <div className="bg-brand p-3">
+    <section aria-label="Cost and risk trade-off" className="border-t border-ink bg-paper">
+      <div className="grid gap-6 border-b border-ink py-8 md:grid-cols-[1fr_auto] md:items-end">
+        <h2 className="display-lg">Cost per dealer per year</h2>
+        <div className="flex w-fit border border-ink">
+          <div className="border-r border-ink bg-brand p-3">
             <p className="tag-text">Total cost</p>
             <p className="figure text-4xl">−{h.totalReductionPct}%</p>
           </div>
@@ -93,7 +85,7 @@ export function CostChart() {
         </div>
       </div>
 
-      <div className="p-5 md:p-6">
+      <div className="py-8">
         {/* Legend: always present for >= 2 series */}
         <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
           {SERIES.map((s) => (
@@ -104,7 +96,7 @@ export function CostChart() {
           ))}
           <li className="flex items-center gap-2 font-semibold">
             <span className="inline-block h-[4px] w-5" style={{ background: C.signals }} aria-hidden />
-            Total cost · Aurora with signals
+            Total cost · Curb with signals
           </li>
         </ul>
 
@@ -114,7 +106,7 @@ export function CostChart() {
             height={H}
             className="block touch-none select-none"
             role="img"
-            aria-label={`Line chart. Traditional total cost is lowest at ${tMin.f} checks per year (${eur(tMin.total)}). Aurora with signals is lowest at ${sMin.f} checks (${eur(sMin.total)}).`}
+            aria-label={`Line chart. Traditional total cost is lowest at ${tMin.f} checks per year (${eur(tMin.total)}). Curb with signals is lowest at ${sMin.f} checks (${eur(sMin.total)}).`}
             onPointerMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               const k = Math.round(((e.clientX - r.left - L) / iw) * N);
@@ -128,14 +120,14 @@ export function CostChart() {
             </defs>
             {yTicks.map((t) => (
               <g key={t}>
-                <line x1={L} x2={L + iw} y1={y(t)} y2={y(t)} stroke={t ? "#ececec" : "#0f1e33"} />
-                <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="#4d4d4d" className="tabular-nums">{t ? `€${t / 1000}k` : "€0"}</text>
+                <line x1={L} x2={L + iw} y1={y(t)} y2={y(t)} stroke={t ? "#e6eaf0" : "#0f1e33"} />
+                <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="#3d4858" className="tabular-nums">{t ? `€${t / 1000}k` : "€0"}</text>
               </g>
             ))}
             {trad.map((p) => (narrow && p.f % 2 ? null : (
-              <text key={p.f} x={x(p.f)} y={H - 14} textAnchor="middle" fontSize="11" fill="#4d4d4d" className="tabular-nums">{p.f}</text>
+              <text key={p.f} x={x(p.f)} y={H - 14} textAnchor="middle" fontSize="11" fill="#3d4858" className="tabular-nums">{p.f}</text>
             )))}
-            <text x={L + iw} y={H - 1} textAnchor="end" fontSize="10" fill="#8a8a8a">scheduled physical checks per dealer per year</text>
+            <text x={L + iw} y={H - 1} textAnchor="end" fontSize="10" fill="#5f6b7a">scheduled physical checks per dealer per year</text>
 
             <g clipPath={`url(#${clip})`}>
               <path d={`${line(sig.map((p) => p.total))}L${x(N)},${y(0)}L${x(0)},${y(0)}Z`} fill={C.signals} opacity="0.1" />
@@ -169,7 +161,7 @@ export function CostChart() {
             {/* hover crosshair */}
             {hover !== null && (
               <g pointerEvents="none">
-                <line x1={x(hover)} x2={x(hover)} y1={T} y2={T + ih} stroke="#8a8a8a" strokeWidth="1" />
+                <line x1={x(hover)} x2={x(hover)} y1={T} y2={T + ih} stroke="#5f6b7a" strokeWidth="1" />
                 {[...SERIES.map((s) => ({ c: s.color, v: s.get(trad[hover]) })), { c: C.signals, v: sig[hover].total }].map((d, i) =>
                   d.v <= yMax * 1.04 ? <circle key={i} cx={x(hover)} cy={y(d.v)} r="4.5" fill={d.c} stroke="#fff" strokeWidth="2" /> : null,
                 )}
@@ -179,22 +171,22 @@ export function CostChart() {
 
           {hv && hover !== null && (
             <div
-              className="pointer-events-none absolute top-4 z-10 w-56 border border-line bg-paper p-3 text-xs shadow-lift"
+              className="pointer-events-none absolute top-4 z-10 w-56 border border-ink bg-paper p-3 text-xs"
               style={{ left: Math.min(Math.max(0, x(hover) + 12), w - 230) }}
             >
               <p className="tag-text">{hover} scheduled checks / yr</p>
               <TipRow c={C.check} k="Check cost" v={hv.t.checkCost} />
               <TipRow c={C.fraud} k="Fraud loss" v={hv.t.fraudLoss} />
               <TipRow c={C.total} k="Traditional total" v={hv.t.total} bold />
-              <TipRow c={C.signals} k="Aurora total" v={hv.s.total} bold />
+              <TipRow c={C.signals} k="Curb total" v={hv.s.total} bold />
               <p className="mt-1 text-ash-500">Click to pin</p>
             </div>
           )}
         </div>
 
         {/* Slider + readout */}
-        <div className="mt-5 border border-line">
-          <label className="flex flex-wrap items-center gap-4 border-b border-line p-4">
+        <div className="mt-6 border border-ink">
+          <label className="flex flex-wrap items-center gap-4 border-b border-ink p-4">
             <span className="tag-text">Scheduled checks / dealer / yr</span>
             <input
               type="range" min={0} max={N} step={1} value={f}
@@ -206,22 +198,21 @@ export function CostChart() {
           </label>
           <div className="grid sm:grid-cols-2">
             <Readout title="Traditional" p={cur.t} accent="bg-paper" />
-            <Readout title="Aurora with signals" p={cur.s} accent="bg-brand-soft" border />
+            <Readout title="Curb with signals" p={cur.s} accent="bg-brand-soft" border />
           </div>
-          <p className="border-t border-line p-4 text-sm">
-            At f = {f}, across {ASSUMPTIONS.portfolioDealers} dealers: traditional <b>{eurCompact(cur.t.total * ASSUMPTIONS.portfolioDealers)}</b> / yr vs Aurora <b>{eurCompact(cur.s.total * ASSUMPTIONS.portfolioDealers)}</b> / yr
-            {cur.t.total > cur.s.total ? <> (<b>{eurCompact((cur.t.total - cur.s.total) * ASSUMPTIONS.portfolioDealers)}</b> less).</> : "."}{" "}
-            <span className="text-ash-700">Optimum vs optimum: {eurCompact(h.portfolioSavings)} saved, −{h.checkCostReductionPct}% check cost, −{h.fraudLossReductionPct}% expected loss.</span>
+          <p className="border-t border-ink p-4 text-sm tabular-nums">
+            {ASSUMPTIONS.portfolioDealers} dealers at f = {f}: traditional <b>{eurCompact(cur.t.total * ASSUMPTIONS.portfolioDealers)}</b> / yr vs Curb <b>{eurCompact(cur.s.total * ASSUMPTIONS.portfolioDealers)}</b> / yr
+            {cur.t.total > cur.s.total ? <> (<b>{eurCompact((cur.t.total - cur.s.total) * ASSUMPTIONS.portfolioDealers)}</b> less)</> : null}
           </p>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
-          <details className="group border border-line">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <details className="group border border-ink">
             <summary className="flex cursor-pointer items-center justify-between p-3 tag-text hover:bg-mist">
-              <span>Assumptions (illustrative, edit src/config/assumptions.ts)</span>
+              <span>Assumptions</span>
               <span className="group-open:rotate-45 transition-transform" aria-hidden>+</span>
             </summary>
-            <dl className="grid grid-cols-[1fr_auto] gap-x-4 border-t border-line p-3 text-sm">
+            <dl className="grid grid-cols-[1fr_auto] gap-x-4 border-t border-ink p-3 text-sm">
               {(Object.keys(ASSUMPTIONS) as (keyof typeof ASSUMPTIONS)[]).map((k) => (
                 <div key={k} className="contents">
                   <dt className="border-b border-ash-100 py-1 text-ash-700">{A_LABELS[k][0]}</dt>
@@ -230,15 +221,15 @@ export function CostChart() {
               ))}
             </dl>
           </details>
-          <details className="group border border-line">
+          <details className="group border border-ink">
             <summary className="flex cursor-pointer items-center justify-between p-3 tag-text hover:bg-mist">
               <span>Data table</span>
               <span className="group-open:rotate-45 transition-transform" aria-hidden>+</span>
             </summary>
-            <div className="overflow-x-auto border-t border-line">
+            <div className="overflow-x-auto border-t border-ink">
               <table className="w-full text-right text-xs tabular-nums">
                 <thead className="tag-text text-ash-700">
-                  <tr><th className="p-2 text-left font-normal">f</th><th className="p-2 font-normal">Check</th><th className="p-2 font-normal">Fraud</th><th className="p-2 font-normal">Total</th><th className="p-2 font-normal">Aurora</th></tr>
+                  <tr><th className="p-2 text-left font-normal">f</th><th className="p-2 font-normal">Check</th><th className="p-2 font-normal">Fraud</th><th className="p-2 font-normal">Total</th><th className="p-2 font-normal">Curb</th></tr>
                 </thead>
                 <tbody>
                   {trad.map((t, i) => (
@@ -278,7 +269,7 @@ function TipRow({ c, k, v, bold }: { c: string; k: string; v: number; bold?: boo
 
 function Readout({ title, p, accent, border }: { title: string; p: CostPoint; accent: string; border?: boolean }) {
   return (
-    <div className={`${accent} p-4 ${border ? "border-t border-line sm:border-t-0 sm:border-l" : ""}`}>
+    <div className={`${accent} p-4 ${border ? "border-t border-ink sm:border-t-0 sm:border-l" : ""}`}>
       <p className="tag-text">{title}</p>
       <p className="mt-1 figure text-4xl">{eur(p.total)}</p>
       <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-3 text-sm">

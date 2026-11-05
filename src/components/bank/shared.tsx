@@ -101,14 +101,14 @@ export function Explainer({ label, children, align = "left" }: { label: string; 
         aria-label={label}
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         onBlur={() => setOpen(false)}
-        className="inline-flex min-h-8 items-center gap-1 border border-line bg-paper px-2 tag-text hover:bg-brand"
+        className="inline-flex min-h-8 items-center gap-1.5 border border-ink bg-paper px-2.5 tag-text hover:bg-ink hover:text-paper"
       >
         <span className="font-semibold">i</span> {label}
       </button>
       {open && (
         <span
           role="tooltip"
-          className={`absolute top-full z-50 mt-2 block w-[min(22rem,80vw)] border border-line bg-paper p-4 text-left text-sm normal-case shadow-lift ${align === "right" ? "right-0" : "left-0"}`}
+          className={`absolute top-full z-50 mt-2 block w-[min(22rem,80vw)] border border-ink bg-paper p-4 text-left text-sm normal-case ${align === "right" ? "right-0" : "left-0"}`}
         >
           {children}
         </span>
@@ -125,12 +125,27 @@ export function Check({ ok, label }: { ok: boolean; label?: string }) {
   );
 }
 
-/** Section heading inside a drawer: sentence case, with an optional quiet note beside it. */
+/** Section heading inside a drawer: wide display caps, with an optional quiet figure beside it. */
 export function H({ children, note, className = "" }: { children: ReactNode; note?: ReactNode; className?: string }) {
   return (
-    <h3 className={`flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-base font-semibold leading-tight ${className}`}>
-      {children}
-      {note && <span className="text-sm font-normal text-ash-700">{note}</span>}
+    <h3 className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${className}`}>
+      <span className="display-md">{children}</span>
+      {note && <span className="text-sm text-ash-700">{note}</span>}
     </h3>
+  );
+}
+
+/** A drawer section: an ink rule across the panel, heading (and optional action) on top. */
+export function Block({ title, note, action, children, className = "" }: { title?: ReactNode; note?: ReactNode; action?: ReactNode; children?: ReactNode; className?: string }) {
+  return (
+    <section className={`border-t border-ink px-4 py-8 md:px-8 ${className}`}>
+      {(title || action) && (
+        <div className={`flex ${children ? "mb-5" : ""} flex-wrap items-center justify-between gap-3`}>
+          {title && <H note={note}>{title}</H>}
+          {action}
+        </div>
+      )}
+      {children}
+    </section>
   );
 }

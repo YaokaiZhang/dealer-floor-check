@@ -17,18 +17,18 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
   ];
   return (
     <div>
-      <ol className="grid grid-cols-2 border border-line sm:grid-cols-4">
+      <ol className="grid grid-cols-2 border border-ink sm:grid-cols-4">
         {steps.map((s, i) => (
-          <li key={s.k} className={`relative p-3 ${i > 0 ? "sm:pl-6" : ""} ${s.cls} ${i % 2 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
+          <li key={s.k} className={`relative p-3 ${i > 0 ? "sm:pl-6" : ""} ${s.cls} ${i % 2 ? "border-l border-ink" : ""} ${i >= 2 ? "border-t border-ink sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""}`}>
             <p className="tag-text">{s.k}</p>
-            <p className="mt-1 figure text-5xl">{s.v}</p>
+            <p className="mt-2 figure text-5xl">{s.v}</p>
             <p className="mt-1 text-xs">{s.sub}</p>
-            {i < 3 && <span className="absolute top-2 -right-3 z-10 hidden size-6 items-center justify-center border border-line bg-paper text-xs sm:flex" aria-hidden>→</span>}
+            {i < 3 && <span className="absolute top-2 -right-3 z-10 hidden size-6 items-center justify-center border border-ink bg-paper text-xs sm:flex" aria-hidden>→</span>}
           </li>
         ))}
       </ol>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <p className="text-lg leading-snug">
+        <p className="text-lg leading-snug tabular-nums">
           <strong>{pct(e.yearly, 1)}</strong> within a year · ~{e.expectedDays} days on average
         </p>
         <Explainer label="How is n chosen?">
@@ -51,7 +51,6 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
           <span className="mt-2 block">
             Here n = <b>{e.n}</b>: one check-in catches it {pct(e.perCheckIn, 1)} of the time; check-ins and visits together {pct(e.yearly, 1)} a year.
           </span>
-          <span className="mt-2 block text-ash-700">Connected cars leave the check-in pool. Signals catch most cases within days; check-ins and spot checks are the backstop.</span>
         </Explainer>
       </div>
       {e.pool > 0 && <DetectionCurve N={e.pool} M={M} n={e.n} k={e.perYear} visitMiss={(1 - e.perVisit) ** e.visitsPerYear} visits={e.visitsPerYear} confidence={e.confidence} />}
@@ -77,7 +76,7 @@ function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: numb
   return (
     <figure className="mt-5">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-sm font-semibold">Chance of catching at least one missing car</span>
+        <span className="text-sm font-semibold">Chance of catching a missing car</span>
         <span className="text-sm tabular-nums">
           n = <b>{sel}</b> → <b>{pct(once(sel), 1)}</b> once · <b>{pct(year(sel), 1)}</b> a year
         </span>
@@ -98,22 +97,22 @@ function DetectionCurve({ N, M, n, k, visitMiss, visits, confidence }: { N: numb
         >
           {[0, 0.5, 1].map((g) => (
             <g key={g}>
-              <line x1={L} x2={L + iw} y1={y(g)} y2={y(g)} stroke="#ececec" />
-              <text x={L - 6} y={y(g) + 3} textAnchor="end" fontSize="10" fill="#4d4d4d" className="tabular-nums">{g * 100}%</text>
+              <line x1={L} x2={L + iw} y1={y(g)} y2={y(g)} stroke="#e6eaf0" />
+              <text x={L - 6} y={y(g) + 3} textAnchor="end" fontSize="10" fill="#3d4858" className="tabular-nums">{g * 100}%</text>
             </g>
           ))}
           <line x1={L} x2={L + iw} y1={y(confidence)} y2={y(confidence)} stroke="#0f1e33" strokeWidth="1" strokeDasharray="2 3" />
           <text x={L + iw - 4} y={y(confidence) + 13} textAnchor="end" fontSize="10" fill="#0f1e33" paintOrder="stroke" stroke="#fff" strokeWidth="3">target {pct(confidence)} a year</text>
           {ticks.map((t) => (
-            <text key={t} x={x(t)} y={H - 24} textAnchor="middle" fontSize="11" fill="#4d4d4d" className="tabular-nums">{t}</text>
+            <text key={t} x={x(t)} y={H - 24} textAnchor="middle" fontSize="11" fill="#3d4858" className="tabular-nums">{t}</text>
           ))}
-          <text x={L + iw / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="#4d4d4d">cars per check-in (n)</text>
-          <path d={line(once)} fill="none" stroke="#6b6b6b" strokeWidth="1.5" strokeDasharray="4 3" />
+          <text x={L + iw / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="#3d4858">cars per check-in (n)</text>
+          <path d={line(once)} fill="none" stroke="#5f6b7a" strokeWidth="1.5" strokeDasharray="4 3" />
           <path d={line(year)} fill="none" stroke="#1f4f9e" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
           <text x={L + iw + 6} y={y(year(X)) + 4} fontSize="11" fill="#1f4f9e" fontWeight="600">{k}×/yr</text>
           <text x={L + iw + 6} y={y(year(X)) + 17} fontSize="10" fill="#1f4f9e">+{visits} visits</text>
-          <text x={L + iw + 6} y={Math.max(y(once(X)) + 4, y(year(X)) + 32)} fontSize="11" fill="#4d4d4d">once</text>
-          <line x1={x(sel)} x2={x(sel)} y1={T} y2={T + ih} stroke="#8a8a8a" strokeWidth="1" />
+          <text x={L + iw + 6} y={Math.max(y(once(X)) + 4, y(year(X)) + 32)} fontSize="11" fill="#3d4858">once</text>
+          <line x1={x(sel)} x2={x(sel)} y1={T} y2={T + ih} stroke="#5f6b7a" strokeWidth="1" />
           <circle cx={x(n)} cy={y(year(n))} r="5" fill="#1f4f9e" stroke="#fff" strokeWidth="2" />
           {hover !== null && hover !== n && <circle cx={x(sel)} cy={y(year(sel))} r="4" fill="#0f1e33" stroke="#fff" strokeWidth="2" />}
         </svg>

@@ -20,18 +20,18 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
     .sort((a, b) => b.risk.score - a.risk.score || a.d.name.localeCompare(b.d.name));
 
   return (
-    <div className="border border-line">
+    <div>
       <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">Dealers, sorted by risk score, highest first. Select a dealer to open details.</caption>
-        <thead className="border-b border-line bg-mist text-xs whitespace-nowrap text-ash-700">
+        <thead className="border-b border-line text-xs whitespace-nowrap text-ash-700">
           <tr>
-            <th scope="col" className="py-2 pr-2 pl-4 font-normal">Dealer</th>
+            <th scope="col" className="py-2 pr-2 font-normal">Dealer</th>
             <th scope="col" className="px-2 py-2 font-normal" aria-sort="descending">Risk <span aria-hidden>↓</span></th>
             <th scope="col" className="px-2 py-2 font-normal">Open alerts</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal sm:table-cell">Financed</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal xl:table-cell">Credit used</th>
             <th scope="col" className="hidden px-2 py-2 font-normal md:table-cell lg:hidden xl:table-cell">Auto-verified</th>
-            <th scope="col" className="w-10 py-2 pr-2 font-normal"><span className="sr-only">Risk breakdown</span></th>
+            <th scope="col" className="w-10 py-2 font-normal"><span className="sr-only">Risk breakdown</span></th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +40,6 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
           ))}
         </tbody>
       </table>
-      <p className="border-t border-line px-4 py-2 text-xs text-ash-700">Risk 0–100 from alerts, check-in record and connected share. Watch from 35, act from 60.</p>
     </div>
   );
 }
@@ -54,8 +53,8 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
 
   return (
     <Fragment>
-      <tr onClick={onOpen} className={`group cursor-pointer align-middle transition-colors hover:bg-mist ${why ? "" : "border-b border-line last:border-b-0"}`}>
-        <td className="py-3 pr-2 pl-4">
+      <tr onClick={onOpen} className={`group cursor-pointer align-middle transition-colors hover:bg-mist ${why ? "" : "border-b border-line"}`}>
+        <td className="py-4 pr-2">
           <button type="button" onClick={(e) => { e.stopPropagation(); onOpen(); }} className="block text-left focus-visible:outline-offset-4" aria-label={`Open ${d.name}`}>
             <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="text-base font-semibold leading-tight underline-offset-4 group-hover:underline">{d.name}</span>
@@ -67,7 +66,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             </span>
           </button>
         </td>
-        <td className="px-2 py-3">
+        <td className="px-2 py-4">
           <span className="flex items-center gap-3">
             <Odometer value={risk.score} className="figure min-w-[2ch] text-3xl" />
             <span className="hidden min-w-0 flex-col gap-1 sm:flex">
@@ -81,7 +80,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             </span>
           </span>
         </td>
-        <td className="px-2 py-3">
+        <td className="px-2 py-4">
           {st.openAlerts.length ? (
             <span className="flex flex-wrap items-center gap-1" aria-label={`${st.openAlerts.length} open: ${SEV.map((k) => `${sev(k)} ${k}`).join(", ")}`}>
               {SEV.map((k) =>
@@ -96,15 +95,15 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             <span className="text-ash-500">None</span>
           )}
         </td>
-        <td className="hidden px-2 py-3 text-right tabular-nums sm:table-cell">
+        <td className="hidden px-2 py-4 text-right tabular-nums sm:table-cell">
           <span className="block font-semibold">{st.cars.length} cars</span>
           <span className="block text-xs text-ash-700">{eurCompact(st.financedTotal)}</span>
         </td>
-        <td className={`hidden px-2 py-3 text-right tabular-nums xl:table-cell ${used >= 0.9 ? "font-semibold" : ""}`}>
+        <td className={`hidden px-2 py-4 text-right tabular-nums xl:table-cell ${used >= 0.9 ? "font-semibold" : ""}`}>
           {Math.round(used * 100)}%
           <span className="block text-xs font-normal text-ash-700">of {eurCompact(d.creditLine)}</span>
         </td>
-        <td className="hidden px-2 py-3 md:table-cell lg:hidden xl:table-cell">
+        <td className="hidden px-2 py-4 md:table-cell lg:hidden xl:table-cell">
           <span className="flex items-center gap-2">
             <span className="block h-2 w-16 border border-line" aria-hidden>
               <span className="block h-full bg-lime transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />
@@ -112,7 +111,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             <span className="w-[4ch] text-right tabular-nums">{Math.round(autoPct * 100)}%</span>
           </span>
         </td>
-        <td className="py-3 pr-2 text-right">
+        <td className="py-4 text-right">
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setWhy((w) => !w); }}
@@ -126,8 +125,8 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
         </td>
       </tr>
       {why && (
-        <tr id={breakdownId} className="border-b border-line bg-mist last:border-b-0">
-          <td colSpan={7} className="px-4 pt-1 pb-4">
+        <tr id={breakdownId} className="border-b border-line bg-mist">
+          <td colSpan={7} className="px-3 pt-2 pb-4">
             <div className="max-w-md">
               <RiskBreakdown parts={risk.parts} score={risk.score} />
             </div>

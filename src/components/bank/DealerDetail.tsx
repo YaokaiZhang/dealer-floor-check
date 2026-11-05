@@ -12,7 +12,7 @@ import { TierBadge } from "@/components/ui/TierBadge";
 import { Button } from "@/components/ui/Button";
 import { RiskBreakdown, riskTone, riskWord } from "./Portfolio";
 import { SamplingFlow } from "./Sampling";
-import { Check, H, SEV_BAR, SourceTag, StatusTag, isOpen } from "./shared";
+import { Block, Check, H, SEV_BAR, SourceTag, StatusTag, isOpen } from "./shared";
 
 export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: (id: string) => void }) {
   const st = portfolioStats(s, d.id);
@@ -25,94 +25,99 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
   return (
     <div>
-      <header className="border-b border-line bg-mist p-4 md:p-6">
+      <header className="px-4 pt-6 pb-8 md:px-8 md:pt-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 className="display-xl">{d.name}</h2>
-            <p className="mt-2 text-sm text-ash-700">{d.city}. Contact {d.contact}</p>
+          <div className="min-w-0">
+            <h2 className="display-wide text-[clamp(2.25rem,6vw,4.5rem)] break-words">{d.name}</h2>
+            <p className="mt-3 text-sm text-ash-700">{d.city} · {d.contact}</p>
           </div>
           <TierBadge tier={d.tier} size="lg" />
         </div>
-        <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
-          <Fig k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
-          <Fig k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
-          <Fig k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
-          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.lineReview ? `Line review in ${tier.lineReview}` : "No line review"}, ~${tier.checkInsPerYear} check‑ins/yr`} />
-        </dl>
       </header>
+      <dl className="grid grid-cols-2 border-t border-ink sm:grid-cols-4">
+        <Fig i={0} k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
+        <Fig i={1} k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
+        <Fig i={2} k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
+        <Fig i={3} k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.lineReview ? `Line review ${tier.lineReview}` : "No line review"} · ${tier.checkInsPerYear} check‑ins/yr`} />
+      </dl>
 
-      <div className="space-y-10 p-4 md:p-6">
-        {alerts.length > 0 && (
-          <section>
-            <H note={`${alerts.filter(isOpen).length} open`}>Alerts</H>
-            <ul className="mt-3 divide-y divide-line border border-line">
-              {alerts.map((a) => (
-                <li key={a.id}>
-                  <button type="button" onClick={() => onAlert(a.id)} className={`relative block w-full py-3 pr-3 pl-5 text-left text-sm hover:bg-mist ${isOpen(a) ? "" : "text-ash-700"}`}>
-                    <span className={`absolute inset-y-0 left-0 w-1.5 ${isOpen(a) ? SEV_BAR[a.severity] : "bg-ash-300"}`} aria-hidden />
-                    <span className="block font-medium leading-snug">{a.message}</span>
-                    <span className="mt-1.5 flex flex-wrap gap-1.5">
-                      <SourceTag source={a.source} />
-                      <StatusTag alert={a} visit={a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined} />
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+      {alerts.length > 0 && (
+        <Block title="Alerts" note={`${alerts.filter(isOpen).length} open`}>
+          <ul className="divide-y divide-line border-y border-line">
+            {alerts.map((a) => (
+              <li key={a.id}>
+                <button type="button" onClick={() => onAlert(a.id)} className={`relative block w-full py-3 pr-3 pl-5 text-left text-sm hover:bg-mist focus-visible:outline-offset-[-3px] ${isOpen(a) ? "" : "text-ash-700"}`}>
+                  <span className={`absolute inset-y-0 left-0 w-1.5 ${isOpen(a) ? SEV_BAR[a.severity] : "bg-ash-300"}`} aria-hidden />
+                  <span className="block font-medium leading-snug">{a.message}</span>
+                  <span className="mt-1.5 flex flex-wrap gap-1.5">
+                    <SourceTag source={a.source} />
+                    <StatusTag alert={a} visit={a.spotCheckId ? s.spotChecks.find((v) => v.id === a.spotCheckId) : undefined} />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Block>
+      )}
 
-        <section className="grid gap-8 md:grid-cols-[14rem_1fr]">
+      <Block>
+        <div className="grid gap-8 md:grid-cols-[14rem_1fr]">
           <div>
-            <H>Risk score</H>
-            <p className="mt-2 flex items-baseline gap-2">
+            <H>Risk</H>
+            <p className="mt-4 flex items-baseline gap-2">
               <span className="figure text-7xl">{risk.score}</span>
               <span className="text-sm text-ash-700">/ 100, {riskWord(risk.score).toLowerCase()}</span>
             </p>
-            <div className="mt-2 h-2 bg-ash-100"><div className={`h-full ${riskTone(risk.score)}`} style={{ width: `${risk.score}%` }} /></div>
+            <div className="mt-3 h-2 bg-ash-100"><div className={`h-full ${riskTone(risk.score)}`} style={{ width: `${risk.score}%` }} /></div>
           </div>
-          <RiskBreakdown parts={risk.parts} score={risk.score} />
-        </section>
+          <div className="md:pt-9"><RiskBreakdown parts={risk.parts} score={risk.score} /></div>
+        </div>
+      </Block>
 
-        <section>
-          <H note="how many cars the next random check-in asks for">Sampling</H>
-          <div className="mt-3"><SamplingFlow e={explanation} /></div>
-        </section>
+      <Block title="Sampling">
+        <SamplingFlow e={explanation} />
+      </Block>
 
-        <section>
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <H note={`${tier.visit.perYear}× a year, unannounced`}>Spot checks</H>
-            <Button variant="secondary" className="py-1.5" disabled={!!visits.find((v) => v.verifier.status !== "reported")} onClick={() => actions.sendSpotCheck(d.id)}>
-              Post spot check
-            </Button>
-          </div>
-          {visits.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
-          <div className="mt-3 space-y-4">
+      <Block
+        title="Spot checks"
+        note={`${tier.visit.perYear}× a year`}
+        action={
+          <Button variant="secondary" className="py-1.5" disabled={!!visits.find((v) => v.verifier.status !== "reported")} onClick={() => actions.sendSpotCheck(d.id)}>
+            Post spot check
+          </Button>
+        }
+      >
+        {visits.length === 0 ? <p className="text-sm text-ash-700">None this session</p> : (
+          <div className="space-y-4">
             {visits.map((v) => <VisitCard key={v.id} v={v} s={s} />)}
           </div>
-        </section>
+        )}
+      </Block>
 
-        <section>
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <H note="photo checks against the bank's records">Check-ins</H>
-            <Button variant="secondary" className="py-1.5" disabled={checkIns.some((c) => c.status !== "completed")} onClick={() => actions.sendCheckIn(d.id)}>
-              Send check-in
-            </Button>
-          </div>
-          {checkIns.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
-          <div className="mt-3 space-y-4">
+      <Block
+        title="Check-ins"
+        action={
+          <Button variant="secondary" className="py-1.5" disabled={checkIns.some((c) => c.status !== "completed")} onClick={() => actions.sendCheckIn(d.id)}>
+            Send check-in
+          </Button>
+        }
+      >
+        {checkIns.length === 0 ? <p className="text-sm text-ash-700">None this session</p> : (
+          <div className="space-y-4">
             {checkIns.map((c) => <CheckInCard key={c.id} c={c} s={s} />)}
           </div>
-          <History entries={d.history} />
-        </section>
+        )}
+        <History entries={d.history} />
+      </Block>
 
-        <section className="grid gap-8 md:grid-cols-2">
+      <Block>
+        <div className="grid gap-10 md:grid-cols-2">
           <div>
             <H>Tier history</H>
-            <ol className="mt-3 border-l border-line">
+            <ol className="mt-5 border-l border-ink">
               {[...d.tierHistory].reverse().map((t, i) => (
                 <li key={i} className="relative pb-4 pl-5">
-                  <span className="absolute top-1 -left-[5px] size-[9px] border border-line bg-paper" />
+                  <span className="absolute top-1 -left-[5px] size-[9px] border border-ink bg-paper" />
                   <div className="flex items-center gap-2"><TierBadge tier={t.tier} /><span className="tag-text text-ash-700">{dateFi(t.date)}</span></div>
                   <p className="mt-1 text-sm">{t.reason}</p>
                 </li>
@@ -120,36 +125,37 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
             </ol>
           </div>
           <div>
-            <H>Manual tier override</H>
-            <label className="mt-3 block text-sm">
+            <H>Tier override</H>
+            <label className="mt-5 block text-sm">
               <span className="sr-only">Tier</span>
               <select
                 value={d.tier}
                 onChange={(e) => actions.overrideTier(d.id, e.target.value as Tier)}
-                className="mt-2 block w-full border border-line bg-paper px-3 py-2.5 font-semibold"
+                className="block w-full border border-ink bg-paper px-3 py-2.5 font-semibold"
               >
                 {[...TIER_ORDER].reverse().map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </label>
-            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
               <dt className="text-ash-700">Catch if missing</dt><dd className="tabular-nums">{+(tier.sampling.p * 100).toFixed(1)}%</dd>
               <dt className="text-ash-700">Detection target</dt><dd className="tabular-nums">{pct(tier.sampling.confidence)} a year</dd>
               <dt className="text-ash-700">Line review</dt><dd>{tier.lineReview ?? "paused"}</dd>
             </dl>
           </div>
-        </section>
+        </div>
+      </Block>
 
-        <CarList s={s} d={d} />
-      </div>
+      <CarList s={s} d={d} />
     </div>
   );
 }
 
-function Fig({ k, v, sub }: { k: string; v: string; sub: string }) {
+function Fig({ i, k, v, sub }: { i: number; k: string; v: string; sub: string }) {
+  const rule = [i % 2 ? "border-l" : "", i >= 2 ? "border-t sm:border-t-0" : "", i === 2 ? "sm:border-l" : ""].join(" ");
   return (
-    <div className="bg-paper p-3">
+    <div className={`border-ink px-4 py-5 md:px-8 ${rule}`}>
       <dt className="tag-text text-ash-700">{k}</dt>
-      <dd className="mt-1 figure text-3xl">{v}</dd>
+      <dd className="mt-2 figure text-3xl md:text-4xl">{v}</dd>
       <dd className="mt-1 text-xs text-ash-700">{sub}</dd>
     </div>
   );
@@ -174,8 +180,8 @@ const VISIT_STATUS: Record<SpotCheck["verifier"]["status"], string> = { offered:
 function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
   const j = v.verifier;
   return (
-    <div className="border border-line">
-      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-mist px-3 py-2">
+    <div className="border border-ink">
+      <div className="flex flex-wrap items-center gap-2 border-b border-ink px-3 py-2.5">
         <Tag tone={v.reason === "brought_forward" ? "brand" : "outline"}>{v.reason === "brought_forward" ? "brought forward" : "random"}</Tag>
         <Tag tone={v.outcome === "clean" ? "lime" : v.outcome ? "high" : "muted"}>{v.outcome ?? VISIT_STATUS[j.status]}</Tag>
         <span className="text-sm">{j.name} · {j.visitCode} · {eur(j.fee)}</span>
@@ -205,8 +211,8 @@ function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
 
 function CheckInCard({ c, s }: { c: CheckIn; s: Store }) {
   return (
-    <div className="border border-line">
-      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-mist px-3 py-2">
+    <div className="border border-ink">
+      <div className="flex flex-wrap items-center gap-2 border-b border-ink px-3 py-2.5">
         <Tag tone={c.reason === "targeted" ? "brand" : "outline"}>{c.reason}</Tag>
         <Tag tone={c.outcome === "clean" ? "lime" : c.outcome ? "high" : "muted"}>{c.outcome ?? c.status.replace("_", " ")}</Tag>
         <span className="text-sm">{c.window ? c.window.label : `Requested ${timeFi(c.createdAt)}`}</span>
@@ -303,14 +309,14 @@ const HO: Record<HistoryEntry["outcome"], string> = { clean: "bg-lime", failed: 
 
 function History({ entries }: { entries: HistoryEntry[] }) {
   return (
-    <div className="mt-6">
+    <div className="mt-10">
       <H>History</H>
-      <ol className="mt-3 divide-y divide-ash-300 border-y border-line">
+      <ol className="mt-5 divide-y divide-line border-y border-line">
         {[...entries].reverse().map((h) => (
-          <li key={h.id} className="grid grid-cols-[6.5rem_6rem_1fr] items-center gap-2 py-2 text-sm">
+          <li key={h.id} className="grid grid-cols-[5.5rem_1fr] items-center gap-x-3 gap-y-1 py-2.5 text-sm sm:grid-cols-[6.5rem_6rem_1fr]">
             <span className="text-xs tabular-nums text-ash-700">{dateFi(h.date)}</span>
             <span className="flex items-center gap-1.5 tag-text"><span className={`size-2.5 border border-line ${HO[h.outcome]}`} />{HK[h.kind]}</span>
-            <span>{h.note}</span>
+            <span className="col-span-2 sm:col-span-1">{h.note}</span>
           </li>
         ))}
       </ol>
@@ -324,13 +330,10 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
   const shown = all ? cars : cars.slice(0, 8);
   const STATUS: Record<string, string> = { in_stock: "in stock", sold_paid: "sold, paid", sold_unpaid_suspect: "sold out of trust" };
   return (
-    <section>
-      <div className="flex items-baseline justify-between">
-        <H note={`${cars.filter((c) => c.connected).length} connected`}>Cars ({cars.length})</H>
-      </div>
-      <div className="mt-3 overflow-x-auto border border-line">
+    <Block title={`Cars (${cars.length})`} note={`${cars.filter((c) => c.connected).length} connected`}>
+      <div className="overflow-x-auto border-y border-line">
         <table className="w-full min-w-[640px] text-left text-xs">
-          <thead className="bg-mist tag-text text-ash-700">
+          <thead className="tag-text text-ash-700">
             <tr>
               <th className="p-2 font-normal">VIN</th><th className="p-2 font-normal">Car</th><th className="p-2 font-normal">Plate</th>
               <th className="p-2 text-right font-normal">Loan</th><th className="p-2 font-normal">Connected</th><th className="p-2 font-normal">Auto today</th><th className="p-2 font-normal">Status</th>
@@ -352,10 +355,10 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
         </table>
       </div>
       {cars.length > 8 && (
-        <button type="button" onClick={() => setAll((a) => !a)} className="mt-2 border border-line px-3 py-1.5 tag-text hover:bg-brand">
+        <button type="button" onClick={() => setAll((a) => !a)} className="mt-4 border border-ink px-3 py-2 text-sm font-medium hover:bg-ink hover:text-paper">
           {all ? "Show fewer" : `Show all ${cars.length} cars`}
         </button>
       )}
-    </section>
+    </Block>
   );
 }

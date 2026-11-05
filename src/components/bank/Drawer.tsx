@@ -32,11 +32,11 @@ export function Drawer({ open, onClose, label, wide, children }: { open: boolean
       />
       <div
         onAnimationEnd={(e) => closing && e.target === e.currentTarget && setMounted(false)}
-        className={`relative flex h-full w-full flex-col border-l border-line bg-paper shadow-lift ${closing ? "animate-[slide-out_200ms_cubic-bezier(0.55,0,1,0.45)_both]" : "animate-[slide-in_340ms_cubic-bezier(0.22,1,0.36,1)_both]"} ${wide ? "max-w-4xl" : "max-w-2xl"}`}
+        className={`relative flex h-full w-full flex-col border-l border-ink bg-paper ${closing ? "animate-[slide-out_200ms_cubic-bezier(0.55,0,1,0.45)_both]" : "animate-[slide-in_340ms_cubic-bezier(0.22,1,0.36,1)_both]"} ${wide ? "max-w-4xl" : "max-w-2xl"}`}
       >
-        <div className="flex h-12 shrink-0 items-center justify-between border-b border-line px-4 md:px-6">
-          <span className="tag-text text-ash-700">{label}</span>
-          <button type="button" onClick={onClose} className="flex min-h-9 items-center gap-2 border border-line px-3 tag-text hover:bg-brand">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-ink pl-4 md:pl-8">
+          <span className="text-sm text-ash-700">{label}</span>
+          <button type="button" onClick={onClose} className="flex h-full items-center gap-2 border-l border-ink px-5 text-sm font-medium transition-colors hover:bg-ink hover:text-paper focus-visible:outline-offset-[-3px]">
             Close <span aria-hidden>✕</span>
           </button>
         </div>

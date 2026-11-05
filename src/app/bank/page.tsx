@@ -12,6 +12,8 @@ import { Drawer } from "@/components/bank/Drawer";
 
 type Panel = { kind: "alert" | "dealer"; id: string } | null;
 
+const WRAP = "mx-auto max-w-[1600px] px-4 md:px-8";
+
 export default function BankPage() {
   const s = useDemo();
   const hydrated = useHydrated();
@@ -29,42 +31,44 @@ export default function BankPage() {
   return (
     <>
       <RoleSwitcher />
-      {!hydrated ? (
-        <Skeleton />
-      ) : (
-        <main className="pb-20">
-          <div className="mx-auto max-w-[1400px] px-4 pt-6 md:px-8 md:pt-8">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <h1 className="display-lg">Portfolio today</h1>
-              <p className="flex items-center gap-2 text-sm text-ash-700">
-                <span className="size-2 animate-pulse-dot bg-lime outline outline-1 outline-ink" aria-hidden />
-                {dateFi(new Date().toISOString())}, simulated feeds
-              </p>
-            </div>
-            <div className="mt-4">
-              <Headline s={s} onAlerts={() => document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
-            </div>
-          </div>
+      <main className="overflow-x-clip pb-24">
+        <header className={`${WRAP} flex flex-wrap items-end justify-between gap-x-8 gap-y-4 pt-10 pb-8 md:pt-16 md:pb-10`}>
+          <h1 className="display-wide text-[clamp(2.6rem,9.5vw,9rem)]">Portfolio</h1>
+          <p className="flex items-center gap-2 pb-1 text-sm text-ash-700">
+            <span className="size-2 animate-pulse-dot bg-go" aria-hidden />
+            Live · {dateFi(new Date().toISOString())}
+          </p>
+        </header>
 
-          {/* 22fr / 14fr lines the alerts column up with the last two headline tiles (5/12 + 7/12 split in thirds). */}
-          <div className="mx-auto mt-8 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,22fr)_minmax(0,14fr)] lg:gap-x-0">
-            <div className="order-2 min-w-0 lg:order-1 lg:pr-8">
-              <section aria-labelledby="dealers-h">
-                <h2 id="dealers-h" className="mb-3 display-md">Dealers</h2>
-                <Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} />
-              </section>
+        {!hydrated ? (
+          <Skeleton />
+        ) : (
+          <>
+            <div className="border-t border-ink">
+              <div className={WRAP}>
+                <Headline s={s} onAlerts={() => document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
+              </div>
             </div>
-            <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2">
-              <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />
-            </aside>
-          </div>
-        </main>
-      )}
 
-      <Drawer open={!!alert} onClose={close} label="Alert detail">
+            <div className="border-y border-ink">
+              <div className={`${WRAP} grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]`}>
+                <section aria-labelledby="dealers-h" className="order-2 min-w-0 border-t border-ink py-8 lg:order-1 lg:border-t-0 lg:py-10 lg:pr-8">
+                  <h2 id="dealers-h" className="display-lg">Dealers</h2>
+                  <div className="mt-6"><Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} /></div>
+                </section>
+                <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 py-8 lg:order-2 lg:border-l lg:border-ink lg:py-10 lg:pl-8">
+                  <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />
+                </aside>
+              </div>
+            </div>
+          </>
+        )}
+      </main>
+
+      <Drawer open={!!alert} onClose={close} label="Alert">
         {alert && <AlertDetail s={s} alert={alert} onDealer={(id) => setPanel({ kind: "dealer", id })} />}
       </Drawer>
-      <Drawer open={!!dealer} onClose={close} label="Dealer detail" wide>
+      <Drawer open={!!dealer} onClose={close} label="Dealer" wide>
         {dealer && <DealerDetail s={s} d={dealer} onAlert={(id) => setPanel({ kind: "alert", id })} />}
       </Drawer>
     </>
@@ -73,18 +77,20 @@ export default function BankPage() {
 
 function Skeleton() {
   return (
-    <main className="mx-auto max-w-[1400px] px-4 pt-6 md:px-8 md:pt-8" aria-busy="true" aria-label="Loading dashboard">
-      <div className="h-9 w-64 bg-ash-100" />
-      <div className="mt-4 h-52 border border-ash-300 bg-mist" />
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,22fr)_minmax(0,14fr)] lg:gap-x-0">
-        <div className="lg:pr-8">
-          <div className="h-6 w-28 bg-ash-100" />
-          <div className="mt-3 divide-y divide-ash-300 border border-ash-300">
+    <div aria-busy="true" aria-label="Loading dashboard">
+      <div className="border-t border-ink">
+        <div className={`${WRAP} grid md:grid-cols-4`}>
+          {[0, 1, 2, 3].map((i) => <div key={i} className={`h-44 py-6 ${i ? "border-t border-ink md:border-t-0 md:border-l md:pl-6" : ""}`}><div className="h-full bg-mist" /></div>)}
+        </div>
+      </div>
+      <div className="border-y border-ink">
+        <div className={`${WRAP} py-10`}>
+          <div className="h-8 w-48 bg-ash-100" />
+          <div className="mt-6 divide-y divide-line border-y border-line">
             {[0, 1, 2, 3].map((i) => <div key={i} className="h-[68px] bg-mist" />)}
           </div>
         </div>
-        <div className="h-96 border border-ash-300 bg-mist" />
       </div>
-    </main>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { visitFee } from "@/lib/costModel";
-import { H, SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow, visitFoundCar } from "./shared";
+import { Block, SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, useNow, visitFoundCar } from "./shared";
 
 const LADDER: { step: EscalationStep; title: string; who: string; cost: string }[] = [
   { step: "signal", title: "Signal", who: "Automatic", cost: "€0" },
@@ -31,66 +31,60 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
   return (
     <div>
       <div className={`h-2 ${SEV_BAR[alert.severity]}`} aria-hidden />
-      <div className="space-y-8 p-4 md:p-6">
-        <header>
-          <div className="flex flex-wrap items-center gap-1.5">
-            <SeverityTag severity={alert.severity} />
-            <SourceTag source={alert.source} />
-            <StatusTag alert={alert} visit={visit} />
-            <span className="ml-auto text-xs tabular-nums text-ash-700">{timeAgo(alert.createdAt, now)}, {timeFi(alert.createdAt)}</span>
-          </div>
-          <h2 className="mt-4 display-lg">{alert.message}</h2>
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <button type="button" onClick={() => onDealer(d.id)} className="inline-flex min-h-9 items-center gap-2 font-semibold underline decoration-brand decoration-2 underline-offset-4 hover:decoration-ink">
-              {d.name}, {d.city}
-            </button>
-            <TierBadge tier={d.tier} />
-            <span className="text-sm">{car.year} {car.make} {car.model}, <span className="font-mono text-xs">{car.plate}</span>, <span className="font-mono text-xs">{car.vin}</span></span>
-          </div>
-        </header>
-
-        <section className="border border-line bg-mist p-4" aria-labelledby="next-step-h">
-          <div className="flex items-center justify-between gap-2">
-            <h3 id="next-step-h" className="text-sm text-ash-700">Next step</h3>
-            <Tag tone="outline">Officer decides</Tag>
-          </div>
-          <p className="mt-1 text-lg font-semibold leading-snug">{recommend(alert, ci, visit)}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="brand" disabled={!open || !!visit || alert.step === "auditor"} onClick={() => actions.bringVisitForward(alert.id)}>
-              Bring spot check forward
-            </Button>
-            <Button variant="secondary" disabled={!open || alert.step === "auditor"} onClick={() => actions.escalateToAuditor(alert.id)}>
-              Escalate to auditor
-            </Button>
-            <Button variant="secondary" disabled={!open} onClick={() => actions.resolveAlert(alert.id, "resolved_ok")}>
-              Clear (resolved)
-            </Button>
-            <Button variant="danger" disabled={!open} onClick={() => actions.resolveAlert(alert.id, "confirmed_fraud")}>
-              Confirm sold out of trust
-            </Button>
-          </div>
-        </section>
-
-        <Ladder stepIdx={stepIdx} alert={alert} />
-
-        {visit && <SpotCheckCard s={s} alert={alert} visit={visit} now={now} />}
-
-        <TargetedCheckIn ci={ci} vin={alert.vin} severity={alert.severity} />
-
-        {cc && <ConnectedCar cc={cc} d={d} car={car} />}
-
-        <div>
-          <H>Evidence</H>
-          <dl className="mt-3 divide-y divide-ash-300 border-y border-line">
-            {alert.evidence.map((e, i) => (
-              <div key={i} className="grid gap-1 py-2.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
-                <dt className="tag-text text-ash-700 sm:pt-0.5">{e.label}</dt>
-                <dd className="text-sm">{e.value}</dd>
-              </div>
-            ))}
-          </dl>
+      <header className="px-4 pt-6 pb-8 md:px-8 md:pt-8">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <SeverityTag severity={alert.severity} />
+          <SourceTag source={alert.source} />
+          <StatusTag alert={alert} visit={visit} />
+          <span className="ml-auto text-xs tabular-nums text-ash-700">{timeAgo(alert.createdAt, now)}, {timeFi(alert.createdAt)}</span>
         </div>
-      </div>
+        <h2 className="mt-6 display-xl text-[clamp(1.75rem,4vw,3rem)]">{alert.message}</h2>
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <button type="button" onClick={() => onDealer(d.id)} className="inline-flex min-h-9 items-center gap-2 font-semibold underline decoration-ink/30 decoration-2 underline-offset-4 hover:decoration-ink">
+            {d.name}, {d.city} <span aria-hidden>→</span>
+          </button>
+          <TierBadge tier={d.tier} />
+          <span>{car.year} {car.make} {car.model}, <span className="font-mono text-xs">{car.plate}</span>, <span className="font-mono text-xs break-all">{car.vin}</span></span>
+        </div>
+      </header>
+
+      <section className="border-t border-ink bg-mist px-4 py-8 md:px-8" aria-labelledby="next-step-h">
+        <h3 id="next-step-h" className="text-sm text-ash-700">Next step</h3>
+        <p className="mt-2 display-lg">{recommend(alert, ci, visit)}</p>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Button variant="primary" disabled={!open || !!visit || alert.step === "auditor"} onClick={() => actions.bringVisitForward(alert.id)}>
+            Bring spot check forward
+          </Button>
+          <Button variant="secondary" disabled={!open || alert.step === "auditor"} onClick={() => actions.escalateToAuditor(alert.id)}>
+            Escalate to auditor
+          </Button>
+          <Button variant="secondary" disabled={!open} onClick={() => actions.resolveAlert(alert.id, "resolved_ok")}>
+            Clear (resolved)
+          </Button>
+          <Button variant="danger" disabled={!open} onClick={() => actions.resolveAlert(alert.id, "confirmed_fraud")}>
+            Confirm sold out of trust
+          </Button>
+        </div>
+      </section>
+
+      <Ladder stepIdx={stepIdx} alert={alert} />
+
+      {visit && <SpotCheckCard s={s} alert={alert} visit={visit} now={now} />}
+
+      <TargetedCheckIn ci={ci} vin={alert.vin} severity={alert.severity} />
+
+      {cc && <ConnectedCar cc={cc} d={d} car={car} />}
+
+      <Block title="Evidence">
+        <dl className="divide-y divide-line border-y border-line">
+          {alert.evidence.map((e, i) => (
+            <div key={i} className="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt className="tag-text text-ash-700 sm:pt-0.5">{e.label}</dt>
+              <dd className="text-sm">{e.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Block>
     </div>
   );
 }
@@ -111,9 +105,8 @@ function recommend(a: Alert, ci?: CheckIn, v?: SpotCheck): string {
 function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
   const closed = !isOpen(alert);
   return (
-    <div>
-      <H note="cheapest check first">Escalation</H>
-      <ol className="mt-3 grid border border-line sm:grid-cols-4">
+    <Block title="Escalation">
+      <ol className="grid grid-cols-2 border border-ink sm:grid-cols-4">
         {LADDER.map((l, i) => {
           const current = i === stepIdx && !closed;
           const done = i < stepIdx || (closed && i <= stepIdx);
@@ -121,22 +114,22 @@ function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
             <li
               key={l.step}
               aria-current={current ? "step" : undefined}
-              className={`relative flex flex-col gap-1 p-3 ${i > 0 ? "border-t border-line sm:border-t-0 sm:border-l" : ""} ${current ? "bg-brand" : done ? "bg-paper" : "bg-mist text-ash-500"}`}
+              className={`relative flex flex-col gap-1 p-3 sm:p-4 ${i % 2 ? "border-l border-ink" : ""} ${i >= 2 ? "border-t border-ink sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""} ${current ? "bg-ink text-paper" : done ? "bg-paper" : "bg-paper text-ash-500"}`}
             >
               <span className="flex items-center justify-between">
-                <span className={`flex size-6 items-center justify-center border tag-text ${current ? "border-ink bg-ink text-paper" : done ? "border-lime bg-lime text-ink" : "border-ash-300"}`}>
+                <span className={`flex size-6 items-center justify-center border tag-text ${current ? "border-paper" : done ? "border-lime bg-lime text-ink" : "border-ash-300"}`}>
                   {done ? "✓" : i + 1}
                 </span>
                 <span className="figure text-xl">{l.cost}</span>
               </span>
-              <span className="mt-1 font-semibold leading-tight">{l.title}</span>
-              <span className="text-xs leading-snug">{l.who}</span>
-              {current && <Tag tone="ink" className="mt-1">Now</Tag>}
+              <span className="mt-2 display-md">{l.title}</span>
+              <span className={`text-xs leading-snug ${current ? "text-paper/75" : ""}`}>{l.who}</span>
+              {current && <span className="sr-only">(current step)</span>}
             </li>
           );
         })}
       </ol>
-    </div>
+    </Block>
   );
 }
 
@@ -157,12 +150,9 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
   const othersOk = others.filter((x) => visitFoundCar(visit, x)).length;
   const secs = Math.max(0, Math.round((now - Date.parse(v.dispatchedAt)) / 1000));
   return (
-    <div className={`border border-line ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
-        <H note={`${visit.sampledVins.length} cars, ${eur(v.fee)}`}>Spot check</H>
-        <span className="text-xs text-ash-700">{v.name}, <span className="font-mono">{v.visitCode}</span></span>
-      </div>
-      <ol className="grid grid-cols-4 border-b border-line">
+    <Block title="Spot check" note={`${visit.sampledVins.length} cars, ${eur(v.fee)}`} action={<span className="text-xs text-ash-700">{v.name}, <span className="font-mono">{v.visitCode}</span></span>}>
+    <div className={`border border-ink ${reported ? (found ? "bg-lime" : "bg-high-soft") : "bg-paper"}`}>
+      <ol className="grid grid-cols-4 border-b border-ink">
         {V_STEPS.map((st, i) => {
           const at = v[st.key];
           return (
@@ -180,7 +170,7 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
               <span className="inline-block size-2.5 animate-pulse-dot bg-brand-deep" aria-hidden />
               {v.status === "offered" ? "Waiting for a verifier to accept" : v.status === "en_route" ? `${v.name} en route` : `${v.name} on the lot`}
             </p>
-            <p className="mt-1 text-sm text-ash-700">Looks like any random visit: this car plus {others.length} random.</p>
+            <p className="mt-1 text-sm text-ash-700">This car + {others.length} random</p>
             <div className="mt-1 flex flex-wrap items-center gap-x-4 tag-text text-ash-700">
               <span>{secs < 60 ? `${secs} s` : `${Math.floor(secs / 60)} min`} ago</span>
               <a className="py-2 underline underline-offset-4 hover:text-ink" href="/verifier" target="_blank" rel="noreferrer">Verifier app ↗</a>
@@ -238,6 +228,7 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
         )}
       </div>
     </div>
+    </Block>
   );
 }
 
@@ -251,28 +242,21 @@ const CI_STATUS: Record<CheckIn["status"], string> = {
 function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; severity: string }) {
   if (!ci) {
     return (
-      <div className="border border-ash-300 p-4 text-sm text-ash-700">
-        <H>Targeted check-in</H>
-        <p className="mt-1">{severity === "low" ? "Not sent (low)." : "None."}</p>
-      </div>
+      <Block title="Targeted check-in" note={severity === "low" ? "Not sent (low)" : "None"} />
     );
   }
   const r = ci.results[vin];
   const photo = r && !("skipped" in r) ? r : null;
   return (
-    <div className="border border-line p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <H>Targeted check-in</H>
-        <Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>
-      </div>
-      <p className="mt-2 font-semibold">{CI_STATUS[ci.status]}{ci.window ? `: ${ci.window.label}` : ""}</p>
+    <Block title="Targeted check-in" action={<Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>}>
+      <p className="font-semibold">{CI_STATUS[ci.status]}{ci.window ? `: ${ci.window.label}` : ""}</p>
       {r && "skipped" in r && <p className="mt-2 text-sm">Dealer skipped this car.</p>}
       {photo && (
         <p className="mt-2 text-sm">
           VIN {photo.vinMatch.replace("_", " ")} ({Math.round(photo.confidence * 100)}%){photo.plate ? ` · plate ${photo.plate.match ? "✓" : "✗"}` : ""}{photo.odometer ? ` · odometer ${photo.odometer.plausible ? "✓" : "✗"}` : ""} · {photo.location ? (photo.location.inside ? "on the lot" : `${formatDistance(photo.location.distanceM)} away`) : "no location"} · {photo.verified ? "verified ✓" : "not verified"}
         </p>
       )}
-    </div>
+    </Block>
   );
 }
 
@@ -280,9 +264,8 @@ function ConnectedCar({ cc, d, car }: { cc: ConnectedFeed; d: Dealer; car: Car }
   const dist = distanceM(cc, d.geofence);
   const inside = dist <= d.geofence.radiusM;
   return (
-    <div>
-      <H>Connected car</H>
-      <div className="mt-3 grid gap-4 border border-line p-4 sm:grid-cols-[1fr_15rem]">
+    <Block title="Connected car">
+      <div className="grid gap-6 sm:grid-cols-[1fr_15rem]">
         <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-sm">
           <dt className="tag-text text-ash-700">Position</dt>
           <dd className="font-mono">{cc.lat.toFixed(4)}, {cc.lng.toFixed(4)}</dd>
@@ -307,7 +290,7 @@ function ConnectedCar({ cc, d, car }: { cc: ConnectedFeed; d: Dealer; car: Car }
         </dl>
         <MiniMap cc={cc} d={d} dist={dist} />
       </div>
-    </div>
+    </Block>
   );
 }
 
@@ -328,18 +311,18 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
   const mx = (cx + px) / 2, my = (cy + py) / 2;
   return (
     <figure className="m-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-line bg-mist" role="img" aria-label={`Car ${inside ? "inside the dealer geofence" : `${formatDistance(dist)} from the dealer geofence`}`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-ink bg-mist" role="img" aria-label={`Car ${inside ? "inside the dealer geofence" : `${formatDistance(dist)} from the dealer geofence`}`}>
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M20 0H0V20" fill="none" stroke="#ececec" strokeWidth="1" />
+            <path d="M20 0H0V20" fill="none" stroke="#e6eaf0" strokeWidth="1" />
           </pattern>
         </defs>
         <rect width={W} height={H} fill="url(#grid)" />
-        <circle cx={cx} cy={cy} r={R} fill="#e6e3ff" stroke="#0f1e33" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r={R} fill="#dbe5f2" stroke="#0f1e33" strokeWidth="1" />
         <rect x={cx - 3} y={cy - 3} width="6" height="6" fill="#0f1e33" />
-        <text x={cx} y={cy + R + 14} textAnchor="middle" fontSize="11" fontFamily="var(--font-mono)" fill="#4d4d4d">{d.name.toUpperCase()}</text>
+        <text x={cx} y={cy + R + 14} textAnchor="middle" fontSize="10" fontWeight="600" fill="#3d4858">{d.name.toUpperCase()}</text>
         {!inside && <line x1={cx} y1={cy} x2={px} y2={py} stroke="#0f1e33" strokeWidth="1" strokeDasharray="3 3" />}
-        <circle cx={px} cy={py} r="6" fill={inside ? "#b6e0cb" : "#ff4f3f"} stroke="#fff" strokeWidth="2" />
+        <circle cx={px} cy={py} r="6" fill={inside ? "#b6e0cb" : "#c23b2e"} stroke="#fff" strokeWidth="2" />
         <circle cx={px} cy={py} r="6" fill="none" stroke="#0f1e33" strokeWidth="1" />
         {!inside && (
           <g>
@@ -349,7 +332,7 @@ function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }
         )}
         <g transform={`translate(${W - 16},18)`}>
           <path d="M0 -9 L4 3 L0 0 L-4 3Z" fill="#0f1e33" />
-          <text y="12" textAnchor="middle" fontSize="10" fontFamily="var(--font-mono)">N</text>
+          <text y="12" textAnchor="middle" fontSize="10" fontWeight="600">N</text>
         </g>
       </svg>
       <figcaption className="mt-1 tag-text text-ash-500">Not to scale</figcaption>

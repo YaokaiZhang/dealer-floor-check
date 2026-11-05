@@ -29,7 +29,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
           type="button"
           onClick={() => onSelect(a.id)}
           aria-current={selected === a.id}
-          className={`relative block w-full py-3 pr-4 pl-5 text-left transition-colors hover:bg-mist focus-visible:outline-offset-[-3px] ${selected === a.id ? "bg-brand-soft" : ""}`}
+          className={`relative block w-full py-4 pr-2 pl-5 text-left transition-colors hover:bg-mist focus-visible:outline-offset-[-3px] ${selected === a.id ? "bg-brand-soft" : ""}`}
         >
           <span className={`absolute inset-y-0 left-0 w-1.5 ${done ? "bg-ash-300" : SEV_BAR[a.severity]}`} aria-hidden />
           <span className="flex items-baseline justify-between gap-3">
@@ -52,17 +52,17 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
 
   return (
     <section aria-labelledby="alerts-h" className="flex h-full flex-col">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 id="alerts-h" className="display-md">Live alerts</h2>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 id="alerts-h" className="display-lg">Alerts</h2>
         <span className="text-sm tabular-nums text-ash-700">{open.length ? <><b className="font-semibold text-ink">{open.length}</b> open</> : "None open"}</span>
       </div>
-      <div className="flex flex-1 flex-col border border-line bg-paper">
+      <div className="mt-6 flex flex-1 flex-col border-y border-line">
 
       <ol aria-live="polite" aria-label="Open alerts" className={`divide-y divide-line ${open.length === 0 ? "flex flex-1 items-center justify-center text-center" : ""}`}>
         {open.length === 0 && (
-          <li className="px-5 py-6">
-            <p className="display-md">All quiet</p>
-            <p className="mt-1 text-sm text-ash-700">Watching {connected} connected cars, marketplaces and the registry.</p>
+          <li className="py-10">
+            <p className="display-lg">All quiet</p>
+            <p className="mt-2 text-sm text-ash-700">{connected} connected cars watched</p>
           </li>
         )}
         {open.map(row)}
@@ -70,8 +70,8 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
 
       {closed.length > 0 && (
         <>
-          <h3 className="border-y border-line bg-mist px-4 py-1.5 text-xs text-ash-700">Closed ({closed.length})</h3>
-          <ol aria-label="Closed alerts" className="divide-y divide-ash-300">{closed.map(row)}</ol>
+          <h3 className="border-y border-line px-5 py-2 text-xs text-ash-700">Closed ({closed.length})</h3>
+          <ol aria-label="Closed alerts" className="divide-y divide-line">{closed.map(row)}</ol>
         </>
       )}
       </div>
