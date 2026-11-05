@@ -37,7 +37,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
           <Fig k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
           <Fig k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
           <Fig k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
-          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.topUp.speed} top-up, ~${tier.checkInsPerYear} check‑ins/yr`} />
+          <Fig k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.lineReview ? `Line review in ${tier.lineReview}` : "No line review"}, ~${tier.checkInsPerYear} check‑ins/yr`} />
         </dl>
       </header>
 
@@ -132,7 +132,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
             <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
               <dt className="text-ash-700">Catch if missing</dt><dd className="tabular-nums">{+(tier.sampling.p * 100).toFixed(1)}%</dd>
               <dt className="text-ash-700">Detection target</dt><dd className="tabular-nums">{pct(tier.sampling.confidence)} a year</dd>
-              <dt className="text-ash-700">Top-up</dt><dd className="tabular-nums">{tier.topUp.amount ? eur(tier.topUp.amount) : "paused"}</dd>
+              <dt className="text-ash-700">Line review</dt><dd>{tier.lineReview ?? "paused"}</dd>
             </dl>
           </div>
         </section>

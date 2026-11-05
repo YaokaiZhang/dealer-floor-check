@@ -2,7 +2,6 @@
 import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { CLEAN_STREAK_TO_STEP_UP, TIERS, TIER_ORDER } from "@/config/tiers";
-import { eur } from "@/lib/format";
 import type { Dealer } from "@/lib/types";
 import { FREQUENCY, rateText } from "./tierCopy";
 
@@ -30,7 +29,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
           <p className="mt-2">{t.blurb}</p>
         </div>
         <dl className="divide-y divide-line">
-          <Benefit label="Credit-line top-up" value={t.topUp.amount > 0 ? eur(t.topUp.amount) : "After a quick chat"} sub={t.topUp.amount > 0 ? t.topUp.speed : undefined} />
+          <Benefit label="Line review" value={t.lineReview ? `Reply within ${t.lineReview}` : "After a quick chat"} />
           <Benefit label="Rate" value={rateText(t.rateDiscountPp)} />
           <Benefit label="Checks" value={FREQUENCY[tier]} />
         </dl>
@@ -96,7 +95,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
                 </div>
                 <p className="mt-2 text-sm">{FREQUENCY[name]}</p>
                 <p className="mt-0.5 text-sm text-ash-700">
-                  {x.topUp.amount > 0 ? <><span className="font-medium text-ink">{eur(x.topUp.amount)}</span> top-up, {x.topUp.speed.toLowerCase()}</> : "Top-up after review"}
+                  {x.lineReview ? <>Line review reply within <span className="font-medium text-ink">{x.lineReview}</span></> : "Line review after account review"}
                 </p>
               </li>
             );

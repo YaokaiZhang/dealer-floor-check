@@ -4,14 +4,12 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIERS } from "@/config/tiers";
-import { eur } from "@/lib/format";
-import { Odometer } from "@/components/ui/Odometer";
 import type { CheckIn, Dealer, Tier } from "@/lib/types";
 
 export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { checkIn: CheckIn; dealer: Dealer; tierBefore: Tier; onBack: () => void; onTier: () => void }) {
   const [requested, setRequested] = useState(false);
   const clean = checkIn.outcome === "clean";
-  const topUp = TIERS[dealer.tier].topUp;
+  const lineReview = TIERS[dealer.tier].lineReview;
   const movedUp = TIERS[dealer.tier].order > TIERS[tierBefore].order;
 
   if (!clean) {
@@ -38,18 +36,18 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
           </div>
         </div>
 
-        {topUp.amount > 0 && (
+        {lineReview && (
           <div className="p-5">
-            <p className="figure text-5xl"><Odometer value={eur(topUp.amount)} ms={1100} /></p>
-            <p className="mt-2 text-sm text-ash-700">Top-up available on your credit line</p>
+            <p className="display-md">Eligible for a line review</p>
+            <p className="mt-2 text-sm text-ash-700">Our credit team replies within {lineReview}.</p>
             {requested ? (
               <div className="mt-5 flex items-center gap-3 border border-line bg-brand-soft p-4" role="status" aria-live="polite">
                 <svg aria-hidden width="18" height="18" viewBox="0 0 20 20" fill="none" className="shrink-0"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square" /></svg>
-                <p><span className="font-medium">Top-up requested.</span> <span className="text-ash-700">{topUp.speed}.</span></p>
+                <p><span className="font-medium">Line review requested.</span> <span className="text-ash-700">We&apos;ll reply within {lineReview}.</span></p>
               </div>
             ) : (
               <Button variant="brand" arrow className="mt-5 min-h-14 w-full text-base" onClick={() => setRequested(true)}>
-                Request top-up
+                Request a line review
               </Button>
             )}
           </div>

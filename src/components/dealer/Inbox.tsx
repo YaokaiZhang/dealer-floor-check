@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIERS } from "@/config/tiers";
-import { eur } from "@/lib/format";
 import { actions } from "@/lib/store";
 import type { CheckIn, CheckInWindow, Dealer } from "@/lib/types";
 import { FREQUENCY } from "./tierCopy";
@@ -37,8 +36,8 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
           <TierBadge tier={dealer.tier} />
         </span>
         <dl className="mt-3 divide-y divide-ash-300 border-y border-ash-300 text-sm">
-          {t.topUp.amount > 0 && (
-            <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Credit-line top-up</dt><dd className="font-medium">{eur(t.topUp.amount)}</dd></div>
+          {t.lineReview && (
+            <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Line review</dt><dd className="text-right font-medium">Reply within {t.lineReview}</dd></div>
           )}
           <div className="flex justify-between gap-3 py-2.5"><dt className="text-ash-700">Checks</dt><dd className="text-right font-medium">{FREQUENCY[dealer.tier]}</dd></div>
         </dl>
