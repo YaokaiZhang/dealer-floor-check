@@ -30,7 +30,7 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
             <th scope="col" className="px-2 py-2 font-normal">Open alerts</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal sm:table-cell">Financed</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal xl:table-cell">Credit used</th>
-            <th scope="col" className="hidden px-2 py-2 font-normal md:table-cell">Auto-verified</th>
+            <th scope="col" className="hidden px-2 py-2 font-normal md:table-cell lg:hidden xl:table-cell">Auto-verified</th>
             <th scope="col" className="w-10 py-2 pr-2 font-normal"><span className="sr-only">Risk breakdown</span></th>
           </tr>
         </thead>
@@ -104,7 +104,7 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
           {Math.round(used * 100)}%
           <span className="block text-xs font-normal text-ash-700">of {eurCompact(d.creditLine)}</span>
         </td>
-        <td className="hidden px-2 py-3 md:table-cell">
+        <td className="hidden px-2 py-3 md:table-cell lg:hidden xl:table-cell">
           <span className="flex items-center gap-2">
             <span className="block h-2 w-16 border border-line" aria-hidden>
               <span className="block h-full bg-lime transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />

@@ -46,14 +46,15 @@ export default function BankPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-8 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
-            <div className="order-2 min-w-0 lg:order-1">
+          {/* 22fr / 14fr lines the alerts column up with the last two headline tiles (5/12 + 7/12 split in thirds). */}
+          <div className="mx-auto mt-8 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,22fr)_minmax(0,14fr)] lg:gap-x-0">
+            <div className="order-2 min-w-0 lg:order-1 lg:pr-8">
               <section aria-labelledby="dealers-h">
                 <h2 id="dealers-h" className="mb-3 display-md">Dealers</h2>
                 <Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} />
               </section>
             </div>
-            <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2 lg:sticky lg:top-[5.5rem] lg:max-h-[calc(100vh-6.5rem)] lg:self-start lg:overflow-y-auto">
+            <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2">
               <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />
             </aside>
           </div>
@@ -75,8 +76,8 @@ function Skeleton() {
     <main className="mx-auto max-w-[1400px] px-4 pt-6 md:px-8 md:pt-8" aria-busy="true" aria-label="Loading dashboard">
       <div className="h-9 w-64 bg-ash-100" />
       <div className="mt-4 h-52 border border-ash-300 bg-mist" />
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_420px]">
-        <div>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,22fr)_minmax(0,14fr)] lg:gap-x-0">
+        <div className="lg:pr-8">
           <div className="h-6 w-28 bg-ash-100" />
           <div className="mt-3 divide-y divide-ash-300 border border-ash-300">
             {[0, 1, 2, 3].map((i) => <div key={i} className="h-[68px] bg-mist" />)}

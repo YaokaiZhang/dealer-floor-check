@@ -95,7 +95,9 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
         <section>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <H note="photo checks against the bank's records">Check-ins</H>
-            <Tag tone="ink">Bank only</Tag>
+            <Button variant="secondary" className="py-1.5" disabled={checkIns.some((c) => c.status !== "completed")} onClick={() => actions.sendCheckIn(d.id)}>
+              Send check-in
+            </Button>
           </div>
           {checkIns.length === 0 && <p className="mt-3 text-sm text-ash-700">None this session.</p>}
           <div className="mt-3 space-y-4">

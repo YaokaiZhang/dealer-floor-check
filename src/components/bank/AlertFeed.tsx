@@ -10,7 +10,7 @@ const SEV_RANK = { high: 0, medium: 1, low: 2 } as const;
 export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: string | null; onSelect: (id: string) => void }) {
   const now = useNow(5000);
   // Only items that arrive while the page is open animate in; the initial list just appears.
-  const [initial] = useState(() => new Set([...s.alerts.map((a) => a.id), ...s.events.map((e) => e.id)]));
+  const [initial] = useState(() => new Set(s.alerts.map((a) => a.id)));
   const fresh = (id: string) => !initial.has(id);
   const newest = (a: Alert, b: Alert) => b.createdAt.localeCompare(a.createdAt);
   // What needs action first: open alerts by severity, then newest; closed ones below.
@@ -51,15 +51,14 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
   };
 
   return (
-    <section aria-labelledby="alerts-h" className="border border-line bg-paper">
-      <div className="flex items-center justify-between border-b border-ink bg-ink px-4 py-3 text-paper">
-        <h2 id="alerts-h" className="flex items-center gap-2 display-md">
-          <span className="inline-block size-2 animate-pulse-dot bg-lime" aria-hidden /> Live alerts
-        </h2>
-        <span className="text-sm tabular-nums">{open.length ? <><b className="font-semibold">{open.length}</b> open</> : "None open"}</span>
+    <section aria-labelledby="alerts-h" className="flex h-full flex-col">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <h2 id="alerts-h" className="display-md">Live alerts</h2>
+        <span className="text-sm tabular-nums text-ash-700">{open.length ? <><b className="font-semibold text-ink">{open.length}</b> open</> : "None open"}</span>
       </div>
+      <div className="flex flex-1 flex-col border border-line bg-paper">
 
-      <ol aria-live="polite" aria-label="Open alerts" className="divide-y divide-line">
+      <ol aria-live="polite" aria-label="Open alerts" className={`divide-y divide-line ${open.length === 0 ? "flex flex-1 items-center justify-center text-center" : ""}`}>
         {open.length === 0 && (
           <li className="px-5 py-6">
             <p className="display-md">All quiet</p>
@@ -75,17 +74,6 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
           <ol aria-label="Closed alerts" className="divide-y divide-ash-300">{closed.map(row)}</ol>
         </>
       )}
-
-      <div className="border-t border-line px-4 py-3">
-        <h3 className="text-xs font-semibold">Activity</h3>
-        <ul className="mt-2 space-y-1.5">
-          {s.events.slice(0, 6).map((e) => (
-            <li key={e.id} className={`grid grid-cols-[2.75rem_1fr] gap-2 text-xs ${fresh(e.id) ? "animate-rise" : ""}`}>
-              <span className="tabular-nums text-ash-500">{timeFi(e.at)}</span>
-              <span className="text-ash-700">{e.text}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
