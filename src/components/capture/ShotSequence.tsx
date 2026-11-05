@@ -24,6 +24,9 @@ function vinHint(make: string): string {
 
 type Mode = "starting" | "live" | "error" | "demo";
 
+/** Once the presenter picks the demo camera, keep it for the next cars in this page session. */
+let preferDemo = false;
+
 export function ShotSequence({ car, allowDemo, onDone }: {
   car: Car;
   allowDemo: boolean;
@@ -60,10 +63,14 @@ export function ShotSequence({ car, allowDemo, onDone }: {
     }
   }, []);
 
+  const useDemo = () => { stop(); preferDemo = true; setMode("demo"); };
+  const useReal = () => { preferDemo = false; void start(); };
+
   useEffect(() => {
-    void start();
+    if (allowDemo && preferDemo) setMode("demo");
+    else void start();
     return stop;
-  }, [start]);
+  }, [start, allowDemo]);
 
   // Revoke preview URLs on unmount.
   const takenRef = useRef(taken);
@@ -154,14 +161,20 @@ export function ShotSequence({ car, allowDemo, onDone }: {
             <p className="text-sm font-medium">{error}</p>
             <div className="flex flex-wrap justify-center gap-2">
               <Button variant="secondary" className="py-2" onClick={() => void start()}>Retry</Button>
-              {allowDemo && <Button variant="secondary" className="py-2" onClick={() => setMode("demo")}>Use demo camera</Button>}
+              {allowDemo && <Button variant="secondary" className="py-2" onClick={useDemo}>Use demo camera</Button>}
             </div>
           </div>
         )}
         {flash && <span aria-hidden className="absolute inset-0 bg-paper/80" />}
       </div>
 
-      {step === 0 && <p className="mt-3 text-sm text-ash-700">{vinHint(car.make)}</p>}
+      {(step === 0 || (allowDemo && (mode === "live" || mode === "demo"))) && (
+        <div className="mt-3 flex items-start justify-between gap-3 text-sm text-ash-700">
+          <p>{step === 0 ? vinHint(car.make) : ""}</p>
+          {allowDemo && mode === "live" && <button type="button" onClick={useDemo} className="min-h-8 shrink-0 underline underline-offset-4">Demo camera</button>}
+          {allowDemo && mode === "demo" && <button type="button" onClick={useReal} className="min-h-8 shrink-0 underline underline-offset-4">Real camera</button>}
+        </div>
+      )}
 
       <button
         type="button"
