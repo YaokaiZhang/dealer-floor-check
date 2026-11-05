@@ -7,7 +7,8 @@ import type { CheckInWindow, Dealer, PhotoCheck } from "./types";
 import { compareVin } from "./vin";
 import { distanceM } from "./geo";
 
-/** dHash (difference hash), 64 bits, computed in the browser from a 9×8 greyscale thumbnail. */
+/** dHash (difference hash), 256 bits, computed in the browser from a 17×16 greyscale thumbnail. */
+const HW = 17, HH = 16;
 async function loadBitmap(file: Blob): Promise<ImageBitmap | HTMLImageElement> {
   if ("createImageBitmap" in window) return createImageBitmap(file);
   const url = URL.createObjectURL(file);
@@ -20,14 +21,14 @@ async function loadBitmap(file: Blob): Promise<ImageBitmap | HTMLImageElement> {
 export async function dHashAndThumb(file: Blob): Promise<{ hash: string; thumbnail: string }> {
   const bmp = await loadBitmap(file);
   const c = document.createElement("canvas");
-  c.width = 9; c.height = 8;
+  c.width = HW; c.height = HH;
   const ctx = c.getContext("2d", { willReadFrequently: true })!;
-  ctx.drawImage(bmp, 0, 0, 9, 8);
-  const px = ctx.getImageData(0, 0, 9, 8).data;
-  const g = (x: number, y: number) => { const i = (y * 9 + x) * 4; return px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114; };
+  ctx.drawImage(bmp, 0, 0, HW, HH);
+  const px = ctx.getImageData(0, 0, HW, HH).data;
+  const g = (x: number, y: number) => { const i = (y * HW + x) * 4; return px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114; };
   let bits = "";
-  for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) bits += g(x, y) > g(x + 1, y) ? "1" : "0";
-  const hash = BigInt("0b" + bits).toString(16).padStart(16, "0");
+  for (let y = 0; y < HH; y++) for (let x = 0; x < HW - 1; x++) bits += g(x, y) > g(x + 1, y) ? "1" : "0";
+  const hash = BigInt("0b" + bits).toString(16).padStart(64, "0");
 
   const t = document.createElement("canvas");
   const w = 240, h = Math.round((240 * bmp.height) / bmp.width) || 160;
@@ -91,7 +92,8 @@ export async function runSilentChecks(opts: {
     ? receivedAt >= new Date(new Date(opts.window.start).getTime() - 15 * 60_000) && receivedAt <= new Date(opts.window.end)
     : true;
 
-  const nearest = opts.earlierHashes.reduce((m, h) => Math.min(m, hamming(h.hash, hash)), 64);
+  const nearest = opts.earlierHashes.reduce((m, h) => Math.min(m, hamming(h.hash, hash)), 256);
+  // Re-uploads of the same photo land at 0–4 bits; different plates on the same label template measured 12–26.
   const duplicate = nearest <= 6;
 
   const verified = (vinMatch === "exact" || vinMatch === "ocr_tolerant") && !!location?.inside && insideWindow && !duplicate;
