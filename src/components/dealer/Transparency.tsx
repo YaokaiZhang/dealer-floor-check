@@ -4,7 +4,7 @@ import { TIER_ORDER } from "@/config/tiers";
 import { FREQUENCY } from "./tierCopy";
 
 const CHECKS = [
-  { title: "Check-in photos", body: "VIN, place and time of each photo" },
+  { title: "Check-in photos", body: "VIN, plate, odometer, place and time" },
   { title: "Connected cars", body: "Cars seen on your lot count as checked (with consent)" },
   { title: "Public registry", body: "Ownership changes" },
   { title: "Marketplaces", body: "Listings of financed cars" },

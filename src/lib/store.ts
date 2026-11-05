@@ -13,16 +13,17 @@ import type {
 } from "./types";
 import { CLEAN_STREAK_TO_STEP_UP, TIER_ORDER } from "@/config/tiers";
 import { drawRandom } from "./sampling";
+import { resetServerChecks } from "./verify";
 import { samplingFor } from "./risk";
 import { distanceM, formatDistance } from "./geo";
 import { eur } from "./format";
 import { ASSUMPTIONS } from "@/config/assumptions";
 
 const KEY = "aurora-floor-check-demo";
-const VERSION = 4;
+const VERSION = 5;
 const HOUR = 3600_000;
 
-export interface DemoFlags { simulateOnSite: boolean; nextPhotoUnreadable: boolean; autoVerifier: boolean }
+export interface DemoFlags { simulateOnSite: boolean; nextPhotoUnreadable: boolean; autoVerifier: boolean; demoCamera: boolean }
 type Store = DemoState & { flags: DemoFlags };
 
 const uid = (p: string) => `${p}_${Math.random().toString(36).slice(2, 8)}`;
@@ -56,7 +57,7 @@ export function buildInitialState(now = Date.now()): Store {
     photoHashes: [],
     demo: s.demo,
     events: [{ id: uid("ev"), at: new Date(now).toISOString(), text: "Demo reset to seed data" }],
-    flags: { simulateOnSite: true, nextPhotoUnreadable: false, autoVerifier: false },
+    flags: { simulateOnSite: true, nextPhotoUnreadable: false, autoVerifier: false, demoCamera: true },
   };
 }
 
@@ -199,6 +200,7 @@ function feedEvidence(s: Store, vin: string): { label: string; value: string }[]
 // ---------------------------------------------------------------- actions
 export const actions = {
   reset() {
+    void resetServerChecks();
     state = buildInitialState();
     persist();
     listeners.forEach((l) => l());
@@ -427,7 +429,7 @@ export const actions = {
       const d = dealerOf(s, a.dealerId);
       Object.assign(v, r, { status: "reported", reportedAt: new Date().toISOString() });
       v.report = r.found
-        ? `Car found on the lot. VIN plate photographed${r.photo?.verified ? " and matched" : ""}${r.odometerKm ? `, odometer ${r.odometerKm.toLocaleString("en")} km` : ""}.${r.note ? ` Note: ${r.note}` : ""}`
+        ? `Car found on the lot. VIN plate, car and odometer photographed${r.photo?.verified ? " and matched" : ""}${r.odometerKm ? `, odometer ${r.odometerKm.toLocaleString("en")} km` : ""}.${r.note ? ` Note: ${r.note}` : ""}`
         : `Car not on the lot.${r.notFoundReason ? ` ${r.notFoundReason}.` : ""}${r.note ? ` Note: ${r.note}` : ""}`;
       if (r.photo) s.photoHashes.push({ hash: r.photo.reuse.hash, dealerId: d.id, vin: a.vin, at: v.reportedAt! });
       a.evidence.push({ label: "Gig verifier", value: v.report });

@@ -144,11 +144,12 @@ function CheckInCard({ c, s }: { c: CheckIn; s: Store }) {
       </div>
       {c.sampledVins.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-xs">
+          <table className="w-full min-w-[820px] text-left text-xs">
             <thead className="tag-text text-ash-700">
               <tr className="border-b border-ash-300">
                 <th className="p-2 font-normal">Photo</th>
                 <th className="p-2 font-normal">VIN read</th>
+                <th className="p-2 font-normal">Plate · odometer</th>
                 <th className="p-2 font-normal">Location</th>
                 <th className="p-2 font-normal">Freshness</th>
                 <th className="p-2 font-normal">Reuse</th>
@@ -159,8 +160,8 @@ function CheckInCard({ c, s }: { c: CheckIn; s: Store }) {
               {c.sampledVins.map((vin) => {
                 const r = c.results[vin];
                 const car = s.cars.find((x) => x.vin === vin);
-                if (!r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}><span className="font-mono">{vin}</span> <span className="text-ash-500">· waiting for photo</span></td></tr>;
-                if ("skipped" in r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}><span className="font-mono">{vin}</span> <Tag tone="muted">skipped by dealer</Tag></td></tr>;
+                if (!r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={7}><span className="font-mono">{vin}</span> <span className="text-ash-500">· waiting for photo</span></td></tr>;
+                if ("skipped" in r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={7}><span className="font-mono">{vin}</span> <Tag tone="muted">skipped by dealer</Tag></td></tr>;
                 return <PhotoRow key={vin} r={r} label={car ? `${car.make} ${car.model}` : ""} />;
               })}
             </tbody>
@@ -177,14 +178,32 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
     <tr className="border-b border-ash-100 align-top">
       <td className="p-2">
         {r.thumbnail
-          ? // eslint-disable-next-line @next/next/no-img-element
-            <img src={r.thumbnail} alt={`VIN plate photo for ${r.vin}`} className="h-12 w-16 border border-ink object-cover" />
+          ? <span className="flex gap-1">
+              {(["vin", "car", "odometer"] as const).map((k) => {
+                const src = r.thumbnails?.[k] ?? (k === "vin" ? r.thumbnail : undefined);
+                return src
+                  ? // eslint-disable-next-line @next/next/no-img-element
+                    <img key={k} src={src} alt={`${k === "vin" ? "VIN plate" : k === "car" ? "Car" : "Odometer"} photo for ${r.vin}`} className="h-12 w-16 border border-ink object-cover" />
+                  : null;
+              })}
+            </span>
           : <span className="flex h-12 w-16 items-center justify-center border border-ash-300 bg-mist tag-text text-ash-500">no img</span>}
+        {r.capture === "simulated" && <Tag tone="muted" className="mt-1">simulated camera</Tag>}
       </td>
       <td className="p-2">
         <span className="block font-mono">{r.readVin ?? "unreadable"}</span>
         <span className="mt-1 flex items-center gap-1"><Tag tone={matchTone}>{r.vinMatch.replace("_", " ")}</Tag><span className="tabular-nums">{Math.round(r.confidence * 100)}%</span></span>
         <span className="mt-0.5 block text-ash-500">{label}</span>
+      </td>
+      <td className="p-2">
+        {r.plate ? <span className="flex items-center gap-1 whitespace-nowrap"><Check ok={r.plate.match} /><span className="font-mono">{r.plate.read ?? "unreadable"}</span></span> : <span className="text-ash-500">—</span>}
+        {r.odometer && (
+          <span className="mt-1 flex items-center gap-1 whitespace-nowrap">
+            <Check ok={r.odometer.plausible} />
+            <span className="font-mono tabular-nums">{r.odometer.readKm != null ? `${r.odometer.readKm.toLocaleString("en")} km` : "unreadable"}</span>
+          </span>
+        )}
+        {r.odometer?.deltaKm != null && <span className="mt-0.5 block text-ash-500 tabular-nums">+{r.odometer.deltaKm.toLocaleString("en")} km since last</span>}
       </td>
       <td className="p-2">
         {r.location ? (

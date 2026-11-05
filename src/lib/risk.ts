@@ -1,7 +1,7 @@
-import type { Car, DemoState, Dealer } from "./types";
+import type { Car, DemoState, Dealer, SamplingExplanation } from "./types";
 import { distanceM } from "./geo";
 import { TIERS } from "@/config/tiers";
-import { sampleSize } from "./sampling";
+import { detectionProbability, expectedDaysToDetect, missingToDetect, sampleSize, yearlyDetection } from "./sampling";
 
 const HOUR = 3600_000;
 
@@ -38,12 +38,19 @@ export function portfolioStats(state: DemoState, dealerId: string) {
 
 export function samplingFor(state: DemoState, dealer: Dealer) {
   const { cars, autoVerified, pool } = portfolioStats(state, dealer.id);
-  const { p, confidence } = TIERS[dealer.tier].sampling;
-  const n = sampleSize(pool.length, p, confidence);
-  return {
-    explanation: { fleet: cars.length, autoVerified: autoVerified.length, pool: pool.length, n, p, confidence, missingToDetect: Math.max(1, Math.ceil(p * pool.length)) },
-    pool,
+  const tier = TIERS[dealer.tier];
+  const { p, confidence, maxCars } = tier.sampling;
+  const perYear = tier.checkInsPerYear;
+  const n = sampleSize(pool.length, p, confidence, perYear, maxCars);
+  const M = missingToDetect(pool.length, p);
+  const perCheckIn = pool.length ? detectionProbability(pool.length, M, n) : 0;
+  const explanation: SamplingExplanation = {
+    fleet: cars.length, autoVerified: autoVerified.length, pool: pool.length, n, p, confidence, missingToDetect: M,
+    perYear, maxCars, perCheckIn,
+    yearly: pool.length ? yearlyDetection(pool.length, M, n, perYear) : 0,
+    expectedDays: Math.round(expectedDaysToDetect(perCheckIn, perYear)),
   };
+  return { explanation, pool };
 }
 
 /**

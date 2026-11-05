@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Tag } from "@/components/ui/Tag";
 import { actions, useDemo } from "@/lib/store";
-import { getPosition, runSilentChecks } from "@/lib/verify";
+import { lastOdometer, submitShots, type Fix, type Shots } from "@/lib/verify";
+import { ShotSequence } from "@/components/capture/ShotSequence";
 import type { CheckIn, Dealer, PhotoCheck } from "@/lib/types";
 
 type Result = CheckIn["results"][string] | undefined;
@@ -12,19 +12,12 @@ const isSkipped = (r: Result): r is { skipped: true } => !!r && "skipped" in r;
 const isVerified = (r: Result) => !!r && !isSkipped(r) && (r as PhotoCheck).verified;
 const settled = (r: Result) => isSkipped(r) || isVerified(r);
 
-/** Where VIN plates usually are, by make. Purely a finding aid. */
-function vinHint(make: string): string {
-  const m = make.toLowerCase();
-  if (["tesla", "volvo", "polestar"].includes(m)) return "Windscreen, driver's side · or door pillar";
-  return "Windscreen, bottom left · or driver's door pillar";
-}
-
 export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn; dealer: Dealer; onComplete: () => void }) {
   const state = useDemo();
   const [ackVin, setAckVin] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const prewarm = useRef<Promise<GeolocationPosition | null> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   const vins = checkIn.sampledVins;
   const firstOpen = vins.find((v) => !settled(checkIn.results[v]));
@@ -34,38 +27,32 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
   const result: Result = shownVin ? checkIn.results[shownVin] : undefined;
   const isLast = vins.filter((v) => v !== shownVin && !settled(checkIn.results[v])).length === 0;
 
-  // Pre-warm the location as soon as a car is shown, so the photo-time read is quick.
-  useEffect(() => {
-    if (shownVin && !settled(checkIn.results[shownVin])) prewarm.current = getPosition();
-    // Only when the car changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shownVin]);
-
-  const onFile = async (file: File | undefined) => {
-    if (!file || !shownVin) return;
+  const onShots = async (shots: Shots, positions: Fix[], simulated: boolean) => {
+    if (!shownVin || !car) return;
     setBusy(true);
+    setFailed(false);
     try {
-      const [early, now] = await Promise.all([prewarm.current ?? Promise.resolve(null), getPosition()]);
-      const check = await runSilentChecks({
-        file,
-        requestedVin: shownVin,
-        dealer,
+      const check = await submitShots({
+        shots, positions, simulated, car,
+        geofence: dealer.geofence,
+        lastKnownOdometerKm: lastOdometer(state, car.vin),
         window: checkIn.window,
-        earlierHashes: state.photoHashes,
-        position: now ?? early,
         simulateOnSite: state.flags.simulateOnSite,
         forceUnreadable: state.flags.nextPhotoUnreadable,
       });
       actions.recordPhoto(checkIn.id, shownVin, check);
       if (check.verified) setAckVin(shownVin);
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
-      if (inputRef.current) inputRef.current.value = "";
+      setAttempt((a) => a + 1);
     }
   };
 
   const next = () => {
     setAckVin(null);
+    setFailed(false);
     if (isLast) onComplete();
     else window.scrollTo({ top: 0 });
   };
@@ -74,6 +61,7 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
     if (!shownVin) return;
     actions.skipCar(checkIn.id, shownVin);
     setAckVin(null);
+    setFailed(false);
     if (isLast) onComplete();
   };
 
@@ -114,7 +102,7 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
                 <span className="flex gap-1.5" aria-hidden>
                   {[0, 1, 2].map((i) => <span key={i} className="size-2 animate-pulse-dot bg-ink" style={{ animationDelay: `${i * 0.2}s` }} />)}
                 </span>
-                <p className="font-medium">Reading the plate…</p>
+                <p className="font-medium">Checking the photos…</p>
               </div>
             ) : isVerified(result) ? (
               <div className="animate-rise" role="status" aria-live="polite">
@@ -128,22 +116,18 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
                 </div>
                 <Button arrow className="mt-5 min-h-14 w-full text-base" onClick={next}>{isLast ? "Finish check-in" : "Next car"}</Button>
               </div>
-            ) : result && !isSkipped(result) ? (
+            ) : (result && !isSkipped(result)) || failed ? (
               <div className="animate-rise" role="status" aria-live="polite">
                 <div className="border border-ink bg-mist p-4">
-                  <p className="font-medium">We couldn&apos;t read this one</p>
-                  <p className="mt-1 text-sm text-ash-700">Closer, no glare.</p>
+                  <p className="font-medium">{failed ? "Couldn't send the photos" : "We couldn't confirm this car"}</p>
+                  <p className="mt-1 text-sm text-ash-700">{failed ? "Check the connection and retake." : "Retake: closer, no glare."}</p>
                 </div>
-                <PhotoButton inputRef={inputRef} onFile={onFile} label="Try another photo" />
+                <div className="mt-5"><ShotSequence key={attempt} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
                 <Button variant="secondary" className="mt-3 min-h-12 w-full" onClick={skip}>Skip for now</Button>
               </div>
             ) : (
               <>
-                <div className="flex gap-3 text-sm text-ash-700">
-                  <Tag tone="outline" className="mt-0.5 self-start">Tip</Tag>
-                  <p>{vinHint(car.make)}</p>
-                </div>
-                <PhotoButton inputRef={inputRef} onFile={onFile} label="Photograph VIN plate" />
+                <ShotSequence key={`${car.vin}-${attempt}`} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} />
                 <button type="button" onClick={skip} className="mt-3 min-h-11 w-full text-sm font-medium text-ash-700 underline underline-offset-4">
                   Can&apos;t find it? Skip for now
                 </button>
@@ -153,26 +137,6 @@ export function CaptureFlow({ checkIn, dealer, onComplete }: { checkIn: CheckIn;
         </Card>
       )}
     </div>
-  );
-}
-
-function PhotoButton({ inputRef, onFile, label }: { inputRef: React.RefObject<HTMLInputElement | null>; onFile: (f: File | undefined) => void; label: string }) {
-  return (
-    <label className="group mt-5 flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 border border-ink bg-ink px-4 py-5 text-paper shadow-card transition-[background,transform] hover:bg-ash-700 active:translate-y-px has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-deep">
-      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden>
-        <path d="M4 9h5l2-3h8l2 3h5v15H4z" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="15" cy="16" r="4.5" stroke="#c4ff0d" strokeWidth="1.6" />
-      </svg>
-      <span className="display-md">{label}</span>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="sr-only"
-        onChange={(e) => onFile(e.target.files?.[0])}
-      />
-    </label>
   );
 }
 
