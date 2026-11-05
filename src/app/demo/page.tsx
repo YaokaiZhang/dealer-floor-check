@@ -74,7 +74,7 @@ export default function DemoPage() {
         </Card>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Check-ins */}
             <section>
               <h2 className="mb-3 display-md">Random check-in requests</h2>
@@ -158,7 +158,7 @@ export default function DemoPage() {
           </div>
 
           {/* Event log */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+          <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             <h2 className="mb-3 display-md">Event log</h2>
             <Card className="max-h-[70vh] overflow-auto">
               <ol className="divide-y divide-ash-100">
@@ -194,7 +194,7 @@ function FeedRow({ source, tone, title, cars, vin, onVin, buttons }: {
           id={`vin-${source}`}
           value={vin}
           onChange={(e) => onVin(e.target.value)}
-          className="min-w-0 flex-1 border border-ink bg-paper px-2 py-2 font-mono text-xs"
+          className="w-full min-w-0 flex-1 border border-ink bg-paper px-2 py-2 font-mono text-xs"
         >
           {s.dealers.map((d) => (
             <optgroup key={d.id} label={d.name}>

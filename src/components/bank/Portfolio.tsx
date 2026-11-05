@@ -41,7 +41,7 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
         <div className="mt-5 grid grid-cols-3 gap-3 border-t border-ink pt-4">
           <div>
             <p className="tag-text text-ash-700">Risk</p>
-            <p className="mt-1 flex items-baseline gap-1.5">
+            <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
               <span className="figure text-4xl">{risk.score}</span>
               <span className="tag-text text-ash-700">/100</span>
             </p>

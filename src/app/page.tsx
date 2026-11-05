@@ -1,7 +1,6 @@
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card, SectionTag } from "@/components/ui/Card";
-import { Marquee } from "@/components/ui/Marquee";
 import { Tag } from "@/components/ui/Tag";
 
 const ROLES = [
@@ -25,14 +24,13 @@ export default function Home() {
             <ButtonLink href="/dealer" variant="secondary" arrow>Open dealer app</ButtonLink>
           </div>
         </section>
-        <Marquee items={["Data first, people last", "Trust grows over time", "A check-in, never an audit", "Open about the rules"]} />
         <section className="mx-auto grid max-w-[1400px] gap-6 px-4 py-16 md:grid-cols-2 md:px-8 xl:grid-cols-4">
           {ROLES.map((r) => (
             <a key={r.href} href={r.href} className="group block focus-visible:outline-none">
               <Card interactive className="flex h-full flex-col p-2">
                 <div className={`relative aspect-[16/9] border border-ink ${r.tone} flex items-end p-4`}>
                   <Tag tone="ink" className="absolute top-2 left-2">{r.tag}</Tag>
-                  <span className="display-xl">{r.title}</span>
+                  <span className="display-lg">{r.title}</span>
                 </div>
                 <p className="px-2 pt-4 pb-3 text-ash-700">{r.body}</p>
               </Card>
