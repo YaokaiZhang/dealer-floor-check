@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
-import { SectionTag } from "@/components/ui/Card";
-import { Tag } from "@/components/ui/Tag";
 import { useDemo, useHydrated } from "@/lib/store";
 import type { Car } from "@/lib/types";
 
@@ -21,35 +19,35 @@ export default function PlatesPage() {
   return (
     <>
       <div className="print:hidden"><RoleSwitcher /></div>
-      <main className="mx-auto max-w-[1400px] px-4 pt-8 pb-16 md:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
+      <main className="overflow-x-clip">
+        <header className="mx-auto flex max-w-[1600px] flex-col gap-8 px-4 pt-10 pb-8 md:px-8 lg:flex-row lg:items-end lg:justify-between lg:pt-14 lg:pb-10 print:hidden">
+          <h1 className="display-wide text-[clamp(3.2rem,10vw,10rem)]">VIN<br />plates</h1>
           <div>
-            <SectionTag>Stage prop</SectionTag>
-            <h1 className="mt-2 display-xl">VIN plates</h1>
-            <p className="mt-2 max-w-xl text-ash-700">Photograph these from the dealer phone during a check-in, or print the page. Cars drawn in the active check-in come first.</p>
+            <label htmlFor="plates-dealer" className="sr-only">Dealer</label>
+            <select id="plates-dealer" value={dealerId} onChange={(e) => setDealerId(e.target.value)} className="w-full border border-ink bg-paper px-3 py-2.5 text-sm sm:w-auto">
+              {s.dealers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+            </select>
           </div>
-          <select value={dealerId} onChange={(e) => setDealerId(e.target.value)} className="border border-line bg-paper px-3 py-2">
-            {s.dealers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
-        </div>
+        </header>
         {hydrated && drawn.length > 0 && (
-          <>
-            <h2 className="mt-8 mb-3 flex items-center gap-2 display-md">In the active check-in <Tag tone="lime">{drawn.length}</Tag></h2>
-            <Grid cars={drawn} />
-          </>
+          <Section title="In the check-in" count={drawn.length} cars={drawn} />
         )}
-        <h2 className="mt-8 mb-3 display-md">All cars in stock</h2>
-        <Grid cars={rest} />
+        <Section title="In stock" count={rest.length} cars={rest} />
       </main>
     </>
   );
 }
 
-function Grid({ cars }: { cars: Car[] }) {
+function Section({ title, count, cars }: { title: string; count: number; cars: Car[] }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {cars.map((c) => <Plate key={c.vin} car={c} />)}
-    </div>
+    <section className="border-t border-ink print:border-t-0">
+      <div className="mx-auto max-w-[1600px] px-4 pt-8 pb-12 md:px-8 md:pt-10">
+        <h2 className="mb-6 flex items-baseline gap-3 display-lg">{title} <span className="figure text-base text-ash-700">{count}</span></h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-2">
+          {cars.map((c) => <Plate key={c.vin} car={c} />)}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -59,7 +57,7 @@ function Plate({ car }: { car: Car }) {
   const bars = [...car.vin].flatMap((ch, i) => { const k = ch.charCodeAt(0) + i; return [1 + (k % 3), 1 + ((k >> 2) % 2)]; });
   let x = 0;
   return (
-    <figure className="break-inside-avoid border border-line bg-[#f2f0ea] p-4 shadow-card">
+    <figure className="break-inside-avoid border border-line bg-[#f2f0ea] p-4">
       <div className="flex items-center justify-between border-b border-line pb-2 font-mono text-[10px] uppercase tracking-wider">
         <span>{car.make} · Made {car.year}</span>
         <span>GVW 2 150 kg</span>
