@@ -2,8 +2,10 @@ import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Lot, demoLot, type Stall } from "@/components/ui/Lot";
+import { ScanCount } from "@/components/ui/ScanCount";
 
 const LOT = demoLot(72, { connected: 0.42, photo: 0.07, visit: 0.04, empty: 0.06 }, 11);
+const PARKED = LOT.filter((x) => x !== "empty").length;
 
 const LEGEND: { state: Stall; label: string; how: string }[] = [
   { state: "connected", label: "Connected car", how: "Telematics and registry, every day" },
@@ -25,8 +27,7 @@ export default function Home() {
       <main>
         <section className="mx-auto grid max-w-[1400px] items-center gap-10 px-4 pt-12 pb-16 md:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div>
-            <p className="text-sm text-brand-deep">Case 2 · Floor check</p>
-            <h1 className="mt-4 display-2xl text-[clamp(2.6rem,5.2vw,4.75rem)] text-balance animate-rise">Verify the floor without walking it.</h1>
+            <h1 className="display-2xl text-[clamp(2.6rem,5.2vw,4.75rem)] text-balance animate-rise">Verify the floor without walking it.</h1>
             <p className="mt-6 max-w-xl text-lg text-ash-700 md:text-xl">Data first. Photos now and then. Visits last.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <ButtonLink href="/bank" arrow>Open bank dashboard</ButtonLink>
@@ -35,17 +36,21 @@ export default function Home() {
           </div>
 
           <figure className="relative">
-            <div className="relative overflow-hidden border border-ink bg-ink p-5 text-paper shadow-hard md:p-7">
-              <div className="mb-4 flex items-center justify-between text-sm">
+            <div className="relative overflow-hidden border border-ink bg-ink p-5 text-paper shadow-[10px_10px_0_0_var(--color-brand)] md:p-7">
+              <div className="mb-4 flex items-baseline justify-between gap-4 text-sm">
                 <span className="font-medium">Laakso Autot, Tampere</span>
-                <span className="inline-flex items-center gap-2 text-paper/70">
-                  <span className="size-2 animate-pulse-dot bg-lime" aria-hidden />
-                  Live
+                <span className="inline-flex items-baseline gap-1.5 text-paper/60">
+                  <span className="size-2 self-center animate-pulse-dot bg-lime" aria-hidden />
+                  <ScanCount stalls={LOT} cols={18} className="font-display text-lg font-semibold text-lime" />
+                  <span>of {PARKED} verified today</span>
                 </span>
               </div>
-              <Lot stalls={LOT} cols={18} animate className="block w-full" title="Aerial view of a dealer lot, cars coloured by how they are verified" />
-              {/* One pass of a scan line over the lot on first paint */}
-              <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-1/3 animate-sweep bg-gradient-to-r from-transparent via-lime/25 to-transparent" />
+              <Lot stalls={LOT} cols={18} scan className="block w-full" title="Aerial view of a dealer lot, cars coloured by how they are verified" />
+              {/* One pass of the scan over the lot on first paint; each car takes its colour as the beam crosses it. */}
+              <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-1/3 animate-scan">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-lime/15 to-transparent" />
+                <div className="absolute inset-y-0 left-1/2 w-px bg-lime/80" />
+              </div>
             </div>
             <figcaption className="mt-4 grid gap-3 sm:grid-cols-3">
               {LEGEND.map((l) => (

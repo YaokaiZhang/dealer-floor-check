@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIERS } from "@/config/tiers";
 import { eur } from "@/lib/format";
+import { Odometer } from "@/components/ui/Odometer";
 import type { CheckIn, Dealer, Tier } from "@/lib/types";
 
 export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { checkIn: CheckIn; dealer: Dealer; tierBefore: Tier; onBack: () => void; onTier: () => void }) {
@@ -27,10 +28,10 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
     <div className="space-y-5">
       <Card className="animate-rise overflow-hidden">
         <div className="flex flex-col items-start gap-4 border-b border-ink bg-lime px-5 py-6">
-          <span className="flex size-14 items-center justify-center bg-ink text-lime" aria-hidden>
-            <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
+          <span className="flex size-14 items-center justify-center bg-ink text-lime animate-pop" aria-hidden>
+            <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" pathLength={1} strokeDasharray="1" className="animate-draw" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" /></svg>
           </span>
-          <h2 className="display-xl">All verified ✓<br />Thanks!</h2>
+          <h2 className="display-xl">All verified.<br />Thanks!</h2>
           <p className="text-sm">
             {checkIn.sampledVins.length} of {checkIn.sampledVins.length} car{checkIn.sampledVins.length === 1 ? "" : "s"} confirmed
           </p>
@@ -39,7 +40,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
         {topUp.amount > 0 && (
           <div className="p-5">
             <p className="tag-text text-ash-700">Credit line</p>
-            <p className="mt-2 figure text-4xl">{eur(topUp.amount)}</p>
+            <p className="mt-2 figure text-4xl"><Odometer value={eur(topUp.amount)} ms={1100} /></p>
             <p className="mt-1 text-sm text-ash-700">top-up available</p>
             {requested ? (
               <div className="mt-5 border border-ink bg-brand-soft p-4" role="status" aria-live="polite">
@@ -56,7 +57,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
       </Card>
 
       <button type="button" onClick={onTier} className="group block w-full text-left">
-        <Card className="animate-rise p-5 transition-colors group-hover:bg-brand-soft">
+        <Card className="animate-rise p-5 transition-colors group-hover:bg-brand-soft" style={{ animationDelay: "160ms" }}>
           <p className="tag-text text-ash-700">{movedUp ? "You've moved up" : "Your tier"}</p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="display-lg">You&apos;re {dealer.tier} tier</span>

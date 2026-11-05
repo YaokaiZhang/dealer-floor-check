@@ -6,6 +6,7 @@ import { portfolioStats, riskScore } from "@/lib/risk";
 import { eurCompact } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
+import { Odometer } from "@/components/ui/Odometer";
 
 export const riskTone = (score: number) => (score >= 60 ? "bg-high" : score >= 35 ? "bg-medium" : "bg-lime");
 export const riskWord = (score: number) => (score >= 60 ? "Act now" : score >= 35 ? "Watch" : "Low");
@@ -42,7 +43,7 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
           <div>
             <p className="tag-text text-ash-700">Risk</p>
             <p className="mt-1 flex items-baseline gap-1.5">
-              <span className="figure text-4xl">{risk.score}</span>
+              <Odometer value={risk.score} className="figure text-4xl" />
               <span className="tag-text text-ash-700">/100</span>
             </p>
             <div className="mt-2 h-1.5 bg-ash-100" aria-hidden>
@@ -51,12 +52,12 @@ function DealerCard({ s, d, onOpen, delay }: { s: Store; d: Dealer; onOpen: () =
           </div>
           <div>
             <p className="tag-text text-ash-700">Financed</p>
-            <p className="mt-1 figure text-4xl">{st.cars.length}</p>
+            <p className="mt-1 figure text-4xl"><Odometer value={st.cars.length} /></p>
             <p className="mt-1 text-xs text-ash-700">{eurCompact(st.financedTotal)}</p>
           </div>
           <div>
             <p className="tag-text text-ash-700">Alerts</p>
-            <p className="mt-1 figure text-4xl">{st.openAlerts.length}</p>
+            <p className="mt-1 figure text-4xl"><Odometer value={st.openAlerts.length} /></p>
             <div className="mt-1 flex gap-1" aria-label={`${sev("high")} high, ${sev("medium")} medium, ${sev("low")} low`}>
               {(["high", "medium", "low"] as const).map((k) =>
                 sev(k) ? (

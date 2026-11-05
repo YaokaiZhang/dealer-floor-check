@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 /**
  * Aerial view of a dealer lot: the visual motif of the product ("the floor").
  * Each stall holds a car seen from above, coloured by how we know it is there.
@@ -17,14 +19,18 @@ const W = 22; // stall width
 const H = 40; // stall depth
 const AISLE = 18;
 
-function Car({ x, y, state, flip, delay }: { x: number; y: number; state: Stall; flip: boolean; delay?: number }) {
+function Car({ x, y, state, flip, delay, scanAt }: { x: number; y: number; state: Stall; flip: boolean; delay?: number; scanAt?: number }) {
   if (state === "empty") return null;
+  const scanned = scanAt !== undefined && state !== "unknown";
   const dark = state === "unknown";
   const glass = dark ? "#555" : "rgba(0,0,0,0.78)";
   // Car body 14x28 centred in the stall; windscreen faces the aisle.
   const bx = x + 4, by = y + 6;
   return (
-    <g className={delay !== undefined ? "lot-car" : undefined} style={delay !== undefined ? { animationDelay: `${delay}ms` } : undefined}>
+    <g
+      className={scanned ? "lot-scan" : delay !== undefined ? "lot-car" : undefined}
+      style={scanned ? ({ animationDelay: `${scanAt}ms`, "--to": FILL[state] } as CSSProperties) : delay !== undefined ? { animationDelay: `${delay}ms` } : undefined}
+    >
       <rect x={bx} y={by} width={14} height={28} rx={3.5} fill={FILL[state]} stroke={state === "visit" ? "var(--color-ink)" : "none"} strokeWidth={1} />
       <rect x={bx + 2} y={flip ? by + 18 : by + 5} width={10} height={5} rx={1.5} fill={glass} />
       <rect x={bx + 2.5} y={flip ? by + 5 : by + 20} width={9} height={3} rx={1} fill={glass} opacity={0.6} />
@@ -41,12 +47,15 @@ export function Lot({
   stalls,
   cols,
   animate,
+  scan,
   className = "",
   title,
 }: {
   stalls: Stall[];
   cols: number;
   animate?: boolean;
+  /** Paint each car as a beam (see `animate-scan`) passes over its column. */
+  scan?: boolean;
   className?: string;
   title?: string;
 }) {
@@ -69,13 +78,24 @@ export function Lot({
             {Array.from({ length: cols }, (_, c) => {
               const i = r * cols + c;
               if (i >= stalls.length) return null;
-              return <Car key={c} x={c * W} y={y} state={stalls[i]} flip={!top} delay={animate ? 200 + (c * 37 + r * 90) % 900 : undefined} />;
+              return <Car key={c} x={c * W} y={y} state={stalls[i]} flip={!top} delay={animate ? 200 + (c * 37 + r * 90) % 900 : undefined} scanAt={scan ? scanDelay((c + 0.5) / cols) : undefined} />;
             })}
           </g>
         );
       })}
     </svg>
   );
+}
+
+/**
+ * When the beam (a third of the frame wide, moving from -100% to +300% of its own
+ * width over 2600 ms after a 400 ms delay, linear) is centred on horizontal fraction f.
+ * The lot fills ~92% of the frame, inset by its padding.
+ */
+export const SCAN_MS = 3000;
+export function scanDelay(f: number) {
+  const frame = 0.04 + 0.92 * f;
+  return Math.round(250 + 2600 * ((3 * frame + 0.5) / 4)); // paint starts just before the beam centre arrives
 }
 
 /** Deterministic pseudo-random lot so server and client render the same picture. */

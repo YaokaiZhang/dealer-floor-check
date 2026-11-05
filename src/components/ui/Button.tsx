@@ -3,14 +3,14 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "brand" | "ghost" | "danger";
 const V: Record<Variant, string> = {
-  primary: "bg-ink text-paper border-ink hover:bg-ash-700",
-  secondary: "bg-paper text-ink border-ink hover:bg-mist",
-  brand: "bg-brand text-ink border-ink hover:bg-[#b4adff]",
+  primary: "bg-ink text-paper border-ink hover:shadow-[3px_3px_0_0_var(--color-brand)]",
+  secondary: "bg-paper text-ink border-ink hover:shadow-[3px_3px_0_0_var(--color-ink)]",
+  brand: "bg-brand text-ink border-ink hover:shadow-[3px_3px_0_0_var(--color-ink)]",
   ghost: "bg-transparent text-ink border-transparent hover:border-ink",
   danger: "bg-high text-ink border-high hover:brightness-95",
 };
 const base =
-  "group/button inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-medium transition-[background,transform,box-shadow] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40";
+  "group/button inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-medium transition-[background,transform,box-shadow] duration-150 ease-out hover:-translate-x-px hover:-translate-y-px active:translate-x-px active:translate-y-px active:shadow-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40";
 
 export function Arrow() {
   return (

@@ -4,6 +4,7 @@ import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
+import { Odometer } from "@/components/ui/Odometer";
 import { actions, useDemo, useHydrated, type Store } from "@/lib/store";
 import { getPosition, submitShots, type Fix, type Shots } from "@/lib/verify";
 import { ShotSequence } from "@/components/capture/ShotSequence";
@@ -82,11 +83,11 @@ export function VerifierApp() {
         <dl className="mt-4 grid grid-cols-2 border border-ink bg-paper shadow-card">
           <div className="px-3 py-2">
             <dt className="tag-text text-ash-700">Earned today</dt>
-            <dd className="figure text-2xl">{eur(earned)}</dd>
+            <dd className="figure text-2xl"><Odometer value={eur(earned)} /></dd>
           </div>
           <div className="border-l border-ink px-3 py-2">
             <dt className="tag-text text-ash-700">Visits done</dt>
-            <dd className="figure text-2xl">{done.length}</dd>
+            <dd className="figure text-2xl"><Odometer value={done.length} /></dd>
           </div>
         </dl>
       </section>

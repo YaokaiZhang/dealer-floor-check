@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type { Store } from "@/lib/store";
 import { timeAgo, timeFi } from "@/lib/format";
 import { SectionTag } from "@/components/ui/Card";
@@ -6,12 +7,15 @@ import { SEV_BAR, SeverityTag, SourceTag, StatusTag, isOpen, useNow } from "./sh
 
 export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: string | null; onSelect: (id: string) => void }) {
   const now = useNow(5000);
+  // Only items that arrive while the page is open animate in; the initial list just appears.
+  const [initial] = useState(() => new Set([...s.alerts.map((a) => a.id), ...s.events.map((e) => e.id)]));
+  const fresh = (id: string) => !initial.has(id);
   const alerts = [...s.alerts].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const open = alerts.filter(isOpen).length;
   const connected = s.cars.filter((c) => c.connected && c.status === "in_stock").length;
 
   return (
-    <section aria-label="Live alert feed" className="border border-ink bg-paper shadow-card">
+    <section aria-label="Live alert feed" className="border border-ink bg-paper ">
       <div className="flex items-center justify-between border-b border-ink bg-ink px-4 py-3 text-paper">
         <h2 className="flex items-center gap-2 display-md">
           <span className="inline-block size-2 animate-pulse-dot bg-lime" aria-hidden /> Live alerts
@@ -31,7 +35,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
           const car = s.cars.find((c) => c.vin === a.vin);
           const closed = !isOpen(a);
           return (
-            <li key={a.id} className="animate-rise">
+            <li key={a.id} className={fresh(a.id) ? "alert-new" : undefined}>
               <button
                 type="button"
                 onClick={() => onSelect(a.id)}
@@ -63,7 +67,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
         <SectionTag>Activity</SectionTag>
         <ul className="mt-2 space-y-1.5">
           {s.events.slice(0, 6).map((e) => (
-            <li key={e.id} className="grid grid-cols-[3rem_1fr] gap-2 text-xs animate-rise">
+            <li key={e.id} className={`grid grid-cols-[3rem_1fr] gap-2 text-xs ${fresh(e.id) ? "animate-rise" : ""}`}>
               <span className="font-mono text-ash-500">{timeFi(e.at)}</span>
               <span className="text-ash-700">{e.text}</span>
             </li>

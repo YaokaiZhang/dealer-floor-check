@@ -8,9 +8,9 @@
 @theme {
   --color-ink: #000000;
   --color-paper: #ffffff;
-  --color-mist: #f5f5f5;
-  --color-ash-100: #ececec;
-  --color-ash-300: #c8c8c8;
+  --color-mist: #f4f3f8;        /* greys lean a touch toward the lavender */
+  --color-ash-100: #e9e8ef;
+  --color-ash-300: #c9c7d3;
   --color-ash-500: #6b6b6b;
   --color-ash-700: #4d4d4d;
   --color-brand: #a29aff;        /* lavender: fills, bands, highlights (never small text on white) */
@@ -28,7 +28,7 @@
   --font-display: var(--font-display-face), var(--font-body), ui-sans-serif, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 
-  --shadow-card: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 0 0 0 transparent; /* surfaces stay flat; elevation is the hard offset only */
   --shadow-lift: 0 10px 24px -6px rgba(0, 0, 0, 0.25);
   --shadow-hard: 6px 6px 0 0 #000;
 
@@ -36,8 +36,13 @@
   --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
 
   @keyframes rise { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
-  --animate-sweep: sweep 2.4s cubic-bezier(0.65, 0, 0.35, 1) 300ms both;
-  @keyframes sweep { from { transform: translateX(-30%); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } to { transform: translateX(130%); opacity: 0 } }
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-scan: scan 2600ms linear 400ms both;
+  @keyframes scan { from { transform: translateX(-100%); opacity: 0 } 8% { opacity: 1 } 92% { opacity: 1 } to { transform: translateX(300%); opacity: 0 } }
+  --animate-draw: draw 520ms cubic-bezier(0.65, 0, 0.35, 1) 180ms both;
+  @keyframes draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+  --animate-pop: pop 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  @keyframes pop { from { transform: scale(0.6); opacity: 0 } 60% { transform: scale(1.06); opacity: 1 } to { transform: none } }
   @keyframes pulse-dot { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
 }
 
@@ -67,6 +72,20 @@ body {
 /* Lot motif: cars settle into their stalls once, on first paint. */
 .lot-car { animation: lot-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-box: fill-box; transform-origin: center; }
 @keyframes lot-in { from { opacity: 0; transform: translateY(-6px) scale(0.9) } to { opacity: 1; transform: none } }
+/* Scan: a car is grey until the beam passes, then shows how it is verified. */
+.lot-scan { transform-box: fill-box; transform-origin: center; animation: lot-verify 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.lot-scan > rect:first-child { animation: lot-paint 260ms linear both; animation-delay: inherit; }
+@keyframes lot-verify { 0% { transform: none } 45% { transform: scale(1.14) } 100% { transform: none } }
+@keyframes lot-paint { from { fill: #3a3a3a } to { fill: var(--to) } }
+
+/* Odometer digits: each place is a strip of 0–9 that rolls to its value. */
+.odo { display: inline-flex; line-height: 1; height: 1em; overflow: hidden; vertical-align: baseline; }
+.odo-strip { display: flex; flex-direction: column; transition: transform var(--odo-ms, 900ms) cubic-bezier(0.22, 1, 0.36, 1); }
+.odo-strip > span { height: 1em; line-height: 1; }
+
+/* A new alert arrives: brief lavender wash, then settles. */
+.alert-new { animation: alert-in 1600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes alert-in { 0% { opacity: 0; transform: translateY(-8px); background: var(--color-brand) } 18% { opacity: 1; transform: none } 100% { background: transparent } }
 
 /* Painted parking-bay lines, used as a quiet texture behind headers. */
 @utility bay-lines {

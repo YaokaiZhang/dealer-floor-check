@@ -101,6 +101,12 @@ export function DealerApp() {
         ))}
 
       <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-3 border-y border-ink bg-paper">
+        {/* One ink block slides under the active tab. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-ink transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ transform: `translateX(${TABS.findIndex((t) => t.id === tab) * 100}%)` }}
+        />
         {TABS.map((t, i) => {
           const on = tab === t.id;
           return (
@@ -109,7 +115,7 @@ export function DealerApp() {
               type="button"
               onClick={() => setTab(t.id)}
               aria-current={on ? "page" : undefined}
-              className={`relative flex min-h-12 items-center justify-center gap-1.5 px-1 text-center text-[0.8rem] leading-tight font-medium transition-colors ${i > 0 ? "border-l border-ink" : ""} ${on ? "bg-ink text-paper" : "hover:bg-brand-soft"}`}
+              className={`relative flex min-h-12 items-center justify-center gap-1.5 px-1 text-center text-[0.8rem] leading-tight font-medium transition-colors duration-300 ${i > 0 ? "border-l border-ink" : ""} ${on ? "text-paper" : "hover:bg-brand-soft"}`}
             >
               {t.label}
               {t.id === "checkins" && open.length > 0 && (
@@ -120,7 +126,8 @@ export function DealerApp() {
         })}
       </nav>
 
-      <div className="px-4 pt-5">
+      <div key={tab} className="px-4 pt-5 animate-[tab-in_260ms_cubic-bezier(0.22,1,0.36,1)_both]">
+        <style>{`@keyframes tab-in { from { opacity: 0; transform: translateY(6px) } }`}</style>
         {tab === "checkins" && (
           doneCheckIn && doneCheckIn.status === "completed" ? (
             <DoneScreen checkIn={doneCheckIn} dealer={dealer} tierBefore={done!.tierBefore} onBack={() => setDone(null)} onTier={() => setTab("tier")} />

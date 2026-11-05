@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
-import { SectionTag } from "@/components/ui/Card";
 import { actions, useDemo, useHydrated } from "@/lib/store";
 import { dateFi } from "@/lib/format";
 import { Headline } from "@/components/bank/Headline";
@@ -36,11 +35,11 @@ export default function BankPage() {
         <main className="pb-20">
           <div className="mx-auto max-w-[1400px] px-4 pt-8 md:px-8 md:pt-10">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <SectionTag>Aurora Dealer Finance · Floor check</SectionTag>
-                <h1 className="mt-2 display-xl">Portfolio today</h1>
-              </div>
-              <p className="tag-text text-ash-700">{dateFi(new Date().toISOString())} · live, simulated feeds</p>
+              <h1 className="display-xl">Portfolio today</h1>
+              <p className="flex items-center gap-2 text-sm text-ash-700">
+                <span className="size-2 animate-pulse-dot bg-lime outline outline-1 outline-ink" aria-hidden />
+                {dateFi(new Date().toISOString())}, simulated feeds
+              </p>
             </div>
             <div className="mt-6">
               <Headline s={s} onAlerts={() => document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
@@ -50,10 +49,7 @@ export default function BankPage() {
           <div className="mx-auto mt-10 grid max-w-[1400px] gap-8 px-4 md:px-8 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_440px]">
             <div className="order-2 min-w-0 space-y-12 lg:order-1">
               <section aria-label="Portfolio">
-                <div className="mb-4 flex items-baseline justify-between">
-                  <h2 className="display-lg">Dealers</h2>
-                  <span className="tag-text text-ash-700">Click a dealer for detail</span>
-                </div>
+                <h2 className="mb-4 display-lg">Dealers</h2>
                 <Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} />
               </section>
             </div>
