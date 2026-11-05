@@ -9,7 +9,6 @@ import { Portfolio } from "@/components/bank/Portfolio";
 import { AlertFeed } from "@/components/bank/AlertFeed";
 import { AlertDetail } from "@/components/bank/AlertDetail";
 import { DealerDetail } from "@/components/bank/DealerDetail";
-import { CostChart } from "@/components/bank/CostChart";
 import { Drawer } from "@/components/bank/Drawer";
 
 type Panel = { kind: "alert" | "dealer"; id: string } | null;
@@ -57,7 +56,6 @@ export default function BankPage() {
                 </div>
                 <Portfolio s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} />
               </section>
-              <CostChart />
             </div>
             <aside id="alerts" className="order-1 min-w-0 scroll-mt-20 lg:order-2 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
               <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />

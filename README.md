@@ -24,7 +24,7 @@ Open http://localhost:3000. Routes:
 |---|---|
 | `/dealer` | Dealer mobile app: check-in inbox, capture flow, tier page, "What we check" |
 | `/verifier` | Freelance verifier mobile app: accept a €30 one-car job, check in on site, photograph the VIN plate or report why the car isn't there |
-| `/bank` | Bank dashboard: portfolio, live alerts, dealer detail, sampling, cost / risk chart |
+| `/bank` | Bank dashboard: portfolio, live alerts, dealer detail, sampling |
 | `/demo` | Demo control panel: fire simulated events, reset demo |
 | `/demo/plates` | Rendered VIN plates to photograph on stage |
 
@@ -47,7 +47,7 @@ Then open `http://<your-laptop-ip>:3000/dealer` on the phone (`ipconfig getifadd
 | `src/lib/sampling.ts` | `sampleSize()` hypergeometric sampling |
 | `src/lib/risk.ts` | Risk score formula (documented), auto-verification, sampling pool |
 | `src/config/tiers.ts` | Tier rules: check-in rate, sampling tolerance, perks |
-| `src/config/assumptions.ts` | **All business-case assumptions** for the cost / risk chart |
+| `src/config/assumptions.ts` | **All business-case assumptions** behind the cost headline |
 | `src/lib/costModel.ts` | Cost / risk model and headline |
 | `src/lib/verify.ts` | Silent photo checks (VIN match, location, freshness, reuse) |
 | `src/components/verifier/` | Freelance verifier app (job board, on-site check-in, report) |
@@ -70,4 +70,4 @@ Run **Reset demo** in `/demo` first. Keep `/bank`, `/demo`, `/dealer` and `/veri
    - **Freelancer phone** (`/verifier`): the job appears ("Confirm one car is on the lot", €30). The freelancer never sees why the car was picked, so visits stay neutral. Accept → **I'm at the lot** (location checked once against the dealer geofence) → the dealer app shows "Sanna M. is visiting on behalf of Aurora" with the same visit code → **Car isn't here** → "Staff say it's out on a test drive" → **Send report**. On `/bank` the verifier card fills in step by step (posted → accepted → on site → report) and recommends escalating or confirming.
    - Alternative: **Car is here** → photograph the VIN plate (same silent checks as the dealer flow) → the bank sees the photo, VIN match, arrival distance and odometer.
    - No second person? Use **Skip ahead: simulate the report** on the bank card, or turn on **Auto-complete verifier jobs** in `/demo`.
-4. **Close**: dealer detail sampling explainer + the cost / risk slider. "In a high-trust market, the best control is one honest dealers barely notice."
+4. **Close**: dealer detail sampling explainer. "In a high-trust market, the best control is one honest dealers barely notice."
