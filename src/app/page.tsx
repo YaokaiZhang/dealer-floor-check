@@ -4,7 +4,7 @@ import { Intro } from "@/components/home/Intro";
 import { ScanCar } from "@/components/ui/ScanCar";
 
 /** Skip the cover for the rest of the session once someone has entered. Runs before paint. */
-const SKIP_INTRO = `try{if(sessionStorage.getItem("aurora:entered"))document.documentElement.dataset.entered=""}catch(e){}`;
+const SKIP_INTRO = `try{if(sessionStorage.getItem("kerb:entered"))document.documentElement.dataset.entered=""}catch(e){}`;
 
 const LAYERS = [
   { when: "Every day", title: "Connected data" },

@@ -1,6 +1,6 @@
 import { VerifierApp } from "@/components/verifier/VerifierApp";
 
-export const metadata = { title: "Verifier · Aurora Floor Check" };
+export const metadata = { title: "Verifier · Kerb Floor Check" };
 
 export default function VerifierPage() {
   return <VerifierApp />;

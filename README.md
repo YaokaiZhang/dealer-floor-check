@@ -1,7 +1,7 @@
-# Aurora Floor Check
+# Kerb Floor Check
 
 Hackathon prototype for **TiK x Netlight Mini Hackathon, Case 2 (Floor Check)**.
-Aurora Dealer Finance is a fictional lender and the dealers are fictional too. All external data (connected-car API, marketplace, vehicle registry) is simulated.
+Kerb Finance is a fictional lender and the dealers are fictional too. All external data (connected-car API, marketplace, vehicle registry) is simulated.
 
 > Verify the floor without walking it: data first, people last. Dealers get a friendly ~5-minute check-in now and then, a local verifier drops by at random, and an auditor is the last resort.
 
@@ -19,8 +19,8 @@ Aurora Dealer Finance is a fictional lender and the dealers are fictional too. A
 | Variable | Default | |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | unset | Turns on Claude vision reads |
-| `AURORA_VISION_MODEL` | `claude-haiku-5-5` | Vision model |
-| `AURORA_DATA_DIR` | `./.data` | Where state and photos are saved |
+| `KERB_VISION_MODEL` | `claude-haiku-5-5` | Vision model |
+| `KERB_DATA_DIR` | `./.data` | Where state and photos are saved |
 
 Runs as one Node process (`npm run dev` or `npm run build && npm start`). The state lives in that process, so serverless hosting with several instances would need a real database behind `src/server/db.ts`.
 
@@ -96,7 +96,7 @@ Run **Reset demo** in `/demo` first. Keep `/bank`, `/demo`, `/dealer` and `/veri
 1. **Bank dashboard**: 4 dealers, most connected cars verified automatically. "Most verification already happened with zero people." Point at the cost headline.
 2. **Dealer phone**: in `/demo` send a check-in to Laakso Autot. In `/dealer`: friendly request → pick a window → Start check-in → cars revealed → photograph each car's VIN plate (from `/demo/plates`), the car and the odometer → "All verified ✓, eligible for a line review, you're Gold tier."
 3. **Demo panel**: fire **Sold out of trust**. On `/bank` a high alert appears: listing sold, connected car ~180 km away, registry owner change pending. Koskinen Car Center moves to Review, a targeted check-in goes out, and **the next random spot check is brought forward to today** with that car added.
-   - **Freelancer phone** (`/verifier`): a spot check appears ("Koskinen Car Center · 4 cars · €45"). It looks like any random visit; the freelancer never sees why it came today. Accept → **I'm at the lot** (location checked once against the dealer geofence) → the dealer app shows "Sanna M. from Aurora visits today" with the same visit code → for each car: **Car is here** (VIN plate, car and odometer photos) or **Car isn't here** ("Staff say it's out on a test drive") → **Send report**. On `/bank` the spot-check card fills in step by step and recommends escalating or confirming.
+   - **Freelancer phone** (`/verifier`): a spot check appears ("Koskinen Car Center · 4 cars · €45"). It looks like any random visit; the freelancer never sees why it came today. Accept → **I'm at the lot** (location checked once against the dealer geofence) → the dealer app shows "Sanna M. from Kerb visits today" with the same visit code → for each car: **Car is here** (VIN plate, car and odometer photos) or **Car isn't here** ("Staff say it's out on a test drive") → **Send report**. On `/bank` the spot-check card fills in step by step and recommends escalating or confirming.
    - Routine visits: **Spot check** on a dealer card in `/demo` (or **Post spot check** in the bank's dealer panel) posts an ordinary random visit.
    - No second person? Use **Simulate report** on the bank card, or turn on **Auto-complete spot checks** in `/demo`.
 4. **Close**: dealer detail sampling explainer. "In a high-trust market, the best control is one honest dealers barely notice."

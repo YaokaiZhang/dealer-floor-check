@@ -17,7 +17,7 @@
   --color-brand: #dbe5f2;        /* pale steel blue: quiet fills and highlights */
   --color-brand-soft: #eef3f9;
   --color-brand-deep: #1f4f9e;   /* bank blue: links, focus, the one accent */
-  --color-lime: #b6e0cb;         /* muted aurora green: verified */
+  --color-lime: #b6e0cb;         /* muted green: verified */
   --color-go: #1e7a4f;           /* deep green: verified marks on white */
   --color-gold: #ead9a8;         /* tier: gold */
   --color-silver: #dfe3ea;       /* tier: silver */
@@ -66,14 +66,14 @@ body {
 }
 
 /* Typographic roles */
-@utility display-2xl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 0.92; letter-spacing: -0.01em; font-size: clamp(2.6rem, 6vw, 5.5rem); }
-@utility display-xl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 0.95; letter-spacing: -0.005em; font-size: clamp(2rem, 4vw, 3.4rem); }
-@utility display-lg { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1; font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
-@utility display-md { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1.05; font-size: 1.25rem; }
-@utility tag-text { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; }
-@utility figure { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 0.95; }
+/* Typographic roles: one family, Archivo stretched wide, like lettering on a showroom fascia. */
+@utility display-2xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.035em; font-size: clamp(3rem, 9vw, 9rem); }
+@utility display-xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.03em; font-size: clamp(2.2rem, 5vw, 4.5rem); }
+@utility display-lg { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.92; letter-spacing: -0.025em; font-size: clamp(1.5rem, 2.6vw, 2.25rem); }
+@utility display-md { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 1; letter-spacing: -0.015em; font-size: 1.125rem; }
+@utility tag-text { font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500; line-height: 1.2; }
+@utility figure { font-family: var(--font-sans); font-weight: 500; font-stretch: 112%; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 0.95; }
 
-/* Wide display: Archivo stretched out, like lettering on a showroom fascia. */
 @utility display-wide { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.035em; }
 
 /* Home intro: the cover lifts away once, revealing the page. */

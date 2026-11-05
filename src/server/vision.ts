@@ -7,7 +7,7 @@
  * VIN/plate are never sent, so it cannot just echo them back.
  *
  * Enabled only when ANTHROPIC_API_KEY is set. Model defaults to Claude Haiku
- * 5.5, overridable with AURORA_VISION_MODEL. Any failure throws a short Error
+ * 5.5, overridable with KERB_VISION_MODEL. Any failure throws a short Error
  * so the caller can fall back to the simulated read.
  */
 import Anthropic from "@anthropic-ai/sdk";
@@ -17,7 +17,7 @@ export interface VisionRead { vin: string | null; confidence: number; plate: str
 
 export const visionEnabled = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY);
 
-const MODEL = () => process.env.AURORA_VISION_MODEL || "claude-haiku-5-5";
+const MODEL = () => process.env.KERB_VISION_MODEL || process.env.AURORA_VISION_MODEL || "claude-haiku-5-5";
 
 const SCHEMA = {
   type: "object",

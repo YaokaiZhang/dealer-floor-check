@@ -17,10 +17,10 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
   const live = useConnected();
   const hydrated = useHydrated();
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-ink bg-paper/90 backdrop-blur-sm">
       <div className={`mx-auto flex items-center justify-between gap-3 px-4 ${compact ? "h-14 max-w-xl" : "h-16 max-w-[1400px] md:px-8"}`}>
         <Wordmark />
-        <nav aria-label="Role" className="flex items-center border border-line">
+        <nav aria-label="Role" className="flex items-center">
           {ROLES.map((r) => {
             const active = path?.startsWith(r.href);
             return (
@@ -28,7 +28,7 @@ export function RoleSwitcher({ compact }: { compact?: boolean }) {
                 key={r.href}
                 href={r.href}
                 aria-current={active ? "page" : undefined}
-                className={`px-2 py-1.5 tag-text transition-colors sm:px-3 ${active ? "bg-ink text-paper" : "hover:bg-brand"} ${r.href === "/demo" && compact ? "hidden sm:block" : ""}`}
+                className={`px-2 py-1.5 text-sm font-medium transition-colors sm:px-3 ${active ? "bg-ink text-paper" : "hover:bg-mist"} ${r.href === "/demo" && compact ? "hidden sm:block" : ""}`}
               >
                 {r.short ? <><span className="sm:hidden">{r.short}</span><span className="hidden sm:inline">{r.label}</span></> : r.label}
               </Link>

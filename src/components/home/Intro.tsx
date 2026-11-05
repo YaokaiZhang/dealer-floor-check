@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { ScanCar } from "@/components/ui/ScanCar";
+import { Logotype } from "@/components/ui/Wordmark";
 
-const KEY = "aurora:entered";
+const KEY = "kerb:entered";
 
 export const INTRO_CALLOUTS = [
   { x: -1, y: 0.3, z: 0, value: "KLM-482" },
@@ -46,7 +47,7 @@ export function Intro() {
       <ScanCar callouts={INTRO_CALLOUTS} scale={0.34} className="absolute inset-x-0 top-[44%] h-[36%] w-full md:top-[10%] md:left-[34%] md:h-[80%] md:w-[66%]" />
 
       <div className="relative">
-        <p className="text-sm font-medium">Aurora Floor Check</p>
+        <p className="flex items-baseline gap-3"><Logotype className="text-[1.45rem]" /><span className="sr-only">Kerb</span><span className="text-xs text-ash-700">Floor Check</span></p>
         <p className="display-wide mt-[8vh] max-w-[9ch] text-[clamp(2.3rem,6.2vw,6.25rem)] md:mt-[10vh]">Every car on the floor, accounted for.</p>
       </div>
 

@@ -7,7 +7,7 @@ const display = Archivo_Narrow({ variable: "--font-display-face", subsets: ["lat
 const mono = IBM_Plex_Mono({ variable: "--font-mono-face", subsets: ["latin"], weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  title: "Aurora Floor Check",
+  title: "Kerb Floor Check",
   description: "Data-first floor checks for dealer inventory finance. Fictional prototype.",
 };
 
