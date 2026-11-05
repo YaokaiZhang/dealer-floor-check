@@ -30,11 +30,14 @@
 
   --shadow-card: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
   --shadow-lift: 0 10px 24px -6px rgba(0, 0, 0, 0.25);
+  --shadow-hard: 6px 6px 0 0 #000;
 
   --animate-rise: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
 
   @keyframes rise { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+  --animate-sweep: sweep 2.4s cubic-bezier(0.65, 0, 0.35, 1) 300ms both;
+  @keyframes sweep { from { transform: translateX(-30%); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } to { transform: translateX(130%); opacity: 0 } }
   @keyframes pulse-dot { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
 }
 
@@ -60,6 +63,24 @@ body {
 @utility display-md { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1.05; font-size: 1.25rem; }
 @utility tag-text { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; }
 @utility figure { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 0.95; }
+
+/* Lot motif: cars settle into their stalls once, on first paint. */
+.lot-car { animation: lot-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; transform-box: fill-box; transform-origin: center; }
+@keyframes lot-in { from { opacity: 0; transform: translateY(-6px) scale(0.9) } to { opacity: 1; transform: none } }
+
+/* Painted parking-bay lines, used as a quiet texture behind headers. */
+@utility bay-lines {
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(255,255,255,0.14) 27px 28px),
+    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(255,255,255,0.14) calc(100% - 1px));
+  background-size: 28px 44px, 100% 44px;
+}
+@utility bay-lines-ink {
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(0,0,0,0.12) 27px 28px),
+    linear-gradient(180deg, transparent 0 calc(100% - 1px), rgba(0,0,0,0.12) calc(100% - 1px));
+  background-size: 28px 44px, 100% 44px;
+}
 
 :focus-visible {
   outline: 2px solid var(--color-brand-deep);

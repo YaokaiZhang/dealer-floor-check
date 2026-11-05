@@ -73,13 +73,13 @@ export function VerifierApp() {
 
   return (
     <VerifierShell>
-      <section className="border-b border-ink px-4 pt-6 pb-5">
+      <section className="border-b border-ink bg-brand px-4 pt-6 pb-5 bay-lines-ink">
         <div className="flex items-center justify-between gap-2">
-          <Tag tone="brand">Freelance verifier</Tag>
-          <span className="tag-text text-ash-700">Vetted · ID checked</span>
+          <Tag tone="ink">Freelance verifier</Tag>
+          <span className="text-sm text-ink/70">Vetted, ID checked</span>
         </div>
         <h1 className="mt-3 display-xl">Hi {me.split(" ")[0]}</h1>
-        <dl className="mt-4 grid grid-cols-2 border border-ink">
+        <dl className="mt-4 grid grid-cols-2 border border-ink bg-paper shadow-card">
           <div className="px-3 py-2">
             <dt className="tag-text text-ash-700">Earned today</dt>
             <dd className="figure text-2xl">{eur(earned)}</dd>
@@ -137,7 +137,7 @@ export function VerifierApp() {
 
             <section>
               <p className="mb-2 tag-text text-ash-700">How visits work</p>
-              <ul className="grid grid-cols-2 border border-ink bg-brand-soft">
+              <ul className="grid grid-cols-2 border border-ink bg-paper">
                 {[["3–5 cars", "per visit"], ["~30 min", "on site"], ["Paid", "found or not"], ["Random", "unannounced"]].map(([k, sub], i) => (
                   <li key={k} className={`p-3 ${i % 2 ? "border-l border-ink" : ""} ${i > 1 ? "border-t border-ink" : ""}`}>
                     <p className="figure text-xl">{k}</p>

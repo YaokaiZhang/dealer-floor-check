@@ -4,7 +4,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 export function Card({ children, className = "", interactive, ...rest }: HTMLAttributes<HTMLDivElement> & { children: ReactNode; interactive?: boolean }) {
   return (
     <div
-      className={`relative border border-ink bg-paper shadow-card ${interactive ? "transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-lift" : ""} ${className}`}
+      className={`relative border border-ink bg-paper shadow-card ${interactive ? "transition-transform duration-300 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-hard" : ""} ${className}`}
       {...rest}
     >
       {children}

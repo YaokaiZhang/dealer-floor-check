@@ -82,12 +82,13 @@ export function DealerApp() {
         </select>
       </div>
 
-      <section className="px-4 pt-6 pb-5">
-        <div className="flex items-center gap-2">
+      <section className="relative overflow-hidden bg-ink px-4 pt-6 pb-6 text-paper bay-lines">
+        <div className="relative flex items-center gap-2">
           <TierBadge tier={dealer.tier} />
-          <span className="tag-text text-ash-700">{dealer.city}</span>
+          <span className="text-sm text-paper/70">{dealer.city}</span>
         </div>
-        <h1 className="mt-3 display-xl">Hi {dealer.name}</h1>
+        <h1 className="relative mt-3 pr-16 display-xl">Hi {dealer.name}</h1>
+        <HeaderCar tier={dealer.tier} />
       </section>
 
       {state.spotChecks
@@ -142,5 +143,18 @@ export function DealerApp() {
         {tab === "rules" && <Transparency />}
       </div>
     </DealerShell>
+  );
+}
+
+const CAR_FILL: Record<Tier, string> = { Gold: "var(--color-lime)", Silver: "var(--color-brand)", Standard: "var(--color-paper)", Review: "var(--color-high)" };
+
+/** One car parked in the header bay, painted in the dealer's tier colour. */
+function HeaderCar({ tier }: { tier: Tier }) {
+  return (
+    <svg aria-hidden width="52" height="28" viewBox="0 0 64 34" className="absolute top-5 right-4 animate-rise">
+      <rect x="2" y="3" width="58" height="28" rx="7" fill={CAR_FILL[tier]} />
+      <rect x="38" y="6" width="11" height="22" rx="2.5" fill="rgba(0,0,0,0.78)" />
+      <rect x="10" y="7" width="6" height="20" rx="2" fill="rgba(0,0,0,0.5)" />
+    </svg>
   );
 }

@@ -24,8 +24,8 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
   const t = TIERS[dealer.tier];
   return (
     <div className="animate-rise">
-      <Card className="p-5">
-        <div className="flex size-11 items-center justify-center border border-ink bg-lime" aria-hidden>
+      <Card className="overflow-hidden !bg-lime p-5 bay-lines-ink">
+        <div className="flex size-11 items-center justify-center border border-ink bg-paper" aria-hidden>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2" strokeLinecap="square" /></svg>
         </div>
         <h2 className="mt-4 display-lg">All good. Nothing to do.</h2>

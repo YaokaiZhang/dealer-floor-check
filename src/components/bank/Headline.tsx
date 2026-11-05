@@ -18,15 +18,23 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
   return (
     <section aria-label="Portfolio headline" className="grid border border-ink bg-paper shadow-card md:grid-cols-12">
       {/* Auto-verified: the one figure to look at */}
-      <div className="relative border-b border-ink bg-lime p-5 md:col-span-5 md:border-r md:border-b-0 md:p-7">
+      <div className="relative overflow-hidden border-b border-ink bg-lime p-5 md:col-span-5 md:border-r md:border-b-0 md:p-7">
         <p className="tag-text">Verified automatically today</p>
         <p className="mt-3 flex items-baseline gap-3">
           <span className="figure text-[clamp(3.5rem,8vw,6.5rem)]">{auto}</span>
           <span className="figure text-[clamp(1.6rem,3vw,2.6rem)] text-ink/60">of {cars} cars</span>
         </p>
-        <div className="mt-4 h-2 border border-ink bg-paper" aria-hidden>
-          <div className="h-full bg-ink transition-[width] duration-700" style={{ width: `${autoPct * 100}%` }} />
+        {/* One tile per financed car, seen from above: filled = verified by data today */}
+        <div className="mt-5 flex flex-wrap gap-[3px]" role="img" aria-label={`${auto} of ${cars} cars verified automatically`}>
+          {Array.from({ length: cars }, (_, i) => (
+            <span
+              key={i}
+              className={`h-[13px] w-[7px] rounded-[2px] transition-colors duration-500 ${i < auto ? "bg-ink" : "border border-ink/30"}`}
+              style={{ transitionDelay: `${i * 4}ms` }}
+            />
+          ))}
         </div>
+        <p className="mt-3 text-sm text-ink/70">{Math.round(autoPct * 100)}% need no photo today</p>
       </div>
 
       <div className="grid grid-cols-2 md:col-span-7 md:grid-cols-3">
