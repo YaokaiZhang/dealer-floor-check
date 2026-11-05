@@ -1,4 +1,3 @@
-import { SectionTag } from "@/components/ui/Card";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIER_ORDER } from "@/config/tiers";
 import { FREQUENCY } from "./tierCopy";
@@ -11,35 +10,37 @@ const CHECKS = [
   { title: "Marketplaces", body: "Listings of financed cars" },
 ];
 
+const DONT = [
+  "No phone tracking. Location only during a check-in you start.",
+  "No automatic changes to your terms.",
+  "No sharing with other dealers.",
+];
+
 export function Transparency() {
   return (
-    <div className="space-y-8">
-      <section className="animate-rise">
-        <SectionTag>Open about the rules</SectionTag>
-        <h2 className="mt-3 display-lg">What Aurora checks, and why</h2>
+    <div className="space-y-9">
+      <section>
+        <h2 className="display-lg">What Aurora checks, and why</h2>
         <p className="mt-3 text-ash-700">Data first, so we rarely ask and only drop by now and then.</p>
       </section>
 
       <section>
-        <SectionTag>What we look at</SectionTag>
-        <ol className="mt-3 border border-ink shadow-card">
-          {CHECKS.map((c, i) => (
-            <li key={c.title} className={`flex gap-4 bg-paper p-4 ${i > 0 ? "border-t border-ink" : ""}`}>
-              <span className="figure text-2xl text-brand-deep">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <p className="font-medium">{c.title}</p>
-                <p className="mt-1 text-sm text-ash-700">{c.body}</p>
-              </div>
-            </li>
+        <h3 className="display-md">What we look at</h3>
+        <dl className="mt-3 divide-y divide-ash-300 border-y border-ink">
+          {CHECKS.map((c) => (
+            <div key={c.title} className="py-3.5">
+              <dt className="font-medium">{c.title}</dt>
+              <dd className="mt-0.5 text-sm text-ash-700">{c.body}</dd>
+            </div>
           ))}
-        </ol>
+        </dl>
       </section>
 
       <section>
-        <SectionTag>How tiers work</SectionTag>
-        <ul className="mt-3 divide-y divide-ink border border-ink">
+        <h3 className="display-md">How tiers work</h3>
+        <ul className="mt-3 divide-y divide-ash-300 border-y border-ink">
           {[...TIER_ORDER].reverse().map((t) => (
-            <li key={t} className="flex items-center justify-between gap-3 px-4 py-3">
+            <li key={t} className="flex items-center justify-between gap-4 py-3">
               <TierBadge tier={t} />
               <span className="text-right text-sm">{FREQUENCY[t]}</span>
             </li>
@@ -47,12 +48,15 @@ export function Transparency() {
         </ul>
       </section>
 
-      <section>
-        <SectionTag>What we don&apos;t do</SectionTag>
-        <ul className="mt-3 space-y-2 text-sm text-ash-700">
-          <li className="flex gap-3"><span className="mt-1.5 size-1.5 shrink-0 bg-ink" />No phone tracking. Location only during a check-in you start.</li>
-          <li className="flex gap-3"><span className="mt-1.5 size-1.5 shrink-0 bg-ink" />No automatic changes to your terms.</li>
-          <li className="flex gap-3"><span className="mt-1.5 size-1.5 shrink-0 bg-ink" />No sharing with other dealers.</li>
+      <section className="border border-ink bg-mist p-5">
+        <h3 className="display-md">What we don&apos;t do</h3>
+        <ul className="mt-3 space-y-2.5 text-sm">
+          {DONT.map((d) => (
+            <li key={d} className="flex gap-3">
+              <svg aria-hidden width="12" height="12" viewBox="0 0 12 12" className="mt-1 shrink-0"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.6" /></svg>
+              {d}
+            </li>
+          ))}
         </ul>
       </section>
     </div>

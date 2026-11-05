@@ -18,8 +18,8 @@ const STEPS: { id: ShotKind; label: string; short: string; noun: string }[] = [
 /** Where VIN plates usually are, by make. Purely a finding aid. */
 function vinHint(make: string): string {
   const m = make.toLowerCase();
-  if (["tesla", "volvo", "polestar"].includes(m)) return "Windscreen, driver's side · or door pillar";
-  return "Windscreen, bottom left · or driver's door pillar";
+  if (["tesla", "volvo", "polestar"].includes(m)) return "Windscreen on the driver's side, or the door pillar";
+  return "Bottom of the windscreen, or the driver's door pillar";
 }
 
 type Mode = "starting" | "live" | "error" | "demo";
@@ -134,10 +134,10 @@ export function ShotSequence({ car, allowDemo, onDone }: {
           const t = taken[s.id];
           return (
             <li key={s.id} aria-current={i === step ? "step" : undefined}
-              className={`flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-1 py-1.5 text-center tag-text ${i > 0 ? "border-l border-ink" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : ""}`}>
+              className={`flex min-h-14 min-w-0 items-center justify-center gap-2 px-1.5 py-1.5 text-center tag-text transition-colors duration-200 ${i > 0 ? "border-l border-ink" : ""} ${i === step ? "bg-ink text-paper" : t ? "bg-lime" : "text-ash-700"}`}>
               {t
                 ? // eslint-disable-next-line @next/next/no-img-element
-                  <img src={t.url} alt="" className="size-8 shrink-0 border border-ink object-cover" />
+                  <img src={t.url} alt="" className="size-8 shrink-0 border border-ink object-cover animate-pop" />
                 : <span className="flex size-6 shrink-0 items-center justify-center border border-current">{i + 1}</span>}
               <span className="min-w-0 truncate">{s.short}</span>
             </li>
@@ -160,8 +160,8 @@ export function ShotSequence({ car, allowDemo, onDone }: {
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-mist p-4 text-center">
             <p className="text-sm font-medium">{error}</p>
             <div className="flex flex-wrap justify-center gap-2">
-              <Button variant="secondary" className="py-2" onClick={() => void start()}>Retry</Button>
-              {allowDemo && <Button variant="secondary" className="py-2" onClick={useDemo}>Use demo camera</Button>}
+              <Button variant="secondary" className="min-h-11" onClick={() => void start()}>Retry</Button>
+              {allowDemo && <Button variant="primary" className="min-h-11" onClick={useDemo}>Use demo camera</Button>}
             </div>
           </div>
         )}
@@ -169,10 +169,10 @@ export function ShotSequence({ car, allowDemo, onDone }: {
       </div>
 
       {(step === 0 || (allowDemo && (mode === "live" || mode === "demo"))) && (
-        <div className="mt-3 flex items-start justify-between gap-3 text-sm text-ash-700">
+        <div className="mt-2 flex items-start justify-between gap-3 text-sm text-ash-700">
           <p>{step === 0 ? vinHint(car.make) : ""}</p>
-          {allowDemo && mode === "live" && <button type="button" onClick={useDemo} className="min-h-8 shrink-0 underline underline-offset-4">Demo camera</button>}
-          {allowDemo && mode === "demo" && <button type="button" onClick={useReal} className="min-h-8 shrink-0 underline underline-offset-4">Real camera</button>}
+          {allowDemo && mode === "live" && <button type="button" onClick={useDemo} className="-my-2 min-h-11 shrink-0 underline underline-offset-4">Demo camera</button>}
+          {allowDemo && mode === "demo" && <button type="button" onClick={useReal} className="-my-2 min-h-11 shrink-0 underline underline-offset-4">Real camera</button>}
         </div>
       )}
 
@@ -180,7 +180,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
         type="button"
         onClick={() => void shoot()}
         disabled={!ready || step >= STEPS.length}
-        className="mt-4 flex min-h-20 w-full flex-col items-center justify-center gap-1 border border-ink bg-ink px-4 py-4 text-paper shadow-card transition-[background,transform] hover:bg-ash-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-3 flex min-h-[4.5rem] w-full items-center justify-center gap-3 border border-ink bg-ink px-4 py-4 text-paper transition-[transform,box-shadow] duration-150 hover:shadow-[3px_3px_0_0_var(--color-brand)] active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg width="28" height="28" viewBox="0 0 30 30" fill="none" aria-hidden>
           <path d="M4 9h5l2-3h8l2 3h5v15H4z" stroke="currentColor" strokeWidth="1.6" />

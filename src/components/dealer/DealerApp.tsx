@@ -60,6 +60,8 @@ export function DealerApp() {
   const open = state.checkIns.filter((c) => c.dealerId === dealer.id && c.status !== "completed");
   const active = open.find((c) => c.status === "in_progress");
   const doneCheckIn = done ? state.checkIns.find((c) => c.id === done.id && c.dealerId === dealer.id) : undefined;
+  const showDone = !!doneCheckIn && doneCheckIn.status === "completed";
+  const capturing = tab === "checkins" && !showDone && !!active;
 
   const selectDealer = (id: string) => {
     setDone(null);
@@ -69,34 +71,37 @@ export function DealerApp() {
 
   return (
     <DealerShell>
-      <div className="flex items-center justify-between gap-3 border-b border-ink px-4 py-2.5">
+      <div className="flex items-center justify-between gap-3 border-b border-ink px-4 py-2">
         <label htmlFor="dealer-select" className="tag-text text-ash-700">Signed in as</label>
         <select
           id="dealer-select"
           value={dealer.id}
           onChange={(e) => selectDealer(e.target.value)}
-          className="h-9 min-w-0 flex-1 appearance-none border border-ink bg-paper bg-[length:10px] bg-[right_10px_center] bg-no-repeat px-2.5 pr-7 text-sm font-medium"
+          className="h-10 min-w-0 flex-1 appearance-none border border-ink bg-paper bg-[length:10px] bg-[right_10px_center] bg-no-repeat px-2.5 pr-7 text-sm font-medium"
           style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E\")" }}
         >
           {state.dealers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </select>
       </div>
 
-      <section className="relative overflow-hidden bg-ink px-4 pt-6 pb-6 text-paper bay-lines">
-        <div className="relative flex items-center gap-2">
-          <TierBadge tier={dealer.tier} />
-          <span className="text-sm text-paper/70">{dealer.city}</span>
-        </div>
-        <h1 className="relative mt-3 pr-16 display-xl">Hi {dealer.name}</h1>
-        <HeaderCar tier={dealer.tier} />
-      </section>
+      {/* While a check-in is running the greeting steps aside so the camera sits higher on the screen. */}
+      {!capturing && (
+        <section className="relative overflow-hidden bg-ink px-4 py-5 text-paper bay-lines">
+          <div className="relative flex items-center gap-2">
+            <TierBadge tier={dealer.tier} />
+            <span className="text-sm text-paper/70">{dealer.city}</span>
+          </div>
+          <h1 className="relative mt-2.5 pr-16 display-lg">Hi {dealer.name}</h1>
+          <HeaderCar tier={dealer.tier} />
+        </section>
+      )}
 
       {state.spotChecks
         .filter((v) => v.dealerId === dealer.id && v.verifier.status === "on_site")
         .map((v) => (
           <div key={v.id} className="flex items-center justify-between gap-3 border-t border-ink bg-brand-soft px-4 py-3" role="status">
             <p className="text-sm"><b>{v.verifier.name}</b> from Aurora visits today</p>
-            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]">{v.verifier.visitCode}</span>
+            <span className="shrink-0 border border-ink bg-paper px-2 py-1 font-mono text-sm font-medium tracking-[0.12em]" aria-label={`Visit code ${v.verifier.visitCode}`}>{v.verifier.visitCode}</span>
           </div>
         ))}
 
@@ -129,8 +134,8 @@ export function DealerApp() {
       <div key={tab} className="px-4 pt-5 animate-[tab-in_260ms_cubic-bezier(0.22,1,0.36,1)_both]">
         <style>{`@keyframes tab-in { from { opacity: 0; transform: translateY(6px) } }`}</style>
         {tab === "checkins" && (
-          doneCheckIn && doneCheckIn.status === "completed" ? (
-            <DoneScreen checkIn={doneCheckIn} dealer={dealer} tierBefore={done!.tierBefore} onBack={() => setDone(null)} onTier={() => setTab("tier")} />
+          showDone ? (
+            <DoneScreen checkIn={doneCheckIn!} dealer={dealer} tierBefore={done!.tierBefore} onBack={() => setDone(null)} onTier={() => setTab("tier")} />
           ) : active ? (
             <CaptureFlow
               key={active.id}
@@ -157,7 +162,7 @@ const CAR_FILL: Record<Tier, string> = { Gold: "var(--color-lime)", Silver: "var
 /** One car parked in the header bay, painted in the dealer's tier colour. */
 function HeaderCar({ tier }: { tier: Tier }) {
   return (
-    <svg aria-hidden width="52" height="28" viewBox="0 0 64 34" className="absolute top-5 right-4 animate-rise">
+    <svg aria-hidden width="52" height="28" viewBox="0 0 64 34" className="absolute top-5 right-4">
       <rect x="2" y="3" width="58" height="28" rx="7" fill={CAR_FILL[tier]} />
       <rect x="38" y="6" width="11" height="22" rx="2.5" fill="rgba(0,0,0,0.78)" />
       <rect x="10" y="7" width="6" height="20" rx="2" fill="rgba(0,0,0,0.5)" />
