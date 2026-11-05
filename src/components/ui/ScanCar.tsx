@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
  */
 
 type Tone = "light" | "dark";
-type Callout = { x: number; y: number; z: number; label: string; value: string };
+type Callout = { x: number; y: number; z: number; label?: string; value: string };
 
 const lerp = (pts: [number, number][], x: number) => {
   if (x <= pts[0][0]) return pts[0][1];
@@ -249,7 +249,7 @@ export function ScanCar({
           const tx = right ? Math.min(lx + 20, W - 6 - tw) : Math.max(lx - 20, 6 + tw);
           ctx.font = `500 ${fs}px ${sans}`;
           ctx.fillStyle = C.label;
-          ctx.fillText(c.label, tx, ly - fs * 0.35);
+          if (c.label) ctx.fillText(c.label, tx, ly - fs * 0.35);
           ctx.font = `500 ${fs * 1.08}px ${mono}`;
           ctx.fillStyle = C.value;
           ctx.fillText(`${c.value}  ✓`, tx, ly + fs * 1.05);

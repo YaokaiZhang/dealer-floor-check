@@ -5,9 +5,9 @@ import { ScanCar } from "@/components/ui/ScanCar";
 const KEY = "aurora:entered";
 
 export const INTRO_CALLOUTS = [
-  { x: -1, y: 0.3, z: 0, label: "Plate", value: "KLM-482" },
-  { x: 0.2, y: 0.5, z: -0.22, label: "Odometer", value: "48,210 km" },
-  { x: 0.46, y: 0.47, z: 0.26, label: "VIN", value: "…6W014275" },
+  { x: -1, y: 0.3, z: 0, value: "KLM-482" },
+  { x: 0.2, y: 0.5, z: -0.22, value: "48,210 km" },
+  { x: 0.46, y: 0.47, z: 0.26, value: "VIN …014275" },
 ];
 
 /** Full-screen cover: a car being scanned. Enter lifts it away for the rest of the session. */
@@ -46,18 +46,12 @@ export function Intro() {
       <ScanCar callouts={INTRO_CALLOUTS} scale={0.34} className="absolute inset-x-0 top-[44%] h-[36%] w-full md:top-[10%] md:left-[34%] md:h-[80%] md:w-[66%]" />
 
       <div className="relative">
-        <nav className="flex justify-between gap-4 text-sm">
-          <span className="font-medium">Aurora Floor Check</span>
-          <span className="hidden text-ash-700 sm:block">Inventory finance, Finland</span>
-          <span className="text-ash-700">Fictional prototype</span>
-        </nav>
+        <p className="text-sm font-medium">Aurora Floor Check</p>
         <p className="display-wide mt-[8vh] max-w-[9ch] text-[clamp(2.3rem,6.2vw,6.25rem)] md:mt-[10vh]">Every car on the floor, accounted for.</p>
       </div>
 
-      <div className="relative flex items-end justify-between gap-6">
-        <p className="max-w-[24ch] text-base text-ash-700 md:text-lg">Data first. Photos now and then. Visits last.</p>
+      <div className="relative flex justify-end">
         <button type="button" onClick={enter} className="group text-right transition-opacity hover:opacity-60">
-          <span className="block text-sm text-ash-700">Open the prototype</span>
           <span className="display-wide block text-[clamp(3rem,8vw,8.5rem)] leading-[0.8]">Enter —</span>
         </button>
       </div>
