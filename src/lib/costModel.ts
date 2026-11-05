@@ -8,8 +8,8 @@ import { ASSUMPTIONS, type Assumptions } from "@/config/assumptions";
  *   fraudLoss(f)    = incidentsPerDealerYear × lossPerIncident
  * With signals, most incidents are detected within days; the rest by checks or check-ins.
  */
-/** Verifier fee for one spot check of `cars` cars. */
-export const visitFee = (cars: number, a: Assumptions = ASSUMPTIONS) => a.gigCheckCost + a.gigCheckCostPerExtraCar * Math.max(0, cars - 1);
+/** Verifier fee for one spot check: a flat rate, however many cars are on the list. */
+export const visitFee = (_cars: number, a: Assumptions = ASSUMPTIONS) => a.gigCheckCost;
 
 export interface CostPoint { f: number; checkCost: number; fraudLoss: number; total: number; detectionDays: number }
 
