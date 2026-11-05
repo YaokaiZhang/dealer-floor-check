@@ -1,11 +1,12 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { actions, useDemo, useHydrated, type Store } from "@/lib/store";
-import { getPosition, runSilentChecks } from "@/lib/verify";
+import { getPosition, lastOdometer, submitShots, type Fix, type Shots } from "@/lib/verify";
+import { ShotSequence } from "@/components/capture/ShotSequence";
 import { distanceM, formatDistance } from "@/lib/geo";
 import { eur, timeFi } from "@/lib/format";
 import type { Alert, Car, Dealer, PhotoCheck } from "@/lib/types";
@@ -174,11 +175,11 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
   const [busy, setBusy] = useState(false);
   const [tooFar, setTooFar] = useState<number | null>(null);
   const [photo, setPhoto] = useState<PhotoCheck | null>(null);
-  const [odometer, setOdometer] = useState("");
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [mode, setMode] = useState<"found" | "missing">("found");
   const [reason, setReason] = useState<string | null>(null);
   const [note, setNote] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const arrive = async () => {
     setBusy(true);
@@ -188,9 +189,9 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
       const g = dealer.geofence;
       let arrival: PhotoCheck["location"] = null;
       if (pos) {
-        const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const p = { lat: pos.lat, lng: pos.lng };
         const d = distanceM(p, g);
-        arrival = { ...p, accuracyM: Math.round(pos.coords.accuracy), distanceM: Math.round(d), inside: d <= g.radiusM + Math.min(pos.coords.accuracy, 150), simulated: false };
+        arrival = { ...p, accuracyM: Math.round(pos.accuracy), distanceM: Math.round(d), inside: d <= g.radiusM + Math.min(pos.accuracy, 150), simulated: false };
       }
       if ((!arrival || !arrival.inside) && s.flags.simulateOnSite) {
         const p = { lat: g.lat + (Math.random() - 0.5) * 0.001, lng: g.lng + (Math.random() - 0.5) * 0.001 };
@@ -203,30 +204,30 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
     }
   };
 
-  const onFile = async (file?: File) => {
-    if (!file) return;
+  const onShots = async (shots: Shots, positions: Fix[], simulated: boolean) => {
     setBusy(true);
+    setFailed(false);
     try {
-      const check = await runSilentChecks({
-        file,
-        requestedVin: car.vin,
-        dealer,
-        earlierHashes: s.photoHashes,
-        position: await getPosition(),
+      const check = await submitShots({
+        shots, positions, simulated, car,
+        geofence: dealer.geofence,
+        lastKnownOdometerKm: lastOdometer(s, car.vin),
         simulateOnSite: s.flags.simulateOnSite,
         forceUnreadable: s.flags.nextPhotoUnreadable,
       });
       if (s.flags.nextPhotoUnreadable) actions.setFlag("nextPhotoUnreadable", false);
       setPhoto(check);
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
-      if (inputRef.current) inputRef.current.value = "";
+      setAttempt((a) => a + 1);
     }
   };
 
   const submit = () => {
     if (mode === "found") {
-      actions.verifierSubmit(alert.id, { found: true, photo: photo ?? undefined, odometerKm: odometer ? Number(odometer) : undefined, note: note || undefined });
+      actions.verifierSubmit(alert.id, { found: true, photo: photo ?? undefined, odometerKm: photo?.odometer?.readKm ?? undefined, note: note || undefined });
     } else {
       actions.verifierSubmit(alert.id, { found: false, notFoundReason: reason ?? undefined, note: note || undefined });
     }
@@ -312,28 +313,24 @@ function ActiveJob({ job, s, onClose }: { job: Job; s: Store; onClose: () => voi
           {mode === "found" ? (
             <>
               {busy ? (
-                <div className="flex min-h-28 items-center justify-center border border-ink bg-mist" role="status"><p className="font-medium">Reading the plate…</p></div>
+                <div className="flex min-h-28 items-center justify-center border border-ink bg-mist" role="status"><p className="font-medium">Checking the photos…</p></div>
               ) : photo ? (
                 <div className={`flex items-center gap-3 border border-ink p-3 ${photo.verified ? "bg-lime" : "bg-mist"}`} role="status">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {photo.thumbnail && <img src={photo.thumbnail} alt="" className="size-16 border border-ink object-cover" />}
+                  {photo.thumbnails?.car && <img src={photo.thumbnails.car} alt="" className="size-16 border border-ink object-cover" />}
                   <div className="text-sm">
-                    <p className="font-medium">{photo.verified ? "VIN plate matches ✓" : "Couldn't confirm the VIN"}</p>
+                    <p className="font-medium">{photo.verified ? "Car matches ✓" : "Couldn't confirm the car"}</p>
+                    {photo.odometer?.readKm != null && <p className="font-mono text-ash-700">{photo.odometer.readKm.toLocaleString("en")} km</p>}
                     {!photo.verified && <p className="text-ash-700">Closer, no glare.</p>}
-                    <button type="button" className="mt-1 underline underline-offset-4" onClick={() => inputRef.current?.click()}>Retake</button>
+                    <button type="button" className="mt-1 min-h-8 underline underline-offset-4" onClick={() => setPhoto(null)}>Retake</button>
                   </div>
                 </div>
-              ) : null}
-              <label className={`flex min-h-20 cursor-pointer flex-col items-center justify-center gap-1 border border-ink bg-ink px-4 py-4 text-paper hover:bg-ash-700 ${photo || busy ? "sr-only" : ""}`}>
-                <span className="display-md">Photograph VIN plate</span>
-                <span className="text-xs text-ash-300">Windscreen, bottom left, or the driver&apos;s door pillar</span>
-                <input ref={inputRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
-              </label>
-              <label className="block">
-                <span className="tag-text text-ash-700">Odometer (optional)</span>
-                <input inputMode="numeric" pattern="[0-9]*" value={odometer} onChange={(e) => setOdometer(e.target.value.replace(/\D/g, ""))} placeholder="km"
-                  className="mt-1 block h-12 w-full border border-ink bg-paper px-3 font-mono" />
-              </label>
+              ) : (
+                <>
+                  {failed && <p className="border border-ink bg-mist p-3 text-sm" role="status">Couldn&apos;t send the photos. Retake.</p>}
+                  <ShotSequence key={attempt} car={car} allowDemo={s.flags.demoCamera} onDone={onShots} />
+                </>
+              )}
             </>
           ) : (
             <fieldset>

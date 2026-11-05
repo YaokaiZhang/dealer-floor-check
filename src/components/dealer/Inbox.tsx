@@ -53,7 +53,7 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
 function Chips({ targeted }: { targeted: boolean }) {
   return (
     <ul className="flex flex-wrap gap-2">
-      {[targeted ? "1 car" : "A few cars", targeted ? "~1 min" : "~3 min", "VIN photo", "On your lot"].map((c) => (
+      {[targeted ? "1 car" : "A few cars", targeted ? "~1 min" : "~5 min", "3 photos a car", "On your lot"].map((c) => (
         <li key={c}><Tag tone="outline">{c}</Tag></li>
       ))}
     </ul>

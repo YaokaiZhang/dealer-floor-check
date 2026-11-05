@@ -90,7 +90,9 @@ export interface VerifierJob {
   found?: boolean;
 }
 
-/** Silent checks run per photo. Visible to the bank only. */
+export type ShotKind = "vin" | "car" | "odometer";
+
+/** Silent checks run on the server for each car's three photos. Visible to the bank only. */
 export interface PhotoCheck {
   vin: string;
   readVin: string | null;
@@ -99,8 +101,15 @@ export interface PhotoCheck {
   location: { lat: number; lng: number; accuracyM: number; distanceM: number; inside: boolean; simulated: boolean } | null;
   freshness: { receivedAt: string; insideWindow: boolean; exifTime?: string };
   reuse: { hash: string; nearestDistance: number; duplicate: boolean };
+  /** Licence plate read from the photo of the whole car. */
+  plate?: { expected: string; read: string | null; match: boolean };
+  /** Odometer read from the dashboard photo, against the last known reading. */
+  odometer?: { readKm: number | null; lastKnownKm: number | null; deltaKm: number | null; plausible: boolean };
+  /** "camera": live in-app camera; "simulated": demo camera on a device without one. */
+  capture?: "camera" | "simulated";
   verified: boolean;
-  thumbnail?: string; // small data URL for the bank evidence view
+  thumbnail?: string; // VIN plate, small data URL for the bank evidence view
+  thumbnails?: Partial<Record<ShotKind, string>>;
 }
 
 export interface CheckInWindow { id: string; label: string; start: string; end: string }
@@ -130,6 +139,16 @@ export interface SamplingExplanation {
   p: number;
   confidence: number;
   missingToDetect: number;
+  /** Random check-ins per year for the tier. */
+  perYear: number;
+  /** Cap on cars per check-in for the tier. */
+  maxCars: number;
+  /** Chance one check-in catches a missing car. */
+  perCheckIn: number;
+  /** Chance a year of check-ins catches it. */
+  yearly: number;
+  /** Mean days until a check-in catches it. */
+  expectedDays: number;
 }
 
 export interface DemoState {

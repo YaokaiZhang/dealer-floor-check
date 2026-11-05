@@ -148,6 +148,12 @@ export default function DemoPage() {
                   onChange={(v) => actions.setFlag("autoVerifier", v)}
                 />
                 <Toggle
+                  label="Demo camera fallback"
+                  help="When a device has no camera, labelled “simulated”"
+                  checked={hydrated && s.flags.demoCamera}
+                  onChange={(v) => actions.setFlag("demoCamera", v)}
+                />
+                <Toggle
                   label="Next photo can't be read"
                   help="One time"
                   checked={hydrated && s.flags.nextPhotoUnreadable}

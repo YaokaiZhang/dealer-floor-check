@@ -197,6 +197,18 @@ function VerifierCard({ alert, now }: { alert: Alert; now: number }) {
                   <>
                     <dt className="tag-text text-ash-700">VIN read</dt>
                     <dd className="font-mono">{v.photo.readVin ?? "unreadable"} · {v.photo.vinMatch}</dd>
+                    {v.photo.plate && (
+                      <>
+                        <dt className="tag-text text-ash-700">Plate read</dt>
+                        <dd className="font-mono">{v.photo.plate.read ?? "unreadable"} · {v.photo.plate.match ? "match" : "mismatch"}</dd>
+                      </>
+                    )}
+                    {v.photo.odometer && (
+                      <>
+                        <dt className="tag-text text-ash-700">Odometer</dt>
+                        <dd className="font-mono">{v.photo.odometer.readKm != null ? `${v.photo.odometer.readKm.toLocaleString("en")} km` : "unreadable"}{v.photo.odometer.plausible ? "" : " · implausible"}</dd>
+                      </>
+                    )}
                     <dt className="tag-text text-ash-700">Photo reuse</dt>
                     <dd className="font-mono">{v.photo.reuse.duplicate ? "DUPLICATE" : `none (nearest ${v.photo.reuse.nearestDistance} bits)`}</dd>
                   </>
@@ -248,7 +260,7 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
       {r && "skipped" in r && <p className="mt-2 text-sm">Dealer skipped this car.</p>}
       {photo && (
         <p className="mt-2 text-sm">
-          VIN {photo.vinMatch.replace("_", " ")} ({Math.round(photo.confidence * 100)}%) · {photo.location ? (photo.location.inside ? "on the lot" : `${formatDistance(photo.location.distanceM)} away`) : "no location"} · {photo.verified ? "verified ✓" : "not verified"}
+          VIN {photo.vinMatch.replace("_", " ")} ({Math.round(photo.confidence * 100)}%){photo.plate ? ` · plate ${photo.plate.match ? "✓" : "✗"}` : ""}{photo.odometer ? ` · odometer ${photo.odometer.plausible ? "✓" : "✗"}` : ""} · {photo.location ? (photo.location.inside ? "on the lot" : `${formatDistance(photo.location.distanceM)} away`) : "no location"} · {photo.verified ? "verified ✓" : "not verified"}
         </p>
       )}
     </div>
