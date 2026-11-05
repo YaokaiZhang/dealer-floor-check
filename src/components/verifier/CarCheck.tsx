@@ -13,6 +13,7 @@ const NOT_FOUND_REASONS = [
   "Staff don't know where it is",
   "Couldn't get access to the lot",
 ];
+const OTHER = "Other";
 
 export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
   visit: SpotCheck;
@@ -29,7 +30,11 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [reason, setReason] = useState<string | null>(existing?.status === "missing" ? existing.reason ?? null : null);
+  const saved = existing?.status === "missing" ? existing.reason ?? null : null;
+  const savedIsOther = saved != null && !NOT_FOUND_REASONS.includes(saved);
+  const [reason, setReason] = useState<string | null>(savedIsOther ? OTHER : saved);
+  const [otherText, setOtherText] = useState(savedIsOther ? saved : "");
+  const finalReason = reason === OTHER ? otherText.trim() : reason;
   const photo = existing?.status === "found" ? existing.photo : undefined;
 
   const onShots = async (shots: Shots, positions: Fix[], simulated: boolean) => {
@@ -128,14 +133,25 @@ export function CarCheck({ visit, dealer, car, s, next, onNext, onBack }: {
             <fieldset>
               <legend className="text-sm text-ash-700">What did staff tell you?</legend>
               <div className="mt-2 space-y-2">
-                {NOT_FOUND_REASONS.map((r) => (
+                {[...NOT_FOUND_REASONS, OTHER].map((r) => (
                   <label key={r} className={`flex min-h-13 cursor-pointer items-center gap-3 border border-line px-3 py-2 text-base transition-colors ${reason === r ? "bg-brand" : "hover:bg-brand-soft"}`}>
                     <input type="radio" name="reason" className="size-4 accent-ink" checked={reason === r} onChange={() => setReason(r)} />
                     {r}
                   </label>
                 ))}
+                {reason === OTHER && (
+                  <textarea
+                    autoFocus
+                    rows={2}
+                    value={otherText}
+                    onChange={(e) => setOtherText(e.target.value)}
+                    aria-label="What happened?"
+                    placeholder="What happened?"
+                    className="block w-full resize-none border border-line px-3 py-2.5 text-base placeholder:text-ash-500 focus:border-brand-deep focus:outline-none"
+                  />
+                )}
               </div>
-              <Button arrow className="mt-4 min-h-14 w-full text-base" disabled={!reason} onClick={() => { actions.verifierCar(visit.id, car.vin, { status: "missing", reason: reason ?? undefined }); onBack(); }}>
+              <Button arrow className="mt-4 min-h-14 w-full text-base" disabled={!finalReason} onClick={() => { actions.verifierCar(visit.id, car.vin, { status: "missing", reason: finalReason ?? undefined }); onBack(); }}>
                 Mark as not here
               </Button>
             </fieldset>
