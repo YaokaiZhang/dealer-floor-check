@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/*
+ * Visual language: editorial black & white, lavender brand colour, a lime spark,
+ * hairline black borders, square corners, uppercase condensed display type,
+ * small bordered mono tags, soft drop shadows and marquee bands.
+ */
+@theme {
+  --color-ink: #000000;
+  --color-paper: #ffffff;
+  --color-mist: #f5f5f5;
+  --color-ash-100: #ececec;
+  --color-ash-300: #c8c8c8;
+  --color-ash-500: #8a8a8a;
+  --color-ash-700: #4d4d4d;
+  --color-brand: #a29aff;        /* lavender: fills, bands, highlights (never small text on white) */
+  --color-brand-soft: #e6e3ff;
+  --color-brand-deep: #5b4fe0;   /* lavender text/links on white */
+  --color-lime: #c4ff0d;         /* spark: success, "verified", the one thing to look at */
+  --color-high: #ff4f3f;
+  --color-high-soft: #ffe3df;
+  --color-medium: #ffb020;
+  --color-medium-soft: #fff1d6;
+  --color-low: #a29aff;
+  --color-low-soft: #eeecff;
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), var(--font-body), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  --shadow-card: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
+  --shadow-lift: 0 10px 24px -6px rgba(0, 0, 0, 0.25);
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-rise: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+
+  @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Typographic roles */
+@utility display-2xl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 0.92; letter-spacing: -0.01em; font-size: clamp(2.6rem, 6vw, 5.5rem); }
+@utility display-xl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 0.95; letter-spacing: -0.005em; font-size: clamp(2rem, 4vw, 3.4rem); }
+@utility display-lg { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1; font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+@utility display-md { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; line-height: 1.05; font-size: 1.25rem; }
+@utility tag-text { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; }
+@utility figure { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 0.95; }
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-deep);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

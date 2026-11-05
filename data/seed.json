@@ -1,0 +1,3264 @@
+{
+  "generatedAt": "2026-11-05",
+  "dealers": [
+    {
+      "id": "d1",
+      "name": "Laakso Autot",
+      "city": "Tampere",
+      "geofence": {
+        "lat": 61.4851,
+        "lng": 23.7615,
+        "radiusM": 450
+      },
+      "creditLine": 1600000,
+      "tier": "Gold",
+      "contact": "Mikko Laakso",
+      "history": [
+        {
+          "id": "d1-h0",
+          "date": "2025-11-12",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "5 of 5 cars verified"
+        },
+        {
+          "id": "d1-h1",
+          "date": "2026-02-03",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "4 of 4 cars verified"
+        },
+        {
+          "id": "d1-h2",
+          "date": "2026-03-20",
+          "kind": "tier_change",
+          "outcome": "info",
+          "note": "Moved up to Gold tier after 6 clean check-ins"
+        },
+        {
+          "id": "d1-h3",
+          "date": "2026-05-28",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "4 of 4 cars verified"
+        },
+        {
+          "id": "d1-h4",
+          "date": "2026-08-19",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "5 of 5 cars verified"
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "name": "Koskinen Car Center",
+      "city": "Vantaa",
+      "geofence": {
+        "lat": 60.2934,
+        "lng": 25.0378,
+        "radiusM": 600
+      },
+      "creditLine": 1250000,
+      "tier": "Silver",
+      "contact": "Anna Koskinen",
+      "history": [
+        {
+          "id": "d2-h0",
+          "date": "2025-12-04",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "7 of 7 cars verified"
+        },
+        {
+          "id": "d2-h1",
+          "date": "2026-03-11",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "6 of 6 cars verified"
+        },
+        {
+          "id": "d2-h2",
+          "date": "2026-06-17",
+          "kind": "tier_change",
+          "outcome": "info",
+          "note": "Moved up to Silver tier"
+        },
+        {
+          "id": "d2-h3",
+          "date": "2026-09-02",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "6 of 6 cars verified"
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "name": "Revontuli Motors",
+      "city": "Oulu",
+      "geofence": {
+        "lat": 65.0121,
+        "lng": 25.4651,
+        "radiusM": 500
+      },
+      "creditLine": 780000,
+      "tier": "Standard",
+      "contact": "Joonas Heikkinen",
+      "history": [
+        {
+          "id": "d3-h0",
+          "date": "2026-04-14",
+          "kind": "onboarding",
+          "outcome": "info",
+          "note": "Onboarded, connected-car consent given"
+        },
+        {
+          "id": "d3-h1",
+          "date": "2026-06-30",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "8 of 8 cars verified"
+        },
+        {
+          "id": "d3-h2",
+          "date": "2026-09-22",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "7 of 7 cars verified"
+        }
+      ]
+    },
+    {
+      "id": "d4",
+      "name": "Saimaa Auto",
+      "city": "Lappeenranta",
+      "geofence": {
+        "lat": 61.0587,
+        "lng": 28.1887,
+        "radiusM": 400
+      },
+      "creditLine": 640000,
+      "tier": "Standard",
+      "contact": "Petri Rantanen",
+      "history": [
+        {
+          "id": "d4-h0",
+          "date": "2025-10-08",
+          "kind": "check_in",
+          "outcome": "failed",
+          "note": "1 car not found, later explained as test drive"
+        },
+        {
+          "id": "d4-h1",
+          "date": "2026-01-21",
+          "kind": "check_in",
+          "outcome": "skipped",
+          "note": "Check-in not completed, rescheduled"
+        },
+        {
+          "id": "d4-h2",
+          "date": "2026-03-04",
+          "kind": "alert",
+          "outcome": "resolved",
+          "note": "Marketplace listing removed, car paid off 9 days late"
+        },
+        {
+          "id": "d4-h3",
+          "date": "2026-05-13",
+          "kind": "tier_change",
+          "outcome": "info",
+          "note": "Moved down to Standard after late payoff"
+        },
+        {
+          "id": "d4-h4",
+          "date": "2026-07-29",
+          "kind": "check_in",
+          "outcome": "clean",
+          "note": "9 of 9 cars verified"
+        }
+      ]
+    }
+  ],
+  "cars": [
+    {
+      "vin": "YV1UGXAR9LS276764",
+      "dealerId": "d1",
+      "make": "Volvo",
+      "model": "V60",
+      "year": 2020,
+      "color": "White",
+      "plate": "ZAN-46",
+      "loanAmount": 24100,
+      "loanOpenedAt": "2026-05-19",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1ZXFBH0NZ466338",
+      "dealerId": "d1",
+      "make": "Volvo",
+      "model": "XC60",
+      "year": 2022,
+      "color": "Black",
+      "plate": "BJG-637",
+      "loanAmount": 25300,
+      "loanOpenedAt": "2026-10-07",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAPKZZX5PH624625",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2023,
+      "color": "Blue",
+      "plate": "JUY-485",
+      "loanAmount": 30900,
+      "loanOpenedAt": "2026-02-25",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDGSEGZ2PP673111",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2023,
+      "color": "Dark grey",
+      "plate": "ETB-409",
+      "loanAmount": 33500,
+      "loanOpenedAt": "2026-06-18",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "5YJDTJYA5MN132101",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2021,
+      "color": "Blue",
+      "plate": "MRO-655",
+      "loanAmount": 25800,
+      "loanOpenedAt": "2026-01-07",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDKWGRT4MB337357",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "year": 2021,
+      "color": "Dark grey",
+      "plate": "PVC-145",
+      "loanAmount": 27100,
+      "loanOpenedAt": "2026-10-23",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWKEPKY8SS073307",
+      "dealerId": "d1",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2025,
+      "color": "Dark grey",
+      "plate": "GXU-535",
+      "loanAmount": 41200,
+      "loanOpenedAt": "2026-07-23",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJWXWEG0PT876286",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2023,
+      "color": "Black",
+      "plate": "OVY-772",
+      "loanAmount": 27100,
+      "loanOpenedAt": "2026-03-07",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDXXGXWXPM614795",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2023,
+      "color": "White",
+      "plate": "ZGL-680",
+      "loanAmount": 33300,
+      "loanOpenedAt": "2026-04-02",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAWAGZE4TM867040",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2026,
+      "color": "Dark grey",
+      "plate": "LPI-852",
+      "loanAmount": 39700,
+      "loanOpenedAt": "2026-10-12",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAJKWMA8TZ129752",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2026,
+      "color": "Silver",
+      "plate": "LEY-662",
+      "loanAmount": 36900,
+      "loanOpenedAt": "2026-06-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWVGBZG6NR863109",
+      "dealerId": "d1",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2022,
+      "color": "Red",
+      "plate": "RIH-963",
+      "loanAmount": 33200,
+      "loanOpenedAt": "2026-10-03",
+      "status": "sold_paid",
+      "connected": true
+    },
+    {
+      "vin": "5YJTLVTE0ML663263",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2021,
+      "color": "Blue",
+      "plate": "TFH-112",
+      "loanAmount": 25600,
+      "loanOpenedAt": "2026-08-11",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDVMFZZ9PB692045",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2023,
+      "color": "Blue",
+      "plate": "CVP-634",
+      "loanAmount": 34800,
+      "loanOpenedAt": "2026-01-22",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "5YJATWWV5PP539124",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2023,
+      "color": "Green",
+      "plate": "VHU-22",
+      "loanAmount": 31900,
+      "loanOpenedAt": "2026-01-25",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "YV1JPUSX0PF307333",
+      "dealerId": "d1",
+      "make": "Volvo",
+      "model": "XC40",
+      "year": 2023,
+      "color": "Dark grey",
+      "plate": "XNP-274",
+      "loanAmount": 26600,
+      "loanOpenedAt": "2026-09-12",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "5YJARGSH1NJ415128",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2022,
+      "color": "Red",
+      "plate": "MEP-632",
+      "loanAmount": 25400,
+      "loanOpenedAt": "2026-09-01",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNAGTARX3LY065469",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2020,
+      "color": "Green",
+      "plate": "TNI-530",
+      "loanAmount": 22700,
+      "loanOpenedAt": "2026-09-05",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAYZALV6PH194256",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2023,
+      "color": "Silver",
+      "plate": "JEJ-552",
+      "loanAmount": 35700,
+      "loanOpenedAt": "2026-08-25",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBBUYCE2NF228606",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Superb",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "BRT-879",
+      "loanAmount": 29400,
+      "loanOpenedAt": "2026-09-27",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBATFBTN5PR010668",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2023,
+      "color": "Green",
+      "plate": "LRI-264",
+      "loanAmount": 27300,
+      "loanOpenedAt": "2026-07-09",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WVWNFMMMXNY533118",
+      "dealerId": "d1",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2022,
+      "color": "Dark grey",
+      "plate": "TAE-275",
+      "loanAmount": 25300,
+      "loanOpenedAt": "2026-03-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAFSLWV5LU696664",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2020,
+      "color": "Red",
+      "plate": "BOT-324",
+      "loanAmount": 20900,
+      "loanOpenedAt": "2026-09-21",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBRKDZJ7KT738478",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Octavia Combi",
+      "year": 2019,
+      "color": "Red",
+      "plate": "JUK-24",
+      "loanAmount": 16200,
+      "loanOpenedAt": "2026-06-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAJEMDT5MJ542290",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2021,
+      "color": "Black",
+      "plate": "GVM-17",
+      "loanAmount": 24200,
+      "loanOpenedAt": "2026-09-18",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1LFLKT9TM176024",
+      "dealerId": "d1",
+      "make": "Volvo",
+      "model": "XC40",
+      "year": 2026,
+      "color": "Dark grey",
+      "plate": "OGR-588",
+      "loanAmount": 45300,
+      "loanOpenedAt": "2026-07-26",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAYAGNZ3NR720022",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2022,
+      "color": "Dark grey",
+      "plate": "TYH-23",
+      "loanAmount": 27200,
+      "loanOpenedAt": "2026-05-19",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNAAECGK2LC242223",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Ceed SW",
+      "year": 2020,
+      "color": "Dark grey",
+      "plate": "UGM-493",
+      "loanAmount": 18800,
+      "loanOpenedAt": "2026-07-07",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDMKFHM7TK373678",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "year": 2026,
+      "color": "Blue",
+      "plate": "YAZ-596",
+      "loanAmount": 49600,
+      "loanOpenedAt": "2026-08-01",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBZBCEB0MY295850",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Kodiaq",
+      "year": 2021,
+      "color": "Silver",
+      "plate": "VCC-608",
+      "loanAmount": 24000,
+      "loanOpenedAt": "2026-10-15",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "KNATMPDW1RJ768907",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2024,
+      "color": "Blue",
+      "plate": "AYI-145",
+      "loanAmount": 33500,
+      "loanOpenedAt": "2026-01-24",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAHGWKR9KE312835",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2019,
+      "color": "White",
+      "plate": "TUG-159",
+      "loanAmount": 19400,
+      "loanOpenedAt": "2026-01-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDVMCFS9LV420027",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "C-HR",
+      "year": 2020,
+      "color": "Black",
+      "plate": "IHT-77",
+      "loanAmount": 20700,
+      "loanOpenedAt": "2026-09-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDLWAVSXTA539574",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "C-HR",
+      "year": 2026,
+      "color": "Red",
+      "plate": "SPV-88",
+      "loanAmount": 46500,
+      "loanOpenedAt": "2026-08-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBACCGX0KR416144",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Octavia Combi",
+      "year": 2019,
+      "color": "White",
+      "plate": "MIX-244",
+      "loanAmount": 17000,
+      "loanOpenedAt": "2026-05-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBMYBGV6LD774919",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Superb",
+      "year": 2020,
+      "color": "White",
+      "plate": "FUB-736",
+      "loanAmount": 23700,
+      "loanOpenedAt": "2026-01-17",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDHARNS3LN225390",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "C-HR",
+      "year": 2020,
+      "color": "Black",
+      "plate": "ZHT-177",
+      "loanAmount": 20700,
+      "loanOpenedAt": "2026-02-19",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDGTUKP8KU441376",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "year": 2019,
+      "color": "Dark grey",
+      "plate": "SXJ-284",
+      "loanAmount": 17100,
+      "loanOpenedAt": "2026-08-15",
+      "status": "sold_paid",
+      "connected": true
+    },
+    {
+      "vin": "KNARPYLD0TG530610",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2026,
+      "color": "Green",
+      "plate": "ICF-561",
+      "loanAmount": 47000,
+      "loanOpenedAt": "2026-06-19",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBANZWPX9PK280157",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2023,
+      "color": "Black",
+      "plate": "MXA-218",
+      "loanAmount": 32100,
+      "loanOpenedAt": "2026-09-25",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJLDCFP0LT423482",
+      "dealerId": "d1",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2020,
+      "color": "White",
+      "plate": "ETG-111",
+      "loanAmount": 23900,
+      "loanOpenedAt": "2026-07-09",
+      "status": "sold_paid",
+      "connected": true
+    },
+    {
+      "vin": "KNACDYGD5PS029899",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2023,
+      "color": "Silver",
+      "plate": "KOJ-305",
+      "loanAmount": 26900,
+      "loanOpenedAt": "2026-02-28",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDCLHRD8PH494192",
+      "dealerId": "d1",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2023,
+      "color": "Red",
+      "plate": "MUS-253",
+      "loanAmount": 28500,
+      "loanOpenedAt": "2026-05-05",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "TMBRVZWNXTS772322",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Octavia Combi",
+      "year": 2026,
+      "color": "Black",
+      "plate": "MBJ-724",
+      "loanAmount": 35800,
+      "loanOpenedAt": "2026-10-02",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "TMBSXGRB6LK149524",
+      "dealerId": "d1",
+      "make": "Skoda",
+      "model": "Enyaq",
+      "year": 2020,
+      "color": "Silver",
+      "plate": "VVZ-79",
+      "loanAmount": 21900,
+      "loanOpenedAt": "2026-07-03",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNACXCJE7KF232533",
+      "dealerId": "d1",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2019,
+      "color": "Silver",
+      "plate": "BRM-727",
+      "loanAmount": 17600,
+      "loanOpenedAt": "2026-05-18",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBASDBKX1RA154594",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2024,
+      "color": "Black",
+      "plate": "YZA-482",
+      "loanAmount": 36500,
+      "loanOpenedAt": "2026-08-16",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAUALUE6SA144507",
+      "dealerId": "d1",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2025,
+      "color": "Black",
+      "plate": "HYM-791",
+      "loanAmount": 37100,
+      "loanOpenedAt": "2026-10-20",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWMCZHZ6TW508202",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "Passat Variant",
+      "year": 2026,
+      "color": "White",
+      "plate": "NZG-735",
+      "loanAmount": 46800,
+      "loanOpenedAt": "2026-08-10",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNADDTTF6NR212845",
+      "dealerId": "d2",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2022,
+      "color": "Silver",
+      "plate": "RKR-197",
+      "loanAmount": 41900,
+      "loanOpenedAt": "2026-09-10",
+      "status": "in_stock",
+      "connected": true,
+      "demoScenario": "sold_out_of_trust"
+    },
+    {
+      "vin": "YV1YPPCH8KW823939",
+      "dealerId": "d2",
+      "make": "Volvo",
+      "model": "V90 Cross Country",
+      "year": 2019,
+      "color": "White",
+      "plate": "UOR-63",
+      "loanAmount": 16000,
+      "loanOpenedAt": "2026-03-21",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBANKNFV6LD047737",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2020,
+      "color": "Red",
+      "plate": "RBE-463",
+      "loanAmount": 22900,
+      "loanOpenedAt": "2026-05-10",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWVGWBF5LY432661",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "ID.4",
+      "year": 2020,
+      "color": "Silver",
+      "plate": "EHM-828",
+      "loanAmount": 20500,
+      "loanOpenedAt": "2026-05-27",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "5YJWEHZP5SB953194",
+      "dealerId": "d2",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2025,
+      "color": "Silver",
+      "plate": "FPJ-122",
+      "loanAmount": 32800,
+      "loanOpenedAt": "2026-07-16",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBRYKTZ2RC710793",
+      "dealerId": "d2",
+      "make": "Skoda",
+      "model": "Octavia Combi",
+      "year": 2024,
+      "color": "Dark grey",
+      "plate": "LJV-948",
+      "loanAmount": 33900,
+      "loanOpenedAt": "2026-07-14",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWEXUSX0LV411392",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "ID.4",
+      "year": 2020,
+      "color": "White",
+      "plate": "XKM-231",
+      "loanAmount": 24400,
+      "loanOpenedAt": "2026-01-11",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBALKFAL4MW215822",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2021,
+      "color": "Dark grey",
+      "plate": "RZU-630",
+      "loanAmount": 22000,
+      "loanOpenedAt": "2026-05-23",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WVWHPEYK3LD441152",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "Passat Variant",
+      "year": 2020,
+      "color": "Red",
+      "plate": "CSC-27",
+      "loanAmount": 19700,
+      "loanOpenedAt": "2026-06-16",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "WVWEDRJZ4NM185813",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2022,
+      "color": "Green",
+      "plate": "ARB-46",
+      "loanAmount": 27500,
+      "loanOpenedAt": "2026-10-03",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNATWKMP5NL123925",
+      "dealerId": "d2",
+      "make": "Kia",
+      "model": "Ceed SW",
+      "year": 2022,
+      "color": "Red",
+      "plate": "XMN-731",
+      "loanAmount": 24400,
+      "loanOpenedAt": "2026-01-05",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "TMBNLALY6KY959816",
+      "dealerId": "d2",
+      "make": "Skoda",
+      "model": "Superb",
+      "year": 2019,
+      "color": "Black",
+      "plate": "FEY-805",
+      "loanAmount": 17800,
+      "loanOpenedAt": "2026-06-28",
+      "status": "sold_paid",
+      "connected": true
+    },
+    {
+      "vin": "WBASVZFP4TX045776",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2026,
+      "color": "Red",
+      "plate": "OUM-899",
+      "loanAmount": 37900,
+      "loanOpenedAt": "2026-04-19",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBAUJLUA2PT079695",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2023,
+      "color": "Red",
+      "plate": "HMH-101",
+      "loanAmount": 28700,
+      "loanOpenedAt": "2026-04-01",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBASBJRD9PY184216",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2023,
+      "color": "Black",
+      "plate": "CCT-429",
+      "loanAmount": 32200,
+      "loanOpenedAt": "2026-05-06",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "WBARXBYF4KF163478",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2019,
+      "color": "Red",
+      "plate": "HHR-372",
+      "loanAmount": 19700,
+      "loanOpenedAt": "2026-07-09",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "YV1LBAXN1PT475352",
+      "dealerId": "d2",
+      "make": "Volvo",
+      "model": "V90 Cross Country",
+      "year": 2023,
+      "color": "Green",
+      "plate": "SFS-583",
+      "loanAmount": 33800,
+      "loanOpenedAt": "2026-01-01",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBANSMSC6PN883045",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2023,
+      "color": "Red",
+      "plate": "XUX-550",
+      "loanAmount": 34800,
+      "loanOpenedAt": "2026-05-27",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNAVMZCC7SE709452",
+      "dealerId": "d2",
+      "make": "Kia",
+      "model": "Ceed SW",
+      "year": 2025,
+      "color": "Blue",
+      "plate": "FHC-254",
+      "loanAmount": 33300,
+      "loanOpenedAt": "2026-06-24",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBAHXBXN9NB930340",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "PCC-892",
+      "loanAmount": 31600,
+      "loanOpenedAt": "2026-08-26",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBAGZNVKXLN036195",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "i4",
+      "year": 2020,
+      "color": "Green",
+      "plate": "VAJ-252",
+      "loanAmount": 20900,
+      "loanOpenedAt": "2026-10-14",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDYZEXE7KM536558",
+      "dealerId": "d2",
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "year": 2019,
+      "color": "Green",
+      "plate": "YFI-297",
+      "loanAmount": 16100,
+      "loanOpenedAt": "2026-06-23",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJXRZSC3LF584903",
+      "dealerId": "d2",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2020,
+      "color": "Dark grey",
+      "plate": "SGH-850",
+      "loanAmount": 21900,
+      "loanOpenedAt": "2026-08-03",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "WBAYPPFH6KF888318",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2019,
+      "color": "Silver",
+      "plate": "NHT-151",
+      "loanAmount": 20400,
+      "loanOpenedAt": "2026-07-27",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNASDAHF6LN778769",
+      "dealerId": "d2",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2020,
+      "color": "Blue",
+      "plate": "MBU-580",
+      "loanAmount": 24000,
+      "loanOpenedAt": "2026-09-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBACYKCX4KH705556",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2019,
+      "color": "Blue",
+      "plate": "SRG-907",
+      "loanAmount": 16600,
+      "loanOpenedAt": "2026-03-09",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAURGKS8NT377015",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2022,
+      "color": "Green",
+      "plate": "EBP-396",
+      "loanAmount": 27000,
+      "loanOpenedAt": "2026-08-01",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDBTSZL6LX430829",
+      "dealerId": "d2",
+      "make": "Toyota",
+      "model": "Yaris",
+      "year": 2020,
+      "color": "Black",
+      "plate": "VMV-367",
+      "loanAmount": 23700,
+      "loanOpenedAt": "2026-10-10",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBATHPPD1TZ061846",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "X1",
+      "year": 2026,
+      "color": "Dark grey",
+      "plate": "GPM-360",
+      "loanAmount": 35900,
+      "loanOpenedAt": "2026-05-26",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WVWXUNWB9RS833760",
+      "dealerId": "d2",
+      "make": "Volkswagen",
+      "model": "ID.4",
+      "year": 2024,
+      "color": "Dark grey",
+      "plate": "SYL-214",
+      "loanAmount": 38900,
+      "loanOpenedAt": "2026-01-24",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDTGEJPXKD483624",
+      "dealerId": "d2",
+      "make": "Toyota",
+      "model": "Yaris",
+      "year": 2019,
+      "color": "White",
+      "plate": "SPR-34",
+      "loanAmount": 18000,
+      "loanOpenedAt": "2026-02-14",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBMHYUM4RG642957",
+      "dealerId": "d2",
+      "make": "Skoda",
+      "model": "Enyaq",
+      "year": 2024,
+      "color": "White",
+      "plate": "IUJ-273",
+      "loanAmount": 30000,
+      "loanOpenedAt": "2026-07-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1YCZCK3TS161604",
+      "dealerId": "d2",
+      "make": "Volvo",
+      "model": "V90 Cross Country",
+      "year": 2026,
+      "color": "Green",
+      "plate": "LBZ-112",
+      "loanAmount": 40300,
+      "loanOpenedAt": "2026-10-06",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNAVFFHK9TD946282",
+      "dealerId": "d2",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2026,
+      "color": "Red",
+      "plate": "RRY-284",
+      "loanAmount": 48100,
+      "loanOpenedAt": "2026-05-17",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBAGMMDG4SK490240",
+      "dealerId": "d2",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2025,
+      "color": "Black",
+      "plate": "VXU-813",
+      "loanAmount": 35800,
+      "loanOpenedAt": "2026-04-03",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "5YJGYYMC2SY188149",
+      "dealerId": "d3",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2025,
+      "color": "Red",
+      "plate": "MAO-750",
+      "loanAmount": 38300,
+      "loanOpenedAt": "2026-02-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1HJEZB4NE355923",
+      "dealerId": "d3",
+      "make": "Volvo",
+      "model": "V90 Cross Country",
+      "year": 2022,
+      "color": "Black",
+      "plate": "NTX-566",
+      "loanAmount": 28100,
+      "loanOpenedAt": "2026-10-04",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWENRYC0LX071480",
+      "dealerId": "d3",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2020,
+      "color": "Blue",
+      "plate": "TAU-13",
+      "loanAmount": 24200,
+      "loanOpenedAt": "2026-09-28",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "5YJEUHEE2RH847859",
+      "dealerId": "d3",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2024,
+      "color": "Silver",
+      "plate": "SEJ-399",
+      "loanAmount": 31300,
+      "loanOpenedAt": "2026-02-04",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBNYFLR1SD403749",
+      "dealerId": "d3",
+      "make": "Skoda",
+      "model": "Superb",
+      "year": 2025,
+      "color": "White",
+      "plate": "SIC-306",
+      "loanAmount": 36700,
+      "loanOpenedAt": "2026-10-20",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WVWDBTNU9MG031950",
+      "dealerId": "d3",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2021,
+      "color": "Blue",
+      "plate": "OJU-757",
+      "loanAmount": 27200,
+      "loanOpenedAt": "2026-05-09",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1PPPGX1LZ815470",
+      "dealerId": "d3",
+      "make": "Volvo",
+      "model": "V60",
+      "year": 2020,
+      "color": "Green",
+      "plate": "TGK-630",
+      "loanAmount": 23700,
+      "loanOpenedAt": "2026-02-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDLVLJD7TV714328",
+      "dealerId": "d3",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2026,
+      "color": "Silver",
+      "plate": "GAS-908",
+      "loanAmount": 38900,
+      "loanOpenedAt": "2026-09-27",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAGKYHV3NT225944",
+      "dealerId": "d3",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2022,
+      "color": "Green",
+      "plate": "CCR-852",
+      "loanAmount": 24800,
+      "loanOpenedAt": "2026-02-27",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "YV1NKFML0KZ544370",
+      "dealerId": "d3",
+      "make": "Volvo",
+      "model": "XC40",
+      "year": 2019,
+      "color": "White",
+      "plate": "ECM-648",
+      "loanAmount": 19700,
+      "loanOpenedAt": "2026-08-12",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJTKJHZ2PF117493",
+      "dealerId": "d3",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2023,
+      "color": "Blue",
+      "plate": "JFC-332",
+      "loanAmount": 33600,
+      "loanOpenedAt": "2026-03-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAZNLDFXSR579258",
+      "dealerId": "d3",
+      "make": "Kia",
+      "model": "Ceed SW",
+      "year": 2025,
+      "color": "Red",
+      "plate": "AGS-631",
+      "loanAmount": 32500,
+      "loanOpenedAt": "2026-01-20",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "TMBNZZHR8NV913800",
+      "dealerId": "d3",
+      "make": "Skoda",
+      "model": "Kodiaq",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "BBN-422",
+      "loanAmount": 29100,
+      "loanOpenedAt": "2026-09-23",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJFFLWA1PB419309",
+      "dealerId": "d3",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2023,
+      "color": "Blue",
+      "plate": "RKY-32",
+      "loanAmount": 27200,
+      "loanOpenedAt": "2026-06-12",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1EFEPS0SY340367",
+      "dealerId": "d3",
+      "make": "Volvo",
+      "model": "XC60",
+      "year": 2025,
+      "color": "Red",
+      "plate": "OTA-120",
+      "loanAmount": 40200,
+      "loanOpenedAt": "2026-06-11",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAXDGLB1LK824474",
+      "dealerId": "d3",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2020,
+      "color": "Black",
+      "plate": "YYP-778",
+      "loanAmount": 23300,
+      "loanOpenedAt": "2026-04-11",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDGYFYM6LM225814",
+      "dealerId": "d3",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2020,
+      "color": "White",
+      "plate": "KYB-49",
+      "loanAmount": 23600,
+      "loanOpenedAt": "2026-09-23",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDHTNKY2PH400129",
+      "dealerId": "d3",
+      "make": "Toyota",
+      "model": "RAV4 Hybrid",
+      "year": 2023,
+      "color": "Silver",
+      "plate": "JUS-189",
+      "loanAmount": 35200,
+      "loanOpenedAt": "2026-06-25",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAHRDXM9MN454746",
+      "dealerId": "d3",
+      "make": "Kia",
+      "model": "EV6",
+      "year": 2021,
+      "color": "Silver",
+      "plate": "IAY-960",
+      "loanAmount": 24200,
+      "loanOpenedAt": "2026-03-10",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWLYFMP4LS341796",
+      "dealerId": "d3",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2020,
+      "color": "Blue",
+      "plate": "PLB-159",
+      "loanAmount": 23300,
+      "loanOpenedAt": "2026-10-02",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNALTFLN5TY230750",
+      "dealerId": "d3",
+      "make": "Kia",
+      "model": "Sportage",
+      "year": 2026,
+      "color": "Blue",
+      "plate": "EGZ-216",
+      "loanAmount": 36100,
+      "loanOpenedAt": "2026-08-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDWJLXY0NH376100",
+      "dealerId": "d3",
+      "make": "Toyota",
+      "model": "C-HR",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "OEA-191",
+      "loanAmount": 31600,
+      "loanOpenedAt": "2026-07-13",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWNRHEX9LP525666",
+      "dealerId": "d3",
+      "make": "Volkswagen",
+      "model": "ID.4",
+      "year": 2020,
+      "color": "White",
+      "plate": "BZS-781",
+      "loanAmount": 19400,
+      "loanOpenedAt": "2026-02-05",
+      "status": "sold_paid",
+      "connected": false
+    },
+    {
+      "vin": "5YJTEHCNXSK380576",
+      "dealerId": "d3",
+      "make": "Tesla",
+      "model": "Model 3",
+      "year": 2025,
+      "color": "Dark grey",
+      "plate": "THE-253",
+      "loanAmount": 32400,
+      "loanOpenedAt": "2026-05-01",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWAWDCB6TB042737",
+      "dealerId": "d3",
+      "make": "Volkswagen",
+      "model": "ID.4",
+      "year": 2026,
+      "color": "Black",
+      "plate": "OGX-680",
+      "loanAmount": 47900,
+      "loanOpenedAt": "2026-02-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAPGPNF2LK765524",
+      "dealerId": "d3",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2020,
+      "color": "Black",
+      "plate": "TOZ-118",
+      "loanAmount": 22800,
+      "loanOpenedAt": "2026-06-16",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "YV1SHYVF3NV355827",
+      "dealerId": "d4",
+      "make": "Volvo",
+      "model": "XC40",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "EJA-252",
+      "loanAmount": 27000,
+      "loanOpenedAt": "2026-07-02",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WVWEYKCT2LF517737",
+      "dealerId": "d4",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2020,
+      "color": "Dark grey",
+      "plate": "IEP-567",
+      "loanAmount": 21900,
+      "loanOpenedAt": "2026-04-06",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDLMWGFXNY730439",
+      "dealerId": "d4",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2022,
+      "color": "Silver",
+      "plate": "PES-70",
+      "loanAmount": 30600,
+      "loanOpenedAt": "2026-05-04",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "JTDZXDYE4LZ731444",
+      "dealerId": "d4",
+      "make": "Toyota",
+      "model": "C-HR",
+      "year": 2020,
+      "color": "Black",
+      "plate": "PVZ-652",
+      "loanAmount": 20100,
+      "loanOpenedAt": "2026-10-03",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDTBXTE5TD152005",
+      "dealerId": "d4",
+      "make": "Toyota",
+      "model": "Corolla Touring",
+      "year": 2026,
+      "color": "Black",
+      "plate": "PNG-441",
+      "loanAmount": 41500,
+      "loanOpenedAt": "2026-03-03",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "WBAMYXEV9MH718125",
+      "dealerId": "d4",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2021,
+      "color": "Red",
+      "plate": "IZO-556",
+      "loanAmount": 22700,
+      "loanOpenedAt": "2026-08-11",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDYYNUSXLW694685",
+      "dealerId": "d4",
+      "make": "Toyota",
+      "model": "Yaris",
+      "year": 2020,
+      "color": "Blue",
+      "plate": "KOH-756",
+      "loanAmount": 21100,
+      "loanOpenedAt": "2026-02-09",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "YV1VMXMR8NB351868",
+      "dealerId": "d4",
+      "make": "Volvo",
+      "model": "V90 Cross Country",
+      "year": 2022,
+      "color": "Blue",
+      "plate": "RSA-380",
+      "loanAmount": 24200,
+      "loanOpenedAt": "2026-09-18",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBANHLPJ5PA241522",
+      "dealerId": "d4",
+      "make": "BMW",
+      "model": "320d Touring",
+      "year": 2023,
+      "color": "White",
+      "plate": "GCZ-317",
+      "loanAmount": 31600,
+      "loanOpenedAt": "2026-07-08",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNAEKXYA1RM433772",
+      "dealerId": "d4",
+      "make": "Kia",
+      "model": "EV6",
+      "year": 2024,
+      "color": "Silver",
+      "plate": "FRY-558",
+      "loanAmount": 36300,
+      "loanOpenedAt": "2026-03-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "5YJLTBPE3TW485337",
+      "dealerId": "d4",
+      "make": "Tesla",
+      "model": "Model Y",
+      "year": 2026,
+      "color": "White",
+      "plate": "MEN-651",
+      "loanAmount": 40600,
+      "loanOpenedAt": "2026-06-26",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWAFDHGXPH063159",
+      "dealerId": "d4",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2023,
+      "color": "Black",
+      "plate": "STV-951",
+      "loanAmount": 26800,
+      "loanOpenedAt": "2026-08-28",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWPLXJK7LY151258",
+      "dealerId": "d4",
+      "make": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2020,
+      "color": "Black",
+      "plate": "XHX-413",
+      "loanAmount": 20400,
+      "loanOpenedAt": "2026-09-19",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBBBPUN3PT746386",
+      "dealerId": "d4",
+      "make": "Skoda",
+      "model": "Superb",
+      "year": 2023,
+      "color": "Silver",
+      "plate": "REX-605",
+      "loanAmount": 28800,
+      "loanOpenedAt": "2026-06-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAFEMYU9KD592081",
+      "dealerId": "d4",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2019,
+      "color": "Red",
+      "plate": "YIH-297",
+      "loanAmount": 17000,
+      "loanOpenedAt": "2026-09-17",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "JTDUAHDP3PL374454",
+      "dealerId": "d4",
+      "make": "Toyota",
+      "model": "Yaris",
+      "year": 2023,
+      "color": "Green",
+      "plate": "YIK-370",
+      "loanAmount": 27400,
+      "loanOpenedAt": "2026-10-01",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WVWYAUJG0LB886333",
+      "dealerId": "d4",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2020,
+      "color": "Blue",
+      "plate": "AZV-50",
+      "loanAmount": 23200,
+      "loanOpenedAt": "2026-06-23",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "TMBJTADX4MW033174",
+      "dealerId": "d4",
+      "make": "Skoda",
+      "model": "Octavia Combi",
+      "year": 2021,
+      "color": "Blue",
+      "plate": "SGE-907",
+      "loanAmount": 25800,
+      "loanOpenedAt": "2026-08-28",
+      "status": "in_stock",
+      "connected": true
+    },
+    {
+      "vin": "KNACWCHNXSM499704",
+      "dealerId": "d4",
+      "make": "Kia",
+      "model": "Ceed SW",
+      "year": 2025,
+      "color": "Silver",
+      "plate": "GOM-150",
+      "loanAmount": 41700,
+      "loanOpenedAt": "2026-09-24",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBAPFRWFXPM692815",
+      "dealerId": "d4",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2023,
+      "color": "Silver",
+      "plate": "HBZ-229",
+      "loanAmount": 32700,
+      "loanOpenedAt": "2026-07-15",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "KNATZXSP7SK486445",
+      "dealerId": "d4",
+      "make": "Kia",
+      "model": "Niro EV",
+      "year": 2025,
+      "color": "Dark grey",
+      "plate": "EFG-774",
+      "loanAmount": 41400,
+      "loanOpenedAt": "2026-10-12",
+      "status": "in_stock",
+      "connected": false
+    },
+    {
+      "vin": "WBADWKTU1TN243623",
+      "dealerId": "d4",
+      "make": "BMW",
+      "model": "530e",
+      "year": 2026,
+      "color": "Silver",
+      "plate": "NGF-845",
+      "loanAmount": 35000,
+      "loanOpenedAt": "2026-01-08",
+      "status": "in_stock",
+      "connected": false
+    }
+  ],
+  "feeds": {
+    "connected": {
+      "WBAPKZZX5PH624625": {
+        "lat": 61.48528,
+        "lng": 23.75798,
+        "odometerKm": 10421,
+        "lastSeenHoursAgo": 0.6
+      },
+      "JTDGSEGZ2PP673111": {
+        "lat": 61.4831,
+        "lng": 23.76014,
+        "odometerKm": 10626,
+        "lastSeenHoursAgo": 3.5
+      },
+      "5YJDTJYA5MN132101": {
+        "lat": 61.48448,
+        "lng": 23.76374,
+        "odometerKm": 48690,
+        "lastSeenHoursAgo": 0.9
+      },
+      "5YJWXWEG0PT876286": {
+        "lat": 61.48452,
+        "lng": 23.76176,
+        "odometerKm": 42785,
+        "lastSeenHoursAgo": 4.7
+      },
+      "WVWVGBZG6NR863109": {
+        "lat": 61.48512,
+        "lng": 23.76201,
+        "odometerKm": 37852,
+        "lastSeenHoursAgo": 5.6
+      },
+      "5YJTLVTE0ML663263": {
+        "lat": 61.48413,
+        "lng": 23.76228,
+        "odometerKm": 81612,
+        "lastSeenHoursAgo": 2.5
+      },
+      "JTDVMFZZ9PB692045": {
+        "lat": 61.4843,
+        "lng": 23.76072,
+        "odometerKm": 79410,
+        "lastSeenHoursAgo": 5.1
+      },
+      "5YJATWWV5PP539124": {
+        "lat": 61.48636,
+        "lng": 23.76465,
+        "odometerKm": 77323,
+        "lastSeenHoursAgo": 4.8
+      },
+      "YV1JPUSX0PF307333": {
+        "lat": 61.48459,
+        "lng": 23.76207,
+        "odometerKm": 82138,
+        "lastSeenHoursAgo": 4.9
+      },
+      "5YJARGSH1NJ415128": {
+        "lat": 61.48385,
+        "lng": 23.76604,
+        "odometerKm": 45152,
+        "lastSeenHoursAgo": 0.8
+      },
+      "WBATFBTN5PR010668": {
+        "lat": 61.48343,
+        "lng": 23.76499,
+        "odometerKm": 34864,
+        "lastSeenHoursAgo": 4.4
+      },
+      "KNAYAGNZ3NR720022": {
+        "lat": 61.48654,
+        "lng": 23.76615,
+        "odometerKm": 19517,
+        "lastSeenHoursAgo": 0.6
+      },
+      "JTDHARNS3LN225390": {
+        "lat": 61.48561,
+        "lng": 23.76521,
+        "odometerKm": 10706,
+        "lastSeenHoursAgo": 1.9
+      },
+      "JTDGTUKP8KU441376": {
+        "lat": 61.48713,
+        "lng": 23.76003,
+        "odometerKm": 40282,
+        "lastSeenHoursAgo": 1.7
+      },
+      "5YJLDCFP0LT423482": {
+        "lat": 61.48313,
+        "lng": 23.76143,
+        "odometerKm": 17902,
+        "lastSeenHoursAgo": 2.5
+      },
+      "JTDCLHRD8PH494192": {
+        "lat": 61.48623,
+        "lng": 23.76138,
+        "odometerKm": 18739,
+        "lastSeenHoursAgo": 3.3
+      },
+      "TMBRVZWNXTS772322": {
+        "lat": 61.48708,
+        "lng": 23.75825,
+        "odometerKm": 74879,
+        "lastSeenHoursAgo": 0.2
+      },
+      "TMBSXGRB6LK149524": {
+        "lat": 61.48594,
+        "lng": 23.76353,
+        "odometerKm": 50224,
+        "lastSeenHoursAgo": 2.8
+      },
+      "KNACXCJE7KF232533": {
+        "lat": 61.48677,
+        "lng": 23.76526,
+        "odometerKm": 84045,
+        "lastSeenHoursAgo": 3
+      },
+      "KNADDTTF6NR212845": {
+        "lat": 60.29392,
+        "lng": 25.03875,
+        "odometerKm": 83437,
+        "lastSeenHoursAgo": 5.2
+      },
+      "YV1YPPCH8KW823939": {
+        "lat": 60.29288,
+        "lng": 25.03111,
+        "odometerKm": 32056,
+        "lastSeenHoursAgo": 2
+      },
+      "WVWEXUSX0LV411392": {
+        "lat": 60.294,
+        "lng": 25.04463,
+        "odometerKm": 75582,
+        "lastSeenHoursAgo": 2.8
+      },
+      "WBALKFAL4MW215822": {
+        "lat": 60.2922,
+        "lng": 25.03377,
+        "odometerKm": 5155,
+        "lastSeenHoursAgo": 5.6
+      },
+      "KNATWKMP5NL123925": {
+        "lat": 60.29351,
+        "lng": 25.0386,
+        "odometerKm": 59911,
+        "lastSeenHoursAgo": 2.8
+      },
+      "TMBNLALY6KY959816": {
+        "lat": 60.29591,
+        "lng": 25.03798,
+        "odometerKm": 76832,
+        "lastSeenHoursAgo": 6
+      },
+      "WBASVZFP4TX045776": {
+        "lat": 60.29328,
+        "lng": 25.03776,
+        "odometerKm": 71587,
+        "lastSeenHoursAgo": 2.5
+      },
+      "WBARXBYF4KF163478": {
+        "lat": 60.29495,
+        "lng": 25.03829,
+        "odometerKm": 36029,
+        "lastSeenHoursAgo": 2.9
+      },
+      "YV1LBAXN1PT475352": {
+        "lat": 60.29325,
+        "lng": 25.04127,
+        "odometerKm": 47759,
+        "lastSeenHoursAgo": 3.1
+      },
+      "WBANSMSC6PN883045": {
+        "lat": 60.29175,
+        "lng": 25.04291,
+        "odometerKm": 3901,
+        "lastSeenHoursAgo": 3.5
+      },
+      "KNAVMZCC7SE709452": {
+        "lat": 60.29159,
+        "lng": 25.04133,
+        "odometerKm": 67451,
+        "lastSeenHoursAgo": 1.7
+      },
+      "WBAHXBXN9NB930340": {
+        "lat": 60.29697,
+        "lng": 25.04,
+        "odometerKm": 28794,
+        "lastSeenHoursAgo": 4.4
+      },
+      "WBAGZNVKXLN036195": {
+        "lat": 60.29046,
+        "lng": 25.0418,
+        "odometerKm": 43792,
+        "lastSeenHoursAgo": 2.4
+      },
+      "WBAYPPFH6KF888318": {
+        "lat": 60.29425,
+        "lng": 25.03137,
+        "odometerKm": 4068,
+        "lastSeenHoursAgo": 3.3
+      },
+      "WBAURGKS8NT377015": {
+        "lat": 60.29301,
+        "lng": 25.03664,
+        "odometerKm": 82573,
+        "lastSeenHoursAgo": 0.8
+      },
+      "WBATHPPD1TZ061846": {
+        "lat": 60.2913,
+        "lng": 25.03894,
+        "odometerKm": 29806,
+        "lastSeenHoursAgo": 2.8
+      },
+      "YV1YCZCK3TS161604": {
+        "lat": 60.29484,
+        "lng": 25.03612,
+        "odometerKm": 40254,
+        "lastSeenHoursAgo": 4.8
+      },
+      "KNAVFFHK9TD946282": {
+        "lat": 60.29372,
+        "lng": 25.03316,
+        "odometerKm": 1168,
+        "lastSeenHoursAgo": 2.7
+      },
+      "WBAGMMDG4SK490240": {
+        "lat": 60.29221,
+        "lng": 25.04271,
+        "odometerKm": 74425,
+        "lastSeenHoursAgo": 0.4
+      },
+      "WVWENRYC0LX071480": {
+        "lat": 65.01189,
+        "lng": 25.46623,
+        "odometerKm": 80375,
+        "lastSeenHoursAgo": 1.5
+      },
+      "TMBNYFLR1SD403749": {
+        "lat": 65.01189,
+        "lng": 25.46249,
+        "odometerKm": 44811,
+        "lastSeenHoursAgo": 1.2
+      },
+      "KNAGKYHV3NT225944": {
+        "lat": 65.01116,
+        "lng": 25.46074,
+        "odometerKm": 25821,
+        "lastSeenHoursAgo": 1.7
+      },
+      "KNAZNLDFXSR579258": {
+        "lat": 65.01024,
+        "lng": 25.46358,
+        "odometerKm": 91490,
+        "lastSeenHoursAgo": 5
+      },
+      "JTDGYFYM6LM225814": {
+        "lat": 65.0122,
+        "lng": 25.46614,
+        "odometerKm": 66881,
+        "lastSeenHoursAgo": 4.2
+      },
+      "YV1SHYVF3NV355827": {
+        "lat": 61.05919,
+        "lng": 28.18799,
+        "odometerKm": 39684,
+        "lastSeenHoursAgo": 5.8
+      },
+      "JTDLMWGFXNY730439": {
+        "lat": 61.05975,
+        "lng": 28.18945,
+        "odometerKm": 62659,
+        "lastSeenHoursAgo": 5.2
+      },
+      "JTDTBXTE5TD152005": {
+        "lat": 61.05827,
+        "lng": 28.1898,
+        "odometerKm": 78845,
+        "lastSeenHoursAgo": 5.5
+      },
+      "JTDYYNUSXLW694685": {
+        "lat": 61.06028,
+        "lng": 28.19002,
+        "odometerKm": 78991,
+        "lastSeenHoursAgo": 1.9
+      },
+      "TMBJTADX4MW033174": {
+        "lat": 61.05851,
+        "lng": 28.18668,
+        "odometerKm": 43393,
+        "lastSeenHoursAgo": 2.4
+      }
+    },
+    "marketplace": {
+      "YV1UGXAR9LS276764": {
+        "listed": false,
+        "status": "active"
+      },
+      "YV1ZXFBH0NZ466338": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAPKZZX5PH624625": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDGSEGZ2PP673111": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJDTJYA5MN132101": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDKWGRT4MB337357": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWKEPKY8SS073307": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJWXWEG0PT876286": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDXXGXWXPM614795": {
+        "listed": false,
+        "status": "active"
+      },
+      "KNAWAGZE4TM867040": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAJKWMA8TZ129752": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWVGBZG6NR863109": {
+        "listed": false,
+        "status": "sold"
+      },
+      "5YJTLVTE0ML663263": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDVMFZZ9PB692045": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJATWWV5PP539124": {
+        "listed": false,
+        "status": "active"
+      },
+      "YV1JPUSX0PF307333": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJARGSH1NJ415128": {
+        "listed": false,
+        "status": "active"
+      },
+      "KNAGTARX3LY065469": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAYZALV6PH194256": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBBUYCE2NF228606": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBATFBTN5PR010668": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWNFMMMXNY533118": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAFSLWV5LU696664": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBRKDZJ7KT738478": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAJEMDT5MJ542290": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1LFLKT9TM176024": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAYAGNZ3NR720022": {
+        "listed": false,
+        "status": "active"
+      },
+      "KNAAECGK2LC242223": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDMKFHM7TK373678": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBZBCEB0MY295850": {
+        "listed": false,
+        "status": "sold"
+      },
+      "KNATMPDW1RJ768907": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAHGWKR9KE312835": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDVMCFS9LV420027": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDLWAVSXTA539574": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBACCGX0KR416144": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBMYBGV6LD774919": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDHARNS3LN225390": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDGTUKP8KU441376": {
+        "listed": false,
+        "status": "sold"
+      },
+      "KNARPYLD0TG530610": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBANZWPX9PK280157": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJLDCFP0LT423482": {
+        "listed": false,
+        "status": "sold"
+      },
+      "KNACDYGD5PS029899": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDCLHRD8PH494192": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBRVZWNXTS772322": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBSXGRB6LK149524": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNACXCJE7KF232533": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBASDBKX1RA154594": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAUALUE6SA144507": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWMCZHZ6TW508202": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNADDTTF6NR212845": {
+        "listed": true,
+        "status": "active",
+        "listingTitle": "Kia Niro EV, 2022, silver",
+        "price": 47900
+      },
+      "YV1YPPCH8KW823939": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBANKNFV6LD047737": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWVGWBF5LY432661": {
+        "listed": false,
+        "status": "sold"
+      },
+      "5YJWEHZP5SB953194": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBRYKTZ2RC710793": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWEXUSX0LV411392": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBALKFAL4MW215822": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWHPEYK3LD441152": {
+        "listed": false,
+        "status": "sold"
+      },
+      "WVWEDRJZ4NM185813": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNATWKMP5NL123925": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBNLALY6KY959816": {
+        "listed": false,
+        "status": "sold"
+      },
+      "WBASVZFP4TX045776": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAUJLUA2PT079695": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBASBJRD9PY184216": {
+        "listed": false,
+        "status": "sold"
+      },
+      "WBARXBYF4KF163478": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1LBAXN1PT475352": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBANSMSC6PN883045": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAVMZCC7SE709452": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAHXBXN9NB930340": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAGZNVKXLN036195": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDYZEXE7KM536558": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJXRZSC3LF584903": {
+        "listed": false,
+        "status": "sold"
+      },
+      "WBAYPPFH6KF888318": {
+        "listed": false,
+        "status": "active"
+      },
+      "KNASDAHF6LN778769": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBACYKCX4KH705556": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAURGKS8NT377015": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDBTSZL6LX430829": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBATHPPD1TZ061846": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWXUNWB9RS833760": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDTGEJPXKD483624": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBMHYUM4RG642957": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1YCZCK3TS161604": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAVFFHK9TD946282": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAGMMDG4SK490240": {
+        "listed": false,
+        "status": "active"
+      },
+      "5YJGYYMC2SY188149": {
+        "listed": false,
+        "status": "active"
+      },
+      "YV1HJEZB4NE355923": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWENRYC0LX071480": {
+        "listed": false,
+        "status": "active"
+      },
+      "5YJEUHEE2RH847859": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBNYFLR1SD403749": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWDBTNU9MG031950": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1PPPGX1LZ815470": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDLVLJD7TV714328": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAGKYHV3NT225944": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1NKFML0KZ544370": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJTKJHZ2PF117493": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAZNLDFXSR579258": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBNZZHR8NV913800": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJFFLWA1PB419309": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1EFEPS0SY340367": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAXDGLB1LK824474": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDGYFYM6LM225814": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDHTNKY2PH400129": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNAHRDXM9MN454746": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWLYFMP4LS341796": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNALTFLN5TY230750": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDWJLXY0NH376100": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWNRHEX9LP525666": {
+        "listed": false,
+        "status": "sold"
+      },
+      "5YJTEHCNXSK380576": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWAWDCB6TB042737": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAPGPNF2LK765524": {
+        "listed": true,
+        "status": "active"
+      },
+      "YV1SHYVF3NV355827": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWEYKCT2LF517737": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDLMWGFXNY730439": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDZXDYE4LZ731444": {
+        "listed": false,
+        "status": "active"
+      },
+      "JTDTBXTE5TD152005": {
+        "listed": false,
+        "status": "active"
+      },
+      "WBAMYXEV9MH718125": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDYYNUSXLW694685": {
+        "listed": false,
+        "status": "active"
+      },
+      "YV1VMXMR8NB351868": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBANHLPJ5PA241522": {
+        "listed": false,
+        "status": "active"
+      },
+      "KNAEKXYA1RM433772": {
+        "listed": true,
+        "status": "active"
+      },
+      "5YJLTBPE3TW485337": {
+        "listed": true,
+        "status": "active"
+      },
+      "WVWAFDHGXPH063159": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWPLXJK7LY151258": {
+        "listed": true,
+        "status": "active"
+      },
+      "TMBBBPUN3PT746386": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAFEMYU9KD592081": {
+        "listed": true,
+        "status": "active"
+      },
+      "JTDUAHDP3PL374454": {
+        "listed": false,
+        "status": "active"
+      },
+      "WVWYAUJG0LB886333": {
+        "listed": false,
+        "status": "active"
+      },
+      "TMBJTADX4MW033174": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNACWCHNXSM499704": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBAPFRWFXPM692815": {
+        "listed": true,
+        "status": "active"
+      },
+      "KNATZXSP7SK486445": {
+        "listed": true,
+        "status": "active"
+      },
+      "WBADWKTU1TN243623": {
+        "listed": false,
+        "status": "active"
+      }
+    },
+    "registry": {
+      "YV1UGXAR9LS276764": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-05-19"
+      },
+      "YV1ZXFBH0NZ466338": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-10-07"
+      },
+      "WBAPKZZX5PH624625": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-02-25"
+      },
+      "JTDGSEGZ2PP673111": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-06-18"
+      },
+      "5YJDTJYA5MN132101": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-07"
+      },
+      "JTDKWGRT4MB337357": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-10-23"
+      },
+      "WVWKEPKY8SS073307": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-07-23"
+      },
+      "5YJWXWEG0PT876286": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-03-07"
+      },
+      "JTDXXGXWXPM614795": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-04-02"
+      },
+      "KNAWAGZE4TM867040": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-10-12"
+      },
+      "WBAJKWMA8TZ129752": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-06-08"
+      },
+      "WVWVGBZG6NR863109": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-10"
+      },
+      "5YJTLVTE0ML663263": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-08-11"
+      },
+      "JTDVMFZZ9PB692045": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-22"
+      },
+      "5YJATWWV5PP539124": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-25"
+      },
+      "YV1JPUSX0PF307333": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-12"
+      },
+      "5YJARGSH1NJ415128": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-01"
+      },
+      "KNAGTARX3LY065469": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-05"
+      },
+      "WBAYZALV6PH194256": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-08-25"
+      },
+      "TMBBUYCE2NF228606": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-27"
+      },
+      "WBATFBTN5PR010668": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-07-09"
+      },
+      "WVWNFMMMXNY533118": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-03-06"
+      },
+      "WBAFSLWV5LU696664": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-21"
+      },
+      "TMBRKDZJ7KT738478": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-06-15"
+      },
+      "WBAJEMDT5MJ542290": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-18"
+      },
+      "YV1LFLKT9TM176024": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-07-26"
+      },
+      "KNAYAGNZ3NR720022": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-05-19"
+      },
+      "KNAAECGK2LC242223": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-07-07"
+      },
+      "JTDMKFHM7TK373678": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-08-01"
+      },
+      "TMBZBCEB0MY295850": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-11"
+      },
+      "KNATMPDW1RJ768907": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-24"
+      },
+      "KNAHGWKR9KE312835": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-08"
+      },
+      "JTDVMCFS9LV420027": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-08"
+      },
+      "JTDLWAVSXTA539574": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-08-15"
+      },
+      "TMBACCGX0KR416144": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-05-06"
+      },
+      "TMBMYBGV6LD774919": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-01-17"
+      },
+      "JTDHARNS3LN225390": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-02-19"
+      },
+      "JTDGTUKP8KU441376": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-15"
+      },
+      "KNARPYLD0TG530610": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-06-19"
+      },
+      "WBANZWPX9PK280157": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-09-25"
+      },
+      "5YJLDCFP0LT423482": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-19"
+      },
+      "KNACDYGD5PS029899": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-02-28"
+      },
+      "JTDCLHRD8PH494192": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-05-05"
+      },
+      "TMBRVZWNXTS772322": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-10-02"
+      },
+      "TMBSXGRB6LK149524": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-07-03"
+      },
+      "KNACXCJE7KF232533": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-05-18"
+      },
+      "WBASDBKX1RA154594": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-08-16"
+      },
+      "WBAUALUE6SA144507": {
+        "owner": "Laakso Autot",
+        "lastOwnerChange": "2026-10-20"
+      },
+      "WVWMCZHZ6TW508202": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-08-10"
+      },
+      "KNADDTTF6NR212845": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-09-10"
+      },
+      "YV1YPPCH8KW823939": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-03-21"
+      },
+      "WBANKNFV6LD047737": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-05-10"
+      },
+      "WVWVGWBF5LY432661": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-10"
+      },
+      "5YJWEHZP5SB953194": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-07-16"
+      },
+      "TMBRYKTZ2RC710793": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-07-14"
+      },
+      "WVWEXUSX0LV411392": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-01-11"
+      },
+      "WBALKFAL4MW215822": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-05-23"
+      },
+      "WVWHPEYK3LD441152": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-15"
+      },
+      "WVWEDRJZ4NM185813": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-10-03"
+      },
+      "KNATWKMP5NL123925": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-01-05"
+      },
+      "TMBNLALY6KY959816": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-13"
+      },
+      "WBASVZFP4TX045776": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-04-19"
+      },
+      "WBAUJLUA2PT079695": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-04-01"
+      },
+      "WBASBJRD9PY184216": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-11"
+      },
+      "WBARXBYF4KF163478": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-07-09"
+      },
+      "YV1LBAXN1PT475352": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-01-01"
+      },
+      "WBANSMSC6PN883045": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-05-27"
+      },
+      "KNAVMZCC7SE709452": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-06-24"
+      },
+      "WBAHXBXN9NB930340": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-08-26"
+      },
+      "WBAGZNVKXLN036195": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-10-14"
+      },
+      "JTDYZEXE7KM536558": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-06-23"
+      },
+      "5YJXRZSC3LF584903": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-11"
+      },
+      "WBAYPPFH6KF888318": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-07-27"
+      },
+      "KNASDAHF6LN778769": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-09-08"
+      },
+      "WBACYKCX4KH705556": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-03-09"
+      },
+      "WBAURGKS8NT377015": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-08-01"
+      },
+      "JTDBTSZL6LX430829": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-10-10"
+      },
+      "WBATHPPD1TZ061846": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-05-26"
+      },
+      "WVWXUNWB9RS833760": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-01-24"
+      },
+      "JTDTGEJPXKD483624": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-02-14"
+      },
+      "TMBMHYUM4RG642957": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-07-15"
+      },
+      "YV1YCZCK3TS161604": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-10-06"
+      },
+      "KNAVFFHK9TD946282": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-05-17"
+      },
+      "WBAGMMDG4SK490240": {
+        "owner": "Koskinen Car Center",
+        "lastOwnerChange": "2026-04-03"
+      },
+      "5YJGYYMC2SY188149": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-02-06"
+      },
+      "YV1HJEZB4NE355923": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-10-04"
+      },
+      "WVWENRYC0LX071480": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-09-28"
+      },
+      "5YJEUHEE2RH847859": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-02-04"
+      },
+      "TMBNYFLR1SD403749": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-10-20"
+      },
+      "WVWDBTNU9MG031950": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-05-09"
+      },
+      "YV1PPPGX1LZ815470": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-02-06"
+      },
+      "JTDLVLJD7TV714328": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-09-27"
+      },
+      "KNAGKYHV3NT225944": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-02-27"
+      },
+      "YV1NKFML0KZ544370": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-08-12"
+      },
+      "5YJTKJHZ2PF117493": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-03-06"
+      },
+      "KNAZNLDFXSR579258": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-01-20"
+      },
+      "TMBNZZHR8NV913800": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-09-23"
+      },
+      "5YJFFLWA1PB419309": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-06-12"
+      },
+      "YV1EFEPS0SY340367": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-06-11"
+      },
+      "KNAXDGLB1LK824474": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-04-11"
+      },
+      "JTDGYFYM6LM225814": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-09-23"
+      },
+      "JTDHTNKY2PH400129": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-06-25"
+      },
+      "KNAHRDXM9MN454746": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-03-10"
+      },
+      "WVWLYFMP4LS341796": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-10-02"
+      },
+      "KNALTFLN5TY230750": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-08-15"
+      },
+      "JTDWJLXY0NH376100": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-07-13"
+      },
+      "WVWNRHEX9LP525666": {
+        "owner": "Private person",
+        "lastOwnerChange": "2026-10-12"
+      },
+      "5YJTEHCNXSK380576": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-05-01"
+      },
+      "WVWAWDCB6TB042737": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-02-08"
+      },
+      "WBAPGPNF2LK765524": {
+        "owner": "Revontuli Motors",
+        "lastOwnerChange": "2026-06-16"
+      },
+      "YV1SHYVF3NV355827": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-07-02"
+      },
+      "WVWEYKCT2LF517737": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-04-06"
+      },
+      "JTDLMWGFXNY730439": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-05-04"
+      },
+      "JTDZXDYE4LZ731444": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-10-03"
+      },
+      "JTDTBXTE5TD152005": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-03-03"
+      },
+      "WBAMYXEV9MH718125": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-08-11"
+      },
+      "JTDYYNUSXLW694685": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-02-09"
+      },
+      "YV1VMXMR8NB351868": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-09-18"
+      },
+      "WBANHLPJ5PA241522": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-07-08"
+      },
+      "KNAEKXYA1RM433772": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-03-15"
+      },
+      "5YJLTBPE3TW485337": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-06-26"
+      },
+      "WVWAFDHGXPH063159": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-08-28"
+      },
+      "WVWPLXJK7LY151258": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-09-19"
+      },
+      "TMBBBPUN3PT746386": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-06-15"
+      },
+      "WBAFEMYU9KD592081": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-09-17"
+      },
+      "JTDUAHDP3PL374454": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-10-01"
+      },
+      "WVWYAUJG0LB886333": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-06-23"
+      },
+      "TMBJTADX4MW033174": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-08-28"
+      },
+      "KNACWCHNXSM499704": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-09-24"
+      },
+      "WBAPFRWFXPM692815": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-07-15"
+      },
+      "KNATZXSP7SK486445": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-10-12"
+      },
+      "WBADWKTU1TN243623": {
+        "owner": "Saimaa Auto",
+        "lastOwnerChange": "2026-01-08"
+      }
+    }
+  },
+  "demo": {
+    "soldCarVin": "KNADDTTF6NR212845",
+    "soldCarAwayPosition": {
+      "lat": 61.8701,
+      "lng": 25.1902
+    }
+  }
+}
