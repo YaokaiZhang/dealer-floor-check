@@ -66,7 +66,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 
       {!car ? (
         <div>
-          <h2 className="px-4 pt-10 pb-8 display-wide text-[2.25rem]">That&apos;s every car</h2>
+          <h2 className="px-4 pt-10 pb-8 display-wide text-[1.9rem]">That&apos;s every car</h2>
           <Bar onClick={onComplete}>Finish check-in</Bar>
         </div>
       ) : (
@@ -82,7 +82,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
             ) : isVerified(result) ? (
               <div role="status" aria-live="polite">
                 <div className="flex items-center justify-between gap-4 bg-lime px-4 py-8">
-                  <p className="display-wide text-[2.25rem]">Verified</p>
+                  <p className="display-wide text-[1.9rem]">Verified</p>
                   <Check size={56} draw />
                 </div>
                 <Bar onClick={next}>{isLast ? "Finish check-in" : "Next car"}</Bar>
@@ -113,7 +113,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
 function CarId({ car }: { car: Car }) {
   return (
     <div className="px-4 pt-8 pb-6">
-      <h2 className="display-wide text-[clamp(2.2rem,10vw,3rem)] [overflow-wrap:anywhere]">{car.make}<br />{car.model}</h2>
+      <h2 className="display-wide text-[clamp(1.9rem,8vw,2.5rem)] [overflow-wrap:anywhere]">{car.make}<br />{car.model}</h2>
       <dl className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-3">
         <div>
           <dt className="sr-only">Colour and year</dt>

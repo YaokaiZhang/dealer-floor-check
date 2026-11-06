@@ -14,7 +14,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
   if (!clean) {
     return (
       <div>
-        <h2 className="px-4 pt-10 pb-8 display-wide text-[2.25rem]" role="status"><span className="whitespace-nowrap">Check-in</span> done</h2>
+        <h2 className="px-4 pt-10 pb-8 display-wide text-[1.9rem]" role="status"><span className="whitespace-nowrap">Check-in</span> done</h2>
         <Bar tone="paper" onClick={onBack}>Back to check-ins</Bar>
         <div className="border-t border-ink" />
       </div>
@@ -26,7 +26,7 @@ export function DoneScreen({ checkIn, dealer, tierBefore, onBack, onTier }: { ch
     <div>
       <section className="bg-lime px-4 pt-10 pb-8" role="status">
         <Check size={56} draw />
-        <h2 className="mt-8 display-wide text-[clamp(2.4rem,11.5vw,3.4rem)]">All<br />verified</h2>
+        <h2 className="mt-8 display-wide text-[clamp(2rem,9vw,2.75rem)]">All<br />verified</h2>
         <p className="mt-5 flex items-baseline gap-2">
           <span className="figure text-3xl">{n}/{n}</span>
           <span className="text-sm">car{n === 1 ? "" : "s"} confirmed</span>

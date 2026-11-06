@@ -33,7 +33,7 @@ export default function BankPage() {
       <RoleSwitcher />
       <main className="overflow-x-clip pb-24">
         <header className={`${WRAP} flex flex-wrap items-end justify-between gap-x-8 gap-y-4 pt-10 pb-8 md:pt-16 md:pb-10`}>
-          <h1 className="display-wide text-[clamp(2.6rem,9.5vw,9rem)]">Portfolio</h1>
+          <h1 className="display-wide text-[clamp(2.25rem,6.5vw,6rem)]">Portfolio</h1>
           <p className="flex items-center gap-2 pb-1 text-sm text-ash-700">
             <span className="size-2 animate-pulse-dot bg-go" aria-hidden />
             Live · {dateFi(new Date().toISOString())}

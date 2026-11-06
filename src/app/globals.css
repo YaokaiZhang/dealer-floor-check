@@ -67,8 +67,8 @@ body {
 
 /* Typographic roles */
 /* Typographic roles: one family, Archivo stretched wide, like lettering on a showroom fascia. */
-@utility display-2xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.035em; font-size: clamp(3rem, 9vw, 9rem); }
-@utility display-xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.03em; font-size: clamp(2.2rem, 5vw, 4.5rem); }
+@utility display-2xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.035em; font-size: clamp(2.5rem, 6.5vw, 6rem); }
+@utility display-xl { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.03em; font-size: clamp(1.9rem, 4vw, 3.5rem); }
 @utility display-lg { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 0.92; letter-spacing: -0.025em; font-size: clamp(1.5rem, 2.6vw, 2.25rem); }
 @utility display-md { font-family: var(--font-sans); font-weight: 500; font-stretch: 125%; text-transform: uppercase; line-height: 1; letter-spacing: -0.015em; font-size: 1.125rem; }
 @utility tag-text { font-family: var(--font-sans); font-size: 0.75rem; font-weight: 500; line-height: 1.2; }

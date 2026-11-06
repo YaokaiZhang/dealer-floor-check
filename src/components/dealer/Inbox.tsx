@@ -23,7 +23,7 @@ function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) 
   return (
     <div>
       <section className="flex items-end justify-between gap-4 px-4 pt-10 pb-8">
-        <h2 className="display-wide text-[2.25rem]">All good</h2>
+        <h2 className="display-wide text-[1.9rem]">All good</h2>
         <Check size={48} />
       </section>
 
@@ -72,7 +72,7 @@ function CheckInCard({ checkIn }: { checkIn: CheckIn }) {
 
   return (
     <section className="animate-rise border-b border-ink" aria-label={title}>
-      <h2 className="px-4 pt-10 pb-8 display-wide text-[2.25rem]">{targeted ? title : <>Quick <span className="whitespace-nowrap">check-in</span></>}</h2>
+      <h2 className="px-4 pt-10 pb-8 display-wide text-[1.9rem]">{targeted ? title : <>Quick <span className="whitespace-nowrap">check-in</span></>}</h2>
       <Ask targeted={targeted} />
       {scheduled ? (
         <>

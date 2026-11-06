@@ -28,7 +28,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
       <header className="px-4 pt-6 pb-8 md:px-8 md:pt-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="display-wide text-[clamp(2.25rem,6vw,4.5rem)] break-words">{d.name}</h2>
+            <h2 className="display-wide text-[clamp(1.9rem,4.5vw,3.5rem)] break-words">{d.name}</h2>
             <p className="mt-3 text-sm text-ash-700">{d.city} · {d.contact}</p>
           </div>
           <TierBadge tier={d.tier} size="lg" />

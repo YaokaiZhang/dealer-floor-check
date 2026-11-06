@@ -29,8 +29,8 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
       <div className="py-6 md:col-span-5 md:py-8 md:pr-8">
         <p className="tag-text text-ash-700">Verified automatically today</p>
         <p className="mt-3 flex flex-wrap items-baseline gap-x-3">
-          <Odometer value={auto} ms={1200} className="figure text-[clamp(3.5rem,7vw,6.5rem)]" />
-          <span className="figure text-[clamp(1.4rem,2.2vw,2rem)] text-ash-500">of {cars}</span>
+          <Odometer value={auto} ms={1200} className="figure text-[clamp(2.75rem,5.5vw,5rem)]" />
+          <span className="figure text-[clamp(1.2rem,1.8vw,1.6rem)] text-ash-500">of {cars}</span>
         </p>
         {/* One tile per financed car, seen from above: filled = verified by data today */}
         <div className="mt-5 hidden flex-wrap gap-[3px] sm:flex" role="img" aria-label={`${auto} of ${cars} cars verified automatically`}>
@@ -49,7 +49,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
         <Stat label="Cars financed" value={cars} sub={<Parts items={[eurCompact(exposure), `${s.dealers.length} dealers`]} />} />
         <button type="button" onClick={onAlerts} className="group flex flex-col items-start border-l border-ink py-6 pl-4 text-left transition-colors hover:bg-mist focus-visible:outline-offset-[-2px] md:py-8 md:pl-6">
           <p className="tag-text text-ash-700">Open alerts <span aria-hidden className="inline-block transition-transform group-hover:translate-y-0.5">↓</span></p>
-          <p className="mt-3 figure text-[clamp(2.5rem,4vw,3.75rem)]">
+          <p className="mt-3 figure text-[clamp(2rem,3.2vw,3rem)]">
             <Odometer value={open.length} />
             {open.length > 0 && <span className="ml-2 inline-block size-3 animate-pulse-dot bg-high align-middle" aria-hidden />}
           </p>
@@ -61,7 +61,7 @@ export function Headline({ s, onAlerts }: { s: Store; onAlerts: () => void }) {
         </button>
         <div className="relative col-span-2 border-t border-ink py-6 md:col-span-1 md:border-t-0 md:border-l md:py-8 md:pl-6">
           <p className="flex items-center justify-between gap-2"><span className="tag-text text-ash-700">Check cost vs traditional</span><CostInfo h={h} /></p>
-          <p className="mt-3 figure text-[clamp(2.5rem,4vw,3.75rem)]"><Odometer value={`−${h.checkCostReductionPct}%`} ms={1200} /></p>
+          <p className="mt-3 figure text-[clamp(2rem,3.2vw,3rem)]"><Odometer value={`−${h.checkCostReductionPct}%`} ms={1200} /></p>
           <p className="mt-3 text-sm text-ash-700"><Parts items={[`−${h.fraudLossReductionPct}% fraud loss`, `${eurCompact(h.portfolioSavings)} a year`]} /></p>
         </div>
       </div>
@@ -78,7 +78,7 @@ function Stat({ label, value, sub }: { label: string; value: number; sub: React.
   return (
     <div className="py-6 pr-4 md:border-l md:border-ink md:py-8 md:pl-6">
       <p className="tag-text text-ash-700">{label}</p>
-      <p className="mt-3 figure text-[clamp(2.5rem,4vw,3.75rem)]"><Odometer value={value} /></p>
+      <p className="mt-3 figure text-[clamp(2rem,3.2vw,3rem)]"><Odometer value={value} /></p>
       <p className="mt-3 text-sm text-ash-700">{sub}</p>
     </div>
   );

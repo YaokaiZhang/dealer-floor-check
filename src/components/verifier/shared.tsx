@@ -57,7 +57,7 @@ export const STATE_LABEL: Record<CarState, string> = { todo: "Check", found: "Fo
 export function ScreenTitle({ children, sub, long }: { children: React.ReactNode; sub?: React.ReactNode; /** Names and models: a size that keeps long words on one line. */ long?: boolean }) {
   return (
     <header className="px-4 pt-10 pb-6">
-      <h1 className={`display-wide break-words ${long ? "text-[clamp(2rem,9.5vw,3rem)]" : "text-[clamp(2.75rem,15vw,4.25rem)]"}`}>{children}</h1>
+      <h1 className={`display-wide break-words ${long ? "text-[clamp(1.75rem,8vw,2.5rem)]" : "text-[clamp(2.25rem,11vw,3.25rem)]"}`}>{children}</h1>
       {sub && <p className="mt-3 text-sm text-ash-700">{sub}</p>}
     </header>
   );

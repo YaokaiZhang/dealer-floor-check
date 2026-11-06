@@ -36,7 +36,7 @@ export default function DemoPage() {
       <RoleSwitcher />
       <main className="overflow-x-clip pb-20">
         <header className="mx-auto flex max-w-[1600px] flex-col gap-8 px-4 pt-10 pb-8 md:px-8 lg:flex-row lg:items-end lg:justify-between lg:pt-14 lg:pb-10">
-          <h1 className="display-wide text-[clamp(3.6rem,11vw,11.5rem)]">Demo</h1>
+          <h1 className="display-wide text-[clamp(2.5rem,7vw,6.5rem)]">Demo</h1>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href="/verifier" variant="secondary" arrow>Verifier</ButtonLink>
             <ButtonLink href="/demo/plates" variant="secondary" arrow>VIN plates</ButtonLink>
@@ -53,7 +53,7 @@ export default function DemoPage() {
           <div className="mx-auto grid max-w-[1600px] md:grid-cols-[1fr_auto] lg:grid-cols-[1.4fr_1fr]">
             <div className="flex flex-col gap-5 px-4 py-8 md:px-8 md:py-12">
               <span className="text-sm text-ash-700">Step 3</span>
-              <h2 id="scenario" className="display-wide text-[clamp(2.4rem,6vw,6rem)]">Sold out<br />of trust</h2>
+              <h2 id="scenario" className="display-wide text-[clamp(2rem,4.5vw,4.25rem)]">Sold out<br />of trust</h2>
               <p>
                 {demoCar.year} {demoCar.make} {demoCar.model} · {demoCar.plate} · {demoDealer.name}
                 <span className="mt-1 block tag-text break-all text-ash-700">{demoCar.vin}</span>

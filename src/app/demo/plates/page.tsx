@@ -21,7 +21,7 @@ export default function PlatesPage() {
       <div className="print:hidden"><RoleSwitcher /></div>
       <main className="overflow-x-clip">
         <header className="mx-auto flex max-w-[1600px] flex-col gap-8 px-4 pt-10 pb-8 md:px-8 lg:flex-row lg:items-end lg:justify-between lg:pt-14 lg:pb-10 print:hidden">
-          <h1 className="display-wide text-[clamp(3.2rem,10vw,10rem)]">VIN<br />plates</h1>
+          <h1 className="display-wide text-[clamp(2.5rem,7vw,6.5rem)]">VIN<br />plates</h1>
           <div>
             <label htmlFor="plates-dealer" className="sr-only">Dealer</label>
             <select id="plates-dealer" value={dealerId} onChange={(e) => setDealerId(e.target.value)} className="w-full border border-ink bg-paper px-3 py-2.5 text-sm sm:w-auto">

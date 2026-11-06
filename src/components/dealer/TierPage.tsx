@@ -23,7 +23,7 @@ export function TierPage({ dealer }: { dealer: Dealer }) {
     <div>
       <section className={`px-4 pt-10 pb-8 ${HEAD[tier]}`}>
         <p className="text-sm">Your tier</p>
-        <h2 className="mt-4 display-wide text-[clamp(2.6rem,13vw,3.6rem)]">{tier}</h2>
+        <h2 className="mt-4 display-wide text-[clamp(2.2rem,10vw,3rem)]">{tier}</h2>
       </section>
       <dl className="border-t border-ink">
         <Benefit label="Line review" value={t.lineReview ? `Reply within ${t.lineReview}` : "After a quick chat"} />

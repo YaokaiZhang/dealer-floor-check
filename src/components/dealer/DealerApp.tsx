@@ -97,7 +97,7 @@ export function DealerApp() {
             <TierBadge tier={dealer.tier} />
             <span>{dealer.city}</span>
           </div>
-          <h1 className="mt-4 display-wide text-[clamp(2.4rem,11.5vw,3.4rem)] [overflow-wrap:anywhere]">{dealer.name}</h1>
+          <h1 className="mt-4 display-wide text-[clamp(2rem,9vw,2.75rem)] [overflow-wrap:anywhere]">{dealer.name}</h1>
         </header>
       )}
 

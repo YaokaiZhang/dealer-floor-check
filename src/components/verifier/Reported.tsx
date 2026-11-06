@@ -16,7 +16,7 @@ export function Reported({ job, onClose }: { job: Job; onClose: () => void }) {
         <span className="flex size-14 animate-pop items-center justify-center bg-ink text-lime" aria-hidden>
           <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square" pathLength={1} strokeDasharray={1} className="animate-draw" /></svg>
         </span>
-        <h1 className="mt-8 display-wide text-[clamp(2.75rem,15vw,4.25rem)]">Report<br />sent</h1>
+        <h1 className="mt-8 display-wide text-[clamp(2.25rem,11vw,3.25rem)]">Report<br />sent</h1>
         <p className="mt-3 text-sm text-ash-700">{dealer.name}</p>
       </header>
 

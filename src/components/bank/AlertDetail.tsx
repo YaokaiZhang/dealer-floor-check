@@ -38,7 +38,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
           <StatusTag alert={alert} visit={visit} />
           <span className="ml-auto text-xs tabular-nums text-ash-700">{timeAgo(alert.createdAt, now)}, {timeFi(alert.createdAt)}</span>
         </div>
-        <h2 className="mt-6 display-xl text-[clamp(1.75rem,4vw,3rem)]">{alert.message}</h2>
+        <h2 className="mt-6 display-xl text-[clamp(1.5rem,3vw,2.4rem)]">{alert.message}</h2>
         <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
           <button type="button" onClick={() => onDealer(d.id)} className="inline-flex min-h-9 items-center gap-2 font-semibold underline decoration-ink/30 decoration-2 underline-offset-4 hover:decoration-ink">
             {d.name}, {d.city} <span aria-hidden>→</span>
