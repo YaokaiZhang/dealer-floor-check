@@ -231,13 +231,24 @@ function feedEvidence(s: Store, vin: string): { label: string; value: string }[]
 }
 
 // ---------------------------------------------------------------- payoffs
-/** A sale is normal business: the dealer gets ASSUMPTIONS.payoffDays to repay before anything is raised. */
+/** Same time of day, n business days later (n < 0: earlier). Weekends skipped; public holidays ignored. */
+function addBusinessDays(from: Date, n: number): Date {
+  const d = new Date(from);
+  const step = Math.sign(n);
+  for (let left = Math.abs(n); left > 0;) {
+    d.setDate(d.getDate() + step);
+    if (d.getDay() !== 0 && d.getDay() !== 6) left--;
+  }
+  return d;
+}
+
+/** A sale is normal business: the dealer gets ASSUMPTIONS.payoffBusinessDays to repay before anything is raised. */
 function startPayoffClock(s: Store, car: Car, via: "marketplace" | "registry") {
   if (car.status !== "in_stock") return;
   const now = new Date();
   car.status = "sold_awaiting_payoff";
-  car.sale = { seenAt: now.toISOString(), via, payoffDueAt: new Date(now.getTime() + ASSUMPTIONS.payoffDays * 24 * HOUR).toISOString() };
-  log(s, `${via === "marketplace" ? "Marketplace: listed as sold" : "Registry: owner change"} · ${car.vin} at ${dealerOf(s, car.dealerId).name}, payoff due in ${ASSUMPTIONS.payoffDays} days`);
+  car.sale = { seenAt: now.toISOString(), via, payoffDueAt: addBusinessDays(now, ASSUMPTIONS.payoffBusinessDays).toISOString() };
+  log(s, `${via === "marketplace" ? "Marketplace: listed as sold" : "Registry: owner change"} · ${car.vin} at ${dealerOf(s, car.dealerId).name}, payoff due ${dateFi(car.sale.payoffDueAt)}`);
 }
 
 /** Sold cars past their payoff deadline become alerts. */
@@ -251,7 +262,7 @@ function checkPayoffs(s: Store, now = Date.now()) {
     raiseAlert(s, {
       dealerId: d.id, vin: car.vin, source: car.sale.via,
       severity: corroborated ? "high" : "medium",
-      message: `Sold, no payoff after ${ASSUMPTIONS.payoffDays} days`,
+      message: `Sold, no payoff after ${ASSUMPTIONS.payoffBusinessDays} business days`,
       evidence: [{ label: "Sold", value: dateFi(car.sale.seenAt) }, { label: "Payoff due", value: `${dateFi(car.sale.payoffDueAt)}, not received` }, ...feedEvidence(s, car.vin)],
     });
   }
@@ -396,9 +407,9 @@ export const ops = {
   payoffDeadlinePasses(s: Store, vin: string) {
     const car = carOf(s, vin);
     if (car.status !== "sold_awaiting_payoff" || !car.sale) throw new ActionError("No payoff pending for this car");
-    const shift = Date.parse(car.sale.payoffDueAt) - Date.now();
-    car.sale.seenAt = new Date(Date.parse(car.sale.seenAt) - shift).toISOString();
-    car.sale.payoffDueAt = new Date().toISOString();
+    const now = new Date();
+    car.sale.seenAt = addBusinessDays(now, -ASSUMPTIONS.payoffBusinessDays).toISOString();
+    car.sale.payoffDueAt = now.toISOString();
     checkPayoffs(s);
   },
 

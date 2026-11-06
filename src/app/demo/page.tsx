@@ -64,8 +64,8 @@ export default function DemoPage() {
               {hydrated && awaitingPayoff ? (
                 <>
                   <p className="text-sm text-ash-700">Payoff due {dateFi(demoCar.sale!.payoffDueAt)}</p>
-                  <Button variant="primary" arrow onClick={() => fire("3 days later: no payoff", () => actions.payoffDeadlinePasses(s.demo.soldCarVin))}>
-                    3 days pass, no payoff
+                  <Button variant="primary" arrow onClick={() => fire("2 business days later: no payoff", () => actions.payoffDeadlinePasses(s.demo.soldCarVin))}>
+                    2 business days pass, no payoff
                   </Button>
                   <Button variant="secondary" onClick={() => fire("Payoff received", () => actions.payoffReceived(s.demo.soldCarVin))}>Dealer pays off</Button>
                 </>
