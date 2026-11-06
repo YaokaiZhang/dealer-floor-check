@@ -6,7 +6,7 @@ import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { actions, useDemo, useHydrated } from "@/lib/store";
 import { portfolioStats } from "@/lib/risk";
-import { timeFi } from "@/lib/format";
+import { dateFi, timeFi } from "@/lib/format";
 import type { Car } from "@/lib/types";
 
 const carOption = (c: Car) => `${c.vin} · ${c.make} ${c.model} · ${c.plate}`;
@@ -29,7 +29,8 @@ export default function DemoPage() {
     setFlash(label);
     setTimeout(() => setFlash((f) => (f === label ? null : f)), 2200);
   };
-  const scenarioFired = s.alerts.some((a) => a.vin === s.demo.soldCarVin);
+  const scenarioFired = s.alerts.some((a) => a.vin === s.demo.soldCarVin) || demoCar.status === "sold_paid";
+  const awaitingPayoff = demoCar.status === "sold_awaiting_payoff" && !scenarioFired;
 
   return (
     <>
@@ -60,9 +61,19 @@ export default function DemoPage() {
               </p>
             </div>
             <div className="flex flex-col justify-end gap-3 border-t border-ink px-4 py-8 md:min-w-72 md:border-t-0 md:border-l md:px-8 md:py-12 lg:items-start [&>*]:lg:min-w-72">
-              <Button variant="primary" arrow disabled={hydrated && scenarioFired} onClick={() => fire("Marketplace: listed as sold", () => actions.marketplaceSold(s.demo.soldCarVin))}>
-                {hydrated && scenarioFired ? "Scenario fired" : "Fire: listed as sold"}
-              </Button>
+              {hydrated && awaitingPayoff ? (
+                <>
+                  <p className="text-sm text-ash-700">Payoff due {dateFi(demoCar.sale!.payoffDueAt)}</p>
+                  <Button variant="primary" arrow onClick={() => fire("3 days later: no payoff", () => actions.payoffDeadlinePasses(s.demo.soldCarVin))}>
+                    3 days pass, no payoff
+                  </Button>
+                  <Button variant="secondary" onClick={() => fire("Payoff received", () => actions.payoffReceived(s.demo.soldCarVin))}>Dealer pays off</Button>
+                </>
+              ) : (
+                <Button variant="primary" arrow disabled={hydrated && scenarioFired} onClick={() => fire("Marketplace: listed as sold", () => actions.marketplaceSold(s.demo.soldCarVin))}>
+                  {hydrated && scenarioFired ? "Scenario fired" : "Fire: listed as sold"}
+                </Button>
+              )}
               <ButtonLink href="/bank" variant="secondary" arrow>Watch on the bank</ButtonLink>
             </div>
           </div>

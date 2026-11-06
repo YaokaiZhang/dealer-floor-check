@@ -12,7 +12,7 @@ export const ASSUMPTIONS = {
   maxDetectionDays: 365, // without any checks or signals, found at the yearly review
   // "Curb with signals" scenario
   signalCoverage: 0.85, // share of incidents caught by marketplace/registry/connected-car signals
-  signalDetectionDays: 2, // near-real-time detection when a signal fires
+  signalDetectionDays: 4, // a sale signal becomes an alert once the payoff window passes (+1 day)
   checkInHandlingCost: 5, // € per remote self check-in (handling + vision API)
   checkInsPerDealerYear: 6, // average across tiers
   gigCheckCost: 30, // € flat per spot check by a local verifier, however many cars
@@ -20,6 +20,7 @@ export const ASSUMPTIONS = {
   gigChecksPerDealerYear: 2, // random spot checks, average across tiers (incl. visits brought forward)
   dataFeedCostPerDealerYear: 120, // € connected-car + registry + marketplace data
   maxScheduledChecks: 12,
+  payoffDays: 3, // days a dealer has to repay the loan after selling a car
 } as const;
 
 export type Assumptions = typeof ASSUMPTIONS;

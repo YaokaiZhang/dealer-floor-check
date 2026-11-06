@@ -12,7 +12,8 @@ import { visitFee } from "./costModel";
 import { drawRandom } from "./sampling";
 import { samplingFor } from "./risk";
 import { distanceM, formatDistance } from "./geo";
-import { eur } from "./format";
+import { dateFi, eur } from "./format";
+import { ASSUMPTIONS } from "@/config/assumptions";
 
 export const VERSION = 7;
 const HOUR = 3600_000;
@@ -229,6 +230,33 @@ function feedEvidence(s: Store, vin: string): { label: string; value: string }[]
   return ev;
 }
 
+// ---------------------------------------------------------------- payoffs
+/** A sale is normal business: the dealer gets ASSUMPTIONS.payoffDays to repay before anything is raised. */
+function startPayoffClock(s: Store, car: Car, via: "marketplace" | "registry") {
+  if (car.status !== "in_stock") return;
+  const now = new Date();
+  car.status = "sold_awaiting_payoff";
+  car.sale = { seenAt: now.toISOString(), via, payoffDueAt: new Date(now.getTime() + ASSUMPTIONS.payoffDays * 24 * HOUR).toISOString() };
+  log(s, `${via === "marketplace" ? "Marketplace: listed as sold" : "Registry: owner change"} · ${car.vin} at ${dealerOf(s, car.dealerId).name}, payoff due in ${ASSUMPTIONS.payoffDays} days`);
+}
+
+/** Sold cars past their payoff deadline become alerts. */
+function checkPayoffs(s: Store, now = Date.now()) {
+  for (const car of s.cars) {
+    if (car.status !== "sold_awaiting_payoff" || !car.sale || Date.parse(car.sale.payoffDueAt) > now) continue;
+    if (s.alerts.some((a) => a.vin === car.vin && (a.status === "open" || a.status === "investigating"))) continue;
+    const d = dealerOf(s, car.dealerId);
+    const cc = s.feeds.connected[car.vin];
+    const corroborated = (cc && distanceM(cc, d.geofence) > d.geofence.radiusM) || !!s.feeds.registry[car.vin];
+    raiseAlert(s, {
+      dealerId: d.id, vin: car.vin, source: car.sale.via,
+      severity: corroborated ? "high" : "medium",
+      message: `Sold, no payoff after ${ASSUMPTIONS.payoffDays} days`,
+      evidence: [{ label: "Sold", value: dateFi(car.sale.seenAt) }, { label: "Payoff due", value: `${dateFi(car.sale.payoffDueAt)}, not received` }, ...feedEvidence(s, car.vin)],
+    });
+  }
+}
+
 // ---------------------------------------------------------------- actions
 export const ops = {
   setFlag(s: Store, k: keyof DemoFlags, v: boolean) {
@@ -335,7 +363,9 @@ export const ops = {
     m.listed = true;
     m.status = status;
     m.changedAt = new Date().toISOString();
-    // Demo scenario: the same car also shows up far away on connected-car data and the registry has a pending change.
+    // A removed listing proves nothing on its own: just watch it.
+    if (status === "removed") return void log(s, `Marketplace: listing removed for ${vin} at ${d.name}`);
+    // Demo scenario: the buyer drives off and the registry shows a pending owner change.
     if (car.demoScenario === "sold_out_of_trust") {
       const cc = s.feeds.connected[vin];
       if (cc) {
@@ -344,24 +374,32 @@ export const ops = {
       }
       s.feeds.registry[vin] = { owner: "Private person, Jämsä", lastOwnerChange: today(), pending: true };
     }
-    const cc = s.feeds.connected[vin];
-    const corroborated = (cc && distanceM(cc, d.geofence) > d.geofence.radiusM) || s.feeds.registry[vin]?.pending;
-    raiseAlert(s, {
-      dealerId: d.id, vin, source: "marketplace",
-      severity: corroborated ? "high" : "medium",
-      message: `Listing marked ${status.toUpperCase()} while the loan is still open${corroborated ? ", corroborated by other signals" : ""}`,
-      evidence: feedEvidence(s, vin),
-    });
+    startPayoffClock(s, car, "marketplace");
   },
 
   registryOwnerChange(s: Store, vin: string) {
     const car = carOf(s, vin);
     s.feeds.registry[vin] = { owner: "Private person", lastOwnerChange: today(), pending: false };
-    raiseAlert(s, {
-      dealerId: car.dealerId, vin, source: "registry", severity: "high",
-      message: "Registry owner change on a car with an open loan",
-      evidence: feedEvidence(s, vin),
-    });
+    startPayoffClock(s, car, "registry");
+  },
+
+  /** The dealer repays the loan for a sold car. */
+  payoffReceived(s: Store, vin: string) {
+    const car = carOf(s, vin);
+    if (car.status === "sold_paid") return;
+    car.status = "sold_paid";
+    for (const a of s.alerts) if (a.vin === vin && (a.status === "open" || a.status === "investigating")) a.evidence.push({ label: "Payoff", value: `Received ${today()}` });
+    log(s, `Payoff received: ${vin} at ${dealerOf(s, car.dealerId).name}`);
+  },
+
+  /** Demo: jump to the payoff deadline of a sold car. */
+  payoffDeadlinePasses(s: Store, vin: string) {
+    const car = carOf(s, vin);
+    if (car.status !== "sold_awaiting_payoff" || !car.sale) throw new ActionError("No payoff pending for this car");
+    const shift = Date.parse(car.sale.payoffDueAt) - Date.now();
+    car.sale.seenAt = new Date(Date.parse(car.sale.seenAt) - shift).toISOString();
+    car.sale.payoffDueAt = new Date().toISOString();
+    checkPayoffs(s);
   },
 
   connectedLeavesGeofence(s: Store, vin: string) {
@@ -465,8 +503,9 @@ export const ops = {
     Object.assign(v.verifier, { simulated: true, acceptedAt: v.verifier.acceptedAt ?? now, arrivedAt: v.verifier.arrivedAt ?? now });
     for (const vin of v.sampledVins) {
       if (v.results[vin]) continue;
-      // Demo: the sold-out-of-trust car, and cars with a registry owner change, are not on the lot.
-      const gone = carOf(s, vin).demoScenario === "sold_out_of_trust" || s.alerts.some((a) => a.vin === vin && a.source === "registry" && v.alertIds.includes(a.id));
+      // Demo: sold cars still awaiting payoff are not on the lot.
+      const car = carOf(s, vin);
+      const gone = car.demoScenario === "sold_out_of_trust" || car.status === "sold_awaiting_payoff";
       v.results[vin] = gone ? { status: "missing", reason: "Staff said it was out on a test drive; no test-drive record" } : { status: "found" };
     }
     finishSpotCheck(s, v);
@@ -511,6 +550,7 @@ export const ops = {
    *  - with `autoVerifier`, open spot checks get a simulated report a few seconds after dispatch.
    */
   tick(s: Store, elapsedMs: number, now = Date.now()) {
+    checkPayoffs(s, now);
     if (s.flags.autoVerifier) {
       for (const v of s.spotChecks) {
         if (v.verifier.status !== "reported" && now - Date.parse(v.verifier.dispatchedAt) >= AUTO_REPORT_MS) ops.verifierReport(s, v.id);
@@ -536,7 +576,7 @@ export const ops = {
 /** Actions a browser may send. The rest are written by the server itself. */
 export const CLIENT_OPS = [
   "setFlag", "sendCheckIn", "scheduleCheckIn", "startCheckIn", "skipCar", "completeCheckIn",
-  "marketplaceSold", "registryOwnerChange", "connectedLeavesGeofence", "connectedOdometerJump",
+  "marketplaceSold", "registryOwnerChange", "payoffReceived", "payoffDeadlinePasses", "connectedLeavesGeofence", "connectedOdometerJump",
   "bringVisitForward", "sendSpotCheck", "verifierAccept", "verifierArrive", "verifierCar", "verifierSubmit",
   "verifierReport", "escalateToAuditor", "resolveAlert", "overrideTier",
 ] as const satisfies readonly (keyof typeof ops)[];

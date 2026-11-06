@@ -1,5 +1,5 @@
 export type Tier = "Gold" | "Silver" | "Standard" | "Review";
-export type CarStatus = "in_stock" | "sold_paid" | "sold_unpaid_suspect";
+export type CarStatus = "in_stock" | "sold_awaiting_payoff" | "sold_paid" | "sold_unpaid_suspect";
 export type Severity = "high" | "medium" | "low";
 export type AlertSource = "connected_car" | "marketplace" | "registry" | "check_in" | "spot_check";
 
@@ -42,6 +42,8 @@ export interface Car {
   status: CarStatus;
   connected: boolean;
   demoScenario?: string;
+  /** A feed showed the car sold; the dealer owes the payoff by payoffDueAt. */
+  sale?: { seenAt: string; via: "marketplace" | "registry"; payoffDueAt: string };
 }
 
 export interface ConnectedFeed { lat: number; lng: number; odometerKm: number; lastSeen: string; outsideSince?: string; prevOdometerKm?: number }
