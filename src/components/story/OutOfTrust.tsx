@@ -11,7 +11,8 @@ import { ease, span } from "./Scene";
 
 const SANS = { fontFamily: "var(--font-sans)" } as const;
 const MONO = { fontFamily: "var(--font-mono)" } as const;
-const PAPER = "var(--color-paper)";
+const FG = "var(--color-ink)";
+const BG = "var(--color-paper)";
 const LIME = "var(--color-lime)";
 const HIGH = "var(--color-high)";
 const INK = "var(--color-ink)";
@@ -121,14 +122,14 @@ function Card({ box, w, h, t, bare, children }: { box: Box; w: number; h: number
   const k = 0.94 + 0.06 * e;
   return (
     <g transform={`translate(${box.x} ${box.y + (1 - e) * 10}) scale(${box.s * k})`} opacity={e}>
-      {!bare && <rect width={w} height={h} fill={PAPER} fillOpacity={0.04} stroke={PAPER} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />}
+      {!bare && <rect width={w} height={h} fill={FG} fillOpacity={0.04} stroke={FG} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />}
       {children}
     </g>
   );
 }
 
 function Head({ children, x = 10, anchor = "start", o = 0.6 }: { children: ReactNode; x?: number; anchor?: "start" | "end"; o?: number }) {
-  return <text x={x} y={16} fontSize={10} fill={PAPER} fillOpacity={o} textAnchor={anchor} style={SANS}>{children}</text>;
+  return <text x={x} y={16} fontSize={10} fill={FG} fillOpacity={o} textAnchor={anchor} style={SANS}>{children}</text>;
 }
 
 /** A signal line drawing from its card towards the car, with a pulse at its head. */
@@ -140,9 +141,9 @@ function Signal({ a, c, r, t, alert }: { a: Pt; c: Pt; r: number; t: number; ale
   const x = a.x + (b.x - a.x) * e, y = a.y + (b.y - a.y) * e;
   return (
     <g>
-      <line x1={a.x} y1={a.y} x2={x} y2={y} stroke={PAPER} strokeOpacity={0.5 * (1 - alert)} strokeWidth={1} vectorEffect="non-scaling-stroke" />
+      <line x1={a.x} y1={a.y} x2={x} y2={y} stroke={FG} strokeOpacity={0.5 * (1 - alert)} strokeWidth={1} vectorEffect="non-scaling-stroke" />
       {alert > 0 && <line x1={a.x} y1={a.y} x2={x} y2={y} stroke={HIGH} strokeOpacity={alert} strokeWidth={1.5} vectorEffect="non-scaling-stroke" />}
-      <circle cx={a.x} cy={a.y} r={2.5} fill={alert > 0.5 ? HIGH : PAPER} />
+      <circle cx={a.x} cy={a.y} r={2.5} fill={alert > 0.5 ? HIGH : FG} />
       {t < 1 && <circle cx={x} cy={y} r={3} fill={LIME} />}
     </g>
   );
@@ -180,21 +181,21 @@ export function OutOfTrust({ p }: { p: number }) {
 
         {/* The car */}
         <g transform={`translate(${car.x} ${car.y}) scale(${L.car.s})`}>
-          <circle r={RING} fill="none" stroke={alert > 0.5 ? HIGH : LIME} strokeOpacity={0.45} strokeWidth={1} vectorEffect="non-scaling-stroke" className="animate-pulse-dot motion-reduce:animate-none" />
+          <circle r={RING} fill="none" stroke={alert > 0.5 ? HIGH : FG} strokeOpacity={0.3} strokeWidth={1} vectorEffect="non-scaling-stroke" className="animate-pulse-dot motion-reduce:animate-none" />
           <circle r={RING + 14 * alert} fill="none" stroke={HIGH} strokeOpacity={alert * (1 - alert) * 2.4} strokeWidth={1} vectorEffect="non-scaling-stroke" />
-          <rect x={-50} y={-24} width={100} height={48} rx={11} fill={LIME} />
+          <rect x={-50} y={-24} width={100} height={48} rx={11} fill={LIME} stroke={FG} strokeOpacity={0.35} vectorEffect="non-scaling-stroke" />
           <rect x={-50} y={-24} width={100} height={48} rx={11} fill={HIGH} opacity={alert} />
           <rect x={14} y={-19} width={15} height={38} rx={3.5} fill={INK} fillOpacity={0.55} />
           <rect x={-38} y={-17} width={9} height={34} rx={2.5} fill={INK} fillOpacity={0.35} />
           <rect x={-22} y={-20} width={30} height={40} rx={4} fill={INK} fillOpacity={0.08} />
           <g style={SANS} textAnchor="middle">
-            <text y={40} fontSize={9.5} fill={PAPER}>Kia Niro EV <tspan style={MONO} fillOpacity={0.7}> RKR-197</tspan></text>
-            <text y={52} fontSize={9} fill={PAPER} fillOpacity={0.65} className="figure">Loan €41,900</text>
+            <text y={40} fontSize={9.5} fill={FG}>Kia Niro EV <tspan style={MONO} fillOpacity={0.7}> RKR-197</tspan></text>
+            <text y={52} fontSize={9} fill={FG} fillOpacity={0.65} className="figure">Loan €41,900</text>
           </g>
           {alert > 0 && (
             <g opacity={alert} transform={`translate(0 ${-44 - (1 - alert) * 6})`}>
               <rect x={-44} y={-11} width={88} height={20} fill={HIGH} />
-              <text y={3} fontSize={11} fontWeight={500} textAnchor="middle" fill={PAPER} style={SANS}>Out of trust</text>
+              <text y={3} fontSize={11} fontWeight={500} textAnchor="middle" fill={BG} style={SANS}>Out of trust</text>
             </g>
           )}
         </g>
@@ -203,27 +204,27 @@ export function OutOfTrust({ p }: { p: number }) {
           <Head>Marketplace</Head>
           {tSold > 0 && (
             <g opacity={ease(tSold)} transform={`translate(${154 - 36} ${6}) scale(${1.25 - 0.25 * ease(tSold)})`}>
-              <rect width={36} height={16} fill={PAPER} />
-              <text x={18} y={11.5} fontSize={10} fontWeight={600} textAnchor="middle" fill={INK} style={SANS}>Sold</text>
+              <rect width={36} height={16} fill={FG} />
+              <text x={18} y={11.5} fontSize={10} fontWeight={600} textAnchor="middle" fill={BG} style={SANS}>Sold</text>
             </g>
           )}
-          <rect x={10} y={26} width={46} height={48} fill={PAPER} fillOpacity={0.06} stroke={PAPER} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
-          <rect x={22} y={36} width={22} height={30} rx={5} fill={PAPER} fillOpacity={0.55} />
+          <rect x={10} y={26} width={46} height={48} fill={FG} fillOpacity={0.06} stroke={FG} strokeOpacity={0.2} vectorEffect="non-scaling-stroke" />
+          <rect x={22} y={36} width={22} height={30} rx={5} fill={FG} fillOpacity={0.55} />
           <rect x={25} y={40} width={16} height={6} rx={1.5} fill={INK} fillOpacity={0.5} />
-          <text x={66} y={38} fontSize={11} fill={PAPER} style={SANS}>Kia Niro EV</text>
-          <text x={66} y={52} fontSize={9.5} fill={PAPER} fillOpacity={0.55} style={SANS}>2023 · 18,400 km</text>
-          <text x={66} y={71} fontSize={14} fill={PAPER} className="figure" style={SANS}>€38,900</text>
+          <text x={66} y={38} fontSize={11} fill={FG} style={SANS}>Kia Niro EV</text>
+          <text x={66} y={52} fontSize={9.5} fill={FG} fillOpacity={0.55} style={SANS}>2023 · 18,400 km</text>
+          <text x={66} y={71} fontSize={14} fill={FG} className="figure" style={SANS}>€38,900</text>
         </Card>
 
         {/* 2. Registry */}
         <Card box={L.registry} w={SMALL.w} h={SMALL.h} t={tReg}>
           <Head>Vehicle registry</Head>
-          <rect x={10} y={26} width={62} height={20} fill="none" stroke={PAPER} strokeOpacity={0.8} vectorEffect="non-scaling-stroke" />
-          <text x={41} y={40} fontSize={11} textAnchor="middle" fill={PAPER} style={MONO}>RKR-197</text>
-          <text x={80} y={40} fontSize={10} fill={PAPER} fillOpacity={0.55} style={SANS}>Laakso Autot</text>
+          <rect x={10} y={26} width={62} height={20} fill="none" stroke={FG} strokeOpacity={0.8} vectorEffect="non-scaling-stroke" />
+          <text x={41} y={40} fontSize={11} textAnchor="middle" fill={FG} style={MONO}>RKR-197</text>
+          <text x={80} y={40} fontSize={10} fill={FG} fillOpacity={0.55} style={SANS}>Laakso Autot</text>
           <g opacity={ease(tPending)}>
             <circle cx={15} cy={66} r={3.5} fill="var(--color-medium)" />
-            <text x={25} y={70} fontSize={11} fill={PAPER} style={SANS}>Owner change pending</text>
+            <text x={25} y={70} fontSize={11} fill={FG} style={SANS}>Owner change pending</text>
           </g>
         </Card>
 
@@ -231,13 +232,13 @@ export function OutOfTrust({ p }: { p: number }) {
         <Card box={L.map} w={BIG.w} h={BIG.h} t={tMap}>
           <Head>Location</Head>
           <Head x={154} anchor="end" o={km > 0 ? 1 : 0.4}><tspan className="figure">{km} km</tspan> from lot</Head>
-          <path d={ROAD_D} fill="none" stroke={PAPER} strokeOpacity={0.18} strokeWidth={5} strokeLinejoin="round" />
-          <path d="M8 46 L60 30 L96 98 M112 100 L150 70" fill="none" stroke={PAPER} strokeOpacity={0.08} strokeWidth={2} />
+          <path d={ROAD_D} fill="none" stroke={FG} strokeOpacity={0.18} strokeWidth={5} strokeLinejoin="round" />
+          <path d="M8 46 L60 30 L96 98 M112 100 L150 70" fill="none" stroke={FG} strokeOpacity={0.08} strokeWidth={2} />
           <circle cx={ROAD[0].x} cy={ROAD[0].y} r={16} fill={LIME} fillOpacity={0.1} stroke={LIME} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-          <text x={ROAD[0].x} y={ROAD[0].y + 27} fontSize={9} textAnchor="middle" fill={PAPER} fillOpacity={0.55} style={SANS}>Lot</text>
+          <text x={ROAD[0].x} y={ROAD[0].y + 27} fontSize={9} textAnchor="middle" fill={FG} fillOpacity={0.55} style={SANS}>Lot</text>
           {drive > 0 && <path d={road.trail} fill="none" stroke={LIME} strokeWidth={1.5} strokeDasharray="2 3" vectorEffect="non-scaling-stroke" />}
           <circle cx={road.at.x} cy={road.at.y} r={4.5} fill={alert > 0.5 ? HIGH : LIME} />
-          {drive >= 1 && <circle cx={road.at.x} cy={road.at.y} r={8} fill="none" stroke={PAPER} strokeOpacity={0.5} vectorEffect="non-scaling-stroke" />}
+          {drive >= 1 && <circle cx={road.at.x} cy={road.at.y} r={8} fill="none" stroke={FG} strokeOpacity={0.5} vectorEffect="non-scaling-stroke" />}
         </Card>
 
         {/* 4. Payoff window: two business days, the bank's view */}
@@ -248,23 +249,23 @@ export function OutOfTrust({ p }: { p: number }) {
             const f = Math.min(1, Math.max(0, fill * 2 - i));
             return (
               <g key={d} transform={`translate(${10 + i * 74} 26)`}>
-                <rect width={70} height={30} fill={PAPER} fillOpacity={0.04} stroke={PAPER} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
-                <rect width={70 * f} height={30} fill={PAPER} fillOpacity={0.2} />
-                <text x={6} y={19} fontSize={10} fill={PAPER} fillOpacity={0.8} style={SANS}>{d}</text>
+                <rect width={70} height={30} fill={FG} fillOpacity={0.04} stroke={FG} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
+                <rect width={70 * f} height={30} fill={FG} fillOpacity={0.2} />
+                <text x={6} y={19} fontSize={10} fill={FG} fillOpacity={0.8} style={SANS}>{d}</text>
               </g>
             );
           })}
-          <text x={10} y={74} fontSize={10} fill={PAPER} fillOpacity={0.55} style={SANS}>Due <tspan className="figure">€41,900</tspan></text>
+          <text x={10} y={74} fontSize={10} fill={FG} fillOpacity={0.55} style={SANS}>Due <tspan className="figure">€41,900</tspan></text>
           <g opacity={ease(tNo)}>
             <rect x={10} y={84} width={144} height={22} fill={HIGH} fillOpacity={0.18} stroke={HIGH} vectorEffect="non-scaling-stroke" />
             <path d="M18 90 l10 10 M28 90 l-10 10" stroke={HIGH} strokeWidth={2} />
-            <text x={36} y={99} fontSize={11} fontWeight={600} fill={PAPER} style={SANS}>No payoff</text>
+            <text x={36} y={99} fontSize={11} fontWeight={600} fill={FG} style={SANS}>No payoff</text>
           </g>
         </Card>
 
         {/* 5. Who steps in, cheapest first */}
         <Card box={L.ladder} w={LADDER.w} h={LADDER.h} t={tLadder} bare>
-          <text x={0} y={12} fontSize={10} fill={PAPER} fillOpacity={0.6} style={SANS}>Cheapest first</text>
+          <text x={0} y={12} fontSize={10} fill={FG} fillOpacity={0.6} style={SANS}>Cheapest first</text>
           {[
             { label: "Check-in", x: 0, y: 96 },
             { label: "Spot check €30", x: 28, y: 63 },
@@ -276,15 +277,15 @@ export function OutOfTrust({ p }: { p: number }) {
               <g key={r.label} transform={`translate(${r.x} ${r.y})`} opacity={0.25 + 0.75 * t}>
                 {lit ? (
                   <>
-                    <rect width={94} height={26} fill="none" stroke={PAPER} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
+                    <rect width={94} height={26} fill="none" stroke={FG} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
                     <rect width={94} height={26} fill={LIME} opacity={t} />
-                    <text x={8} y={17} fontSize={10.5} fontWeight={500} fill={t > 0.5 ? INK : PAPER} style={SANS}>{r.label}</text>
+                    <text x={8} y={17} fontSize={10.5} fontWeight={500} fill={t > 0.5 ? INK : FG} style={SANS}>{r.label}</text>
                   </>
                 ) : (
                   <>
-                    <rect width={94} height={26} fill="none" stroke={PAPER} strokeOpacity={0.35} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-                    <text x={8} y={17} fontSize={10.5} fill={PAPER} fillOpacity={0.45} style={SANS}>{r.label}</text>
-                    <text x={94} y={-5} fontSize={9} textAnchor="end" fill={PAPER} fillOpacity={0.45} style={SANS}>only if needed</text>
+                    <rect width={94} height={26} fill="none" stroke={FG} strokeOpacity={0.35} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                    <text x={8} y={17} fontSize={10.5} fill={FG} fillOpacity={0.45} style={SANS}>{r.label}</text>
+                    <text x={94} y={-5} fontSize={9} textAnchor="end" fill={FG} fillOpacity={0.45} style={SANS}>only if needed</text>
                   </>
                 )}
               </g>

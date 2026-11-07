@@ -49,7 +49,6 @@ export function Story() {
         id="out-of-trust"
         index={5}
         kicker="Sold out of trust"
-        tone="dark"
         length={320}
         title={<>A sale without<br />a payoff</>}
         body="When a financed car is sold, the dealer has two business days to repay the loan. If the money doesn't come, the signals are already there. People step in only now, cheapest first."
