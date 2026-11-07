@@ -62,7 +62,7 @@ function along(x: number, u: number): [number, number, number] {
 }
 
 /** kind: 0 body, 1 glass, 2 wheel */
-function buildCar() {
+export function buildCar() {
   const out: number[] = [];
   const inArch = (x: number, y: number) => WHEELS.some(([wx, wy]) => Math.hypot(x - wx, y - wy) < WHEEL_R + 0.035);
   const push = (x: number, y: number, z: number, k: number) => {
