@@ -2,15 +2,10 @@ import Link from "next/link";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { Intro } from "@/components/home/Intro";
 import { ScanCar } from "@/components/ui/ScanCar";
+import { Story } from "@/components/story/Story";
 
 /** Skip the cover for the rest of the session once someone has entered. Runs before paint. */
 const SKIP_INTRO = `try{if(sessionStorage.getItem("curb:entered"))document.documentElement.dataset.entered=""}catch(e){}`;
-
-const LAYERS = [
-  { when: "Every day", title: "Connected data" },
-  { when: "Now and then", title: "Check-in" },
-  { when: "Last", title: "Spot check" },
-];
 
 const ROLES = [
   { href: "/bank", title: "Bank", kind: "Desktop" },
@@ -31,14 +26,7 @@ export default function Home() {
           <ScanCar scale={0.4} className="aspect-[4/3] w-full lg:absolute lg:top-0 lg:right-0 lg:bottom-[12%] lg:aspect-auto lg:h-auto lg:w-[58%]" title="A car turning in its bay while a scan passes over it" />
         </header>
 
-        <ol className="mx-auto grid max-w-[1600px] border-t border-ink md:grid-cols-3" aria-label="How a car gets verified">
-          {LAYERS.map((l, i) => (
-            <li key={l.title} className={`flex flex-col justify-between gap-6 px-4 py-6 md:min-h-[38vh] md:gap-10 md:px-8 md:py-10 ${i > 0 ? "border-t border-ink md:border-t-0 md:border-l" : ""}`}>
-              <span className="text-sm text-ash-700">{l.when}</span>
-              <h2 className="display-wide text-[clamp(2rem,3.4vw,3.4rem)]">{l.title}</h2>
-            </li>
-          ))}
-        </ol>
+        <Story />
 
         <section className="border-t border-ink" aria-label="Open the prototype">
           <ul>
