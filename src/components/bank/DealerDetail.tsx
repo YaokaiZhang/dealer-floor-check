@@ -304,7 +304,7 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
   );
 }
 
-const HK: Record<HistoryEntry["kind"], string> = { check_in: "Check-in", tier_change: "Tier", alert: "Alert", onboarding: "Onboarding", verifier: "Verifier" };
+const HK: Record<HistoryEntry["kind"], string> = { check_in: "Check-in", tier_change: "Tier", alert: "Alert", onboarding: "Onboarding", verifier: "Verifier", payoff: "Payoff" };
 const HO: Record<HistoryEntry["outcome"], string> = { clean: "bg-lime", failed: "bg-high", skipped: "bg-medium", resolved: "bg-brand", info: "bg-paper" };
 
 function History({ entries }: { entries: HistoryEntry[] }) {
@@ -328,7 +328,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
   const [all, setAll] = useState(false);
   const cars = s.cars.filter((c) => c.dealerId === d.id);
   const shown = all ? cars : cars.slice(0, 8);
-  const STATUS: Record<string, string> = { in_stock: "in stock", sold_awaiting_payoff: "sold, payoff due", sold_paid: "sold, paid", sold_unpaid_suspect: "sold out of trust" };
+  const STATUS: Record<string, string> = { in_stock: "in stock", sold_awaiting_payoff: "sold, payoff due", sold_paid: "sold, paid", paid_off: "paid off", sold_unpaid_suspect: "sold out of trust" };
   return (
     <Block title={`Cars (${cars.length})`} note={`${cars.filter((c) => c.connected).length} connected`}>
       <div className="overflow-x-auto border-y border-line">
@@ -348,7 +348,7 @@ function CarList({ s, d }: { s: Store; d: Dealer }) {
                 <td className="p-2 text-right tabular-nums">{eur(c.loanAmount)}</td>
                 <td className="p-2"><Check ok={c.connected} /></td>
                 <td className="p-2"><Check ok={isAutoVerified(s, c)} /></td>
-                <td className="p-2">{c.status === "sold_unpaid_suspect" ? <Tag tone="high">{STATUS[c.status]}</Tag> : <span className={c.status === "sold_paid" ? "text-ash-500" : ""}>{STATUS[c.status]}{c.status === "sold_awaiting_payoff" && c.sale ? ` ${dateFi(c.sale.payoffDueAt)}` : ""}</span>}</td>
+                <td className="p-2">{c.status === "sold_unpaid_suspect" ? <Tag tone="high">{STATUS[c.status]}</Tag> : <span className={c.status === "sold_paid" || c.status === "paid_off" ? "text-ash-500" : ""}>{STATUS[c.status]}{c.status === "sold_awaiting_payoff" && c.sale ? ` ${dateFi(c.sale.payoffDueAt)}` : ""}</span>}</td>
               </tr>
             ))}
           </tbody>

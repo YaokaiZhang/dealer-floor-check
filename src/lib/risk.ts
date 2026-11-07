@@ -18,7 +18,7 @@ export function isAutoVerified(state: DemoState, car: Car, now = Date.now()): bo
 }
 
 export const financedCars = (state: DemoState, dealerId: string) =>
-  state.cars.filter((c) => c.dealerId === dealerId && c.status !== "sold_paid");
+  state.cars.filter((c) => c.dealerId === dealerId && c.status !== "sold_paid" && c.status !== "paid_off");
 
 export function portfolioStats(state: DemoState, dealerId: string) {
   const cars = financedCars(state, dealerId);

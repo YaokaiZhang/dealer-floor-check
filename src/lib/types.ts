@@ -1,5 +1,6 @@
 export type Tier = "Gold" | "Silver" | "Standard" | "Review";
-export type CarStatus = "in_stock" | "sold_awaiting_payoff" | "sold_paid" | "sold_unpaid_suspect";
+/** paid_off: the dealer repaid the loan before a sale; the car stays on the lot but is no longer collateral. */
+export type CarStatus = "in_stock" | "sold_awaiting_payoff" | "sold_paid" | "paid_off" | "sold_unpaid_suspect";
 export type Severity = "high" | "medium" | "low";
 export type AlertSource = "connected_car" | "marketplace" | "registry" | "check_in" | "spot_check";
 
@@ -8,7 +9,7 @@ export interface Geofence { lat: number; lng: number; radiusM: number }
 export interface HistoryEntry {
   id: string;
   date: string; // ISO date
-  kind: "check_in" | "tier_change" | "alert" | "onboarding" | "verifier";
+  kind: "check_in" | "tier_change" | "alert" | "onboarding" | "verifier" | "payoff";
   outcome: "clean" | "failed" | "skipped" | "resolved" | "info";
   note: string;
 }
@@ -44,6 +45,8 @@ export interface Car {
   demoScenario?: string;
   /** A feed showed the car sold; the dealer owes the payoff by payoffDueAt. */
   sale?: { seenAt: string; via: "marketplace" | "registry"; payoffDueAt: string };
+  /** When the loan was repaid. */
+  paidAt?: string;
 }
 
 export interface ConnectedFeed { lat: number; lng: number; odometerKm: number; lastSeen: string; outsideSince?: string; prevOdometerKm?: number }

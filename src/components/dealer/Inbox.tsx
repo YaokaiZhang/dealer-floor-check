@@ -9,8 +9,9 @@ import { Bar, Check, TextAction } from "./Bar";
 import { FREQUENCY } from "./tierCopy";
 import { bookedLabel, makeWindows } from "./windows";
 
-export function Inbox({ dealer, checkIns, onTier }: { dealer: Dealer; checkIns: CheckIn[]; onTier: () => void }) {
-  if (checkIns.length === 0) return <EmptyInbox dealer={dealer} onTier={onTier} />;
+/** quiet: something else (a payoff) leads the screen, so skip the "All good" headline. */
+export function Inbox({ dealer, checkIns, onTier, quiet }: { dealer: Dealer; checkIns: CheckIn[]; onTier: () => void; quiet?: boolean }) {
+  if (checkIns.length === 0) return <EmptyInbox dealer={dealer} onTier={onTier} quiet={quiet} />;
   return (
     <div>
       {checkIns.map((ci) => <CheckInCard key={ci.id} checkIn={ci} />)}
@@ -18,14 +19,16 @@ export function Inbox({ dealer, checkIns, onTier }: { dealer: Dealer; checkIns: 
   );
 }
 
-function EmptyInbox({ dealer, onTier }: { dealer: Dealer; onTier: () => void }) {
+function EmptyInbox({ dealer, onTier, quiet }: { dealer: Dealer; onTier: () => void; quiet?: boolean }) {
   const t = TIERS[dealer.tier];
   return (
     <div>
-      <section className="flex items-end justify-between gap-4 px-4 pt-10 pb-8">
-        <h2 className="display-wide text-[1.9rem]">All good</h2>
-        <Check size={48} />
-      </section>
+      {!quiet && (
+        <section className="flex items-end justify-between gap-4 px-4 pt-10 pb-8">
+          <h2 className="display-wide text-[1.9rem]">All good</h2>
+          <Check size={48} />
+        </section>
+      )}
 
       <button type="button" onClick={onTier} className="group block w-full border-t border-ink text-left transition-colors duration-300 hover:bg-ink hover:text-paper focus-visible:-outline-offset-4">
         <span className="flex items-center justify-between gap-3 px-4 pt-6 pb-4">

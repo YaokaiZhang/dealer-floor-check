@@ -8,12 +8,14 @@ import type { Tier } from "@/lib/types";
 import { Inbox } from "./Inbox";
 import { CaptureFlow } from "./CaptureFlow";
 import { DoneScreen } from "./DoneScreen";
+import { PayoffDueCard, Payoffs, payoffsDue } from "./Payoffs";
 import { TierPage } from "./TierPage";
 import { Transparency } from "./Transparency";
 
-type Tab = "checkins" | "tier" | "rules";
+type Tab = "checkins" | "payoffs" | "tier" | "rules";
 const TABS: { id: Tab; label: string }[] = [
   { id: "checkins", label: "Check-ins" },
+  { id: "payoffs", label: "Payoffs" },
   { id: "tier", label: "Your tier" },
   { id: "rules", label: "What we check" },
 ];
@@ -64,6 +66,7 @@ export function DealerApp() {
 
   const dealer = state.dealers.find((d) => d.id === params.get("d")) ?? state.dealers.find((d) => d.id === "d1") ?? state.dealers[0];
   const open = state.checkIns.filter((c) => c.dealerId === dealer.id && c.status !== "completed");
+  const due = payoffsDue(state, dealer.id);
   const active = open.find((c) => c.status === "in_progress");
   const doneCheckIn = done ? state.checkIns.find((c) => c.id === done.id && c.dealerId === dealer.id) : undefined;
   const showDone = !!doneCheckIn && doneCheckIn.status === "completed";
@@ -110,11 +113,11 @@ export function DealerApp() {
           </div>
         ))}
 
-      <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-3 border-y border-ink bg-paper">
+      <nav aria-label="Sections" className="sticky top-14 z-30 grid grid-cols-4 border-y border-ink bg-paper">
         {/* One ink block slides under the active tab. */}
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-ink transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-ink transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{ transform: `translateX(${TABS.findIndex((t) => t.id === tab) * 100}%)` }}
         />
         {TABS.map((t, i) => {
@@ -128,9 +131,10 @@ export function DealerApp() {
               className={`relative flex min-h-12 items-center justify-center gap-1.5 px-1 text-center text-[0.8rem] leading-tight font-medium transition-colors duration-300 focus-visible:-outline-offset-4 ${i > 0 ? "border-l border-ink" : ""} ${on ? "text-paper focus-visible:outline-paper" : "hover:bg-brand-soft"}`}
             >
               {t.label}
-              {t.id === "checkins" && open.length > 0 && (
-                <span className={`inline-flex size-5 items-center justify-center tag-text ${on ? "bg-lime text-ink" : "bg-brand text-ink"}`}>{open.length}</span>
-              )}
+              {(() => {
+                const n = t.id === "checkins" ? open.length : t.id === "payoffs" ? due.length : 0;
+                return n > 0 && <span className={`inline-flex size-5 items-center justify-center tag-text ${on ? "bg-lime text-ink" : "bg-brand text-ink"}`}>{n}</span>;
+              })()}
             </button>
           );
         })}
@@ -152,9 +156,13 @@ export function DealerApp() {
               }}
             />
           ) : (
-            <Inbox dealer={dealer} checkIns={open} onTier={() => setTab("tier")} />
+            <>
+              {due.map((c) => <PayoffDueCard key={c.vin} car={c} />)}
+              <Inbox dealer={dealer} checkIns={open} onTier={() => setTab("tier")} quiet={due.length > 0} />
+            </>
           )
         )}
+        {tab === "payoffs" && <Payoffs state={state} dealerId={dealer.id} />}
         {tab === "tier" && <TierPage dealer={dealer} />}
         {tab === "rules" && <Transparency />}
       </div>

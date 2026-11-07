@@ -394,13 +394,18 @@ export const ops = {
     startPayoffClock(s, car, "registry");
   },
 
-  /** The dealer repays the loan for a sold car. */
+  /** The dealer repays a loan: for a sold car, or early for one still on the lot. */
   payoffReceived(s: Store, vin: string) {
     const car = carOf(s, vin);
-    if (car.status === "sold_paid") return;
-    car.status = "sold_paid";
+    if (car.status === "sold_paid" || car.status === "paid_off") return;
+    const d = dealerOf(s, car.dealerId);
+    const sold = car.status !== "in_stock";
+    car.status = sold ? "sold_paid" : "paid_off";
+    car.paidAt = new Date().toISOString();
+    const late = sold && car.sale && Date.parse(car.sale.payoffDueAt) < Date.now();
+    d.history.push({ id: uid("h"), date: today(), kind: "payoff", outcome: late ? "info" : "clean", note: `Paid off ${car.make} ${car.model} (${eur(car.loanAmount)})${sold ? "" : " before sale"}` });
     for (const a of s.alerts) if (a.vin === vin && (a.status === "open" || a.status === "investigating")) a.evidence.push({ label: "Payoff", value: `Received ${today()}` });
-    log(s, `Payoff received: ${vin} at ${dealerOf(s, car.dealerId).name}`);
+    log(s, `Payoff received: ${vin} at ${d.name}${sold ? "" : " (before sale)"}`);
   },
 
   /** Demo: jump to the payoff deadline of a sold car. */
