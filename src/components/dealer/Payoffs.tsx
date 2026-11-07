@@ -13,6 +13,14 @@ export const payoffsDue = (s: DemoState, dealerId: string) =>
 
 const carName = (c: Car) => `${c.make} ${c.model}`;
 
+const squash = (x: string) => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+/** Every word must appear somewhere: "rkr197", "RKR-197", "niro white" and the last digits of the VIN all work. */
+function matches(c: Car, words: string[]) {
+  const hay = squash(`${c.make} ${c.model} ${c.year} ${c.color} ${c.plate} ${c.vin}`);
+  return words.every((w) => hay.includes(w));
+}
+const MAX_RESULTS = 8;
+
 function dueText(c: Car) {
   if (!c.sale) return "Sold";
   return Date.parse(c.sale.payoffDueAt) < Date.now() ? `Was due ${dateFi(c.sale.payoffDueAt)}` : `Due ${dateFi(c.sale.payoffDueAt)}`;
@@ -46,7 +54,7 @@ export function PayoffDueCard({ car }: { car: Car }) {
     <section className="animate-rise border-b border-ink" aria-label={`Payoff for ${carName(car)}`}>
       <div className="px-4 pt-10 pb-6">
         <h2 className="display-wide text-[1.9rem]">Payoff due</h2>
-        <p className="mt-4 font-medium">{carName(car)} <span className="text-ash-700">{car.plate}</span></p>
+        <p className="mt-4 font-medium">{carName(car)} <span className="whitespace-nowrap text-ash-700">{car.plate}</span></p>
         <p className="mt-1 text-sm text-ash-700">Sold. {dueText(car)}</p>
       </div>
       {c.confirming ? <Confirm car={car} onPay={c.pay} onCancel={c.cancel} /> : <Bar onClick={c.ask}>Pay off {eur(car.loanAmount)}</Bar>}
@@ -60,7 +68,7 @@ function Row({ car, sub, emphasis }: { car: Car; sub: string; emphasis?: boolean
     <li className="border-t border-line">
       <div className="flex items-center justify-between gap-3 px-4 py-4">
         <div className="min-w-0">
-          <p className="font-medium [overflow-wrap:anywhere]">{carName(car)} <span className="text-ash-700">{car.plate}</span></p>
+          <p className="font-medium [overflow-wrap:anywhere]">{carName(car)} <span className="whitespace-nowrap text-ash-700">{car.plate}</span></p>
           <p className={`mt-0.5 text-sm ${emphasis ? "text-ink" : "text-ash-700"}`}>{sub}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
@@ -102,16 +110,14 @@ export function Payoffs({ state, dealerId }: { state: DemoState; dealerId: strin
         </Group>
       )}
 
-      <Group title="On the lot">
-        {onLot.length ? onLot.map((c) => <Row key={c.vin} car={c} sub={`Financed since ${dateFi(c.loanOpenedAt)}`} />) : <li className="border-t border-line px-4 py-4 text-sm text-ash-700">No open loans.</li>}
-      </Group>
+      <FindCar cars={onLot} />
 
       {paid.length > 0 && (
         <Group title="Paid off">
           {paid.map((c) => (
             <li key={c.vin} className="flex items-center justify-between gap-3 border-t border-line px-4 py-4">
               <div className="min-w-0">
-                <p className="font-medium">{carName(c)} <span className="text-ash-700">{c.plate}</span></p>
+                <p className="font-medium">{carName(c)} <span className="whitespace-nowrap text-ash-700">{c.plate}</span></p>
                 <p className="mt-0.5 text-sm text-ash-700">{dateFi(c.paidAt!)}</p>
               </div>
               <span className="flex shrink-0 items-center gap-3">
@@ -124,6 +130,45 @@ export function Payoffs({ state, dealerId }: { state: DemoState; dealerId: strin
       )}
       <div className="border-t border-ink" />
     </div>
+  );
+}
+
+/** With a hundred cars on the lot, the dealer looks one up instead of scrolling. */
+function FindCar({ cars }: { cars: Car[] }) {
+  const [q, setQ] = useState("");
+  const words = q.split(/\s+/).map(squash).filter(Boolean);
+  const hits = words.length ? cars.filter((c) => matches(c, words)) : [];
+
+  return (
+    <section className="border-t border-ink">
+      <h3 className="px-4 pt-8 pb-5 display-wide text-[1.5rem]">On the lot</h3>
+      <div className="px-4 pb-4">
+        <label htmlFor="find-car" className="sr-only">Find a car</label>
+        <input
+          id="find-car"
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Plate, model or end of VIN"
+          autoComplete="off"
+          autoCapitalize="characters"
+          enterKeyHint="search"
+          className="h-12 w-full border border-ink bg-paper px-3 text-base placeholder:text-ash-500"
+        />
+      </div>
+      {words.length === 0 ? (
+        <p className="border-t border-line px-4 py-4 text-sm text-ash-700">{cars.length ? "Find a car to pay it off early." : "No open loans."}</p>
+      ) : hits.length === 0 ? (
+        <p className="border-t border-line px-4 py-4 text-sm text-ash-700" role="status">No car matches “{q.trim()}”.</p>
+      ) : (
+        <ul aria-live="polite">
+          {hits.slice(0, MAX_RESULTS).map((c) => <Row key={c.vin} car={c} sub={`Financed since ${dateFi(c.loanOpenedAt)}`} />)}
+          {hits.length > MAX_RESULTS && (
+            <li className="border-t border-line px-4 py-4 text-sm text-ash-700">{hits.length - MAX_RESULTS} more. Add the plate to narrow it down.</li>
+          )}
+        </ul>
+      )}
+    </section>
   );
 }
 
