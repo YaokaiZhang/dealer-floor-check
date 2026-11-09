@@ -63,7 +63,7 @@ export function Story() {
         duration={9500}
         title={<>A sale without<br />a payoff</>}
         body="A car is sold but the loan isn't repaid within two days. The signals are already there."
-        steps={["Sold online", "Owner change filed", "Car leaves the lot", "No payoff in two days", "Payoff reminder, then a spot check of the rest"]}
+        steps={["Sold online", "Owner change filed", "Car leaves the lot", "No payoff in two days", "All four: payoff reminder, credit paused"]}
         visual={(p) => <OutOfTrust p={p} />}
       />
       <Scene
