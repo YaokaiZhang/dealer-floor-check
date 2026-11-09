@@ -272,14 +272,14 @@ export function HeroLot({ className = "" }: { className?: string }) {
 
       // A slow orbit, nudged by the pointer, rising with scroll.
       const ang = -1.12 + (reduce ? 0 : Math.sin(t * 0.00006) * 0.12) + cam.x * 0.35;
-      const radius = (mobile ? 15 : 13) + cam.s * 3;
+      const radius = (mobile ? 13.5 : 10) + cam.s * 3;
       const height = 6 + cam.s * 5 - cam.y * 2;
       const target: V3 = [0, 0, 0];
       const eye: V3 = [target[0] + Math.sin(ang) * radius, height, target[2] + Math.cos(ang) * radius];
       const aspect = W / Math.max(1, H);
       const fov = mobile ? 0.82 : 0.62;
       // Shift the lot on screen: to the right of the title on desktop, above it on phones.
-      const shift = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, mobile ? 0.05 : 0.46, mobile ? 0.16 : 0.12, 0, 1]);
+      const shift = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, mobile ? 0.03 : 0.4, mobile ? 0.16 : 0.12, 0, 1]);
       const mvp = mul(shift, mul(perspective(fov, aspect, 0.1, 80), lookAt(eye, target)));
       const focal = Math.hypot(eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]);
 
