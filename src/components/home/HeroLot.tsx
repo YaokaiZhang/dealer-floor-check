@@ -41,7 +41,7 @@ function buildLot(mobile: boolean) {
   const car = buildCar();
   const r = rand(7);
   const out: number[] = [];
-  const step = mobile ? 3 : 2;
+  const step = mobile ? 2 : 1;
   const scatter = (x: number, y: number, z: number): V3 => {
     const a = r() * Math.PI * 2, b = r() * 0.9 + 0.1, d = 3 + r() * 7;
     return [x * 0.4 + Math.cos(a) * d, y + 4 + b * d * 0.6, z * 0.4 + Math.sin(a) * d];
@@ -64,8 +64,10 @@ function buildLot(mobile: boolean) {
         const yaw = (side < 0 ? 0 : Math.PI) + (flip < 0 ? Math.PI : 0) + (r() - 0.5) * 0.06;
         const c = Math.cos(yaw), s = Math.sin(yaw);
         const sc = 0.98 + r() * 0.06;
-        const offset = r() * step | 0;
-        for (let i = offset * 4; i < car.length; i += 4 * step) {
+        // Thin the car by random keep, not by stride: the model pushes each point and its mirror
+        // back to back, so a stride of 2 would keep one flank and drop the other.
+        for (let i = 0; i < car.length; i += 4) {
+          if (r() * step >= 1) continue;
           const x = car[i] * sc, y = car[i + 1] * sc, z = car[i + 2] * sc;
           add(cx + x * c - z * s, y, cz + x * s + z * c, isGhost ? 5 : car[i + 3]);
         }

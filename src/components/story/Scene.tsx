@@ -84,9 +84,9 @@ export function Scene({
           </p>
           <div className="mt-4 lg:mt-0">
             <h2 className="display-wide text-[clamp(2.1rem,4.4vw,4.6rem)] [overflow-y:clip]"><span className="reveal-rise block">{title}</span></h2>
-            <div className={`reveal-fade [--d:200ms] mt-4 max-w-[46ch] text-[0.95rem] leading-relaxed md:text-base lg:mt-6 ${dark ? "text-paper/75" : "text-ash-700"}`}>{body}</div>
+            <div className={`reveal-fade [--d:200ms] mt-4 max-w-[36ch] text-base leading-relaxed md:text-lg lg:mt-6 ${dark ? "text-paper/75" : "text-ash-700"}`}>{body}</div>
             {steps && (
-              <ol className="reveal-fade [--d:320ms] mt-5 hidden max-w-[46ch] lg:block" aria-label="Steps">
+              <ol className="reveal-fade [--d:320ms] mt-6 hidden max-w-[36ch] lg:block" aria-label="Steps">
                 {steps.map((s, i) => (
                   <li key={s} className={`flex gap-3 border-t py-2.5 text-sm transition-colors duration-300 ${dark ? "border-paper/15" : "border-line"} ${i === step ? (dark ? "text-paper" : "text-ink") : dark ? "text-paper/35" : "text-ash-500"}`}>
                     <span className="figure w-5 shrink-0">{i + 1}</span>

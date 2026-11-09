@@ -5,6 +5,7 @@ import { Signals } from "./Signals";
 import { CheckIn } from "./CheckIn";
 import { Sampling } from "./Sampling";
 import { OutOfTrust } from "./OutOfTrust";
+import { Verifiers } from "./Verifiers";
 import { Tiers } from "./Tiers";
 import { Savings } from "./Savings";
 
@@ -16,8 +17,8 @@ export function Story() {
         id="today"
         index={1}
         kicker="Floor checks today"
-        title={<>A day on foot<br />per dealer</>}
-        body="An auditor walks every aisle and ticks off every car on a clipboard. It costs about €400 a visit, the dealer loses half a day, and the cars sold last week still slip through."
+        title={<>Car by car,<br />on foot</>}
+        body="An auditor ticks off every car by hand. It costs €400 a visit, and last week's sales still slip through."
         visual={(p) => <Walk p={p} />}
       />
       <Scene
@@ -25,8 +26,8 @@ export function Story() {
         index={2}
         kicker="Data first"
         title={<>Most cars check<br />themselves</>}
-        body="Floor-plan stock is new or nearly new, and almost every recent car leaves the factory with a modem and GPS. So the cars can say where they are themselves, and only the rest need a person."
-        steps={["Recent cars carry a modem and GPS", "The carmaker shares each car's position, with the dealer's consent", "Seen inside the lot in the last day: verified", "Registry and marketplace feeds flag sales the same day"]}
+        body="Recent cars have GPS built in. If a car is on the lot, its own position says so."
+        steps={["GPS in the car", "Position shared by the carmaker", "On the lot today: verified", "Sales flagged by registry feeds"]}
         visual={(p) => <Signals p={p} />}
       />
       <Scene
@@ -34,8 +35,8 @@ export function Story() {
         index={3}
         kicker="Check-in on the phone"
         title={<>Three photos<br />a car</>}
-        body="Now and then the dealer gets a short check-in for a few cars. They pick a time that suits them, then photograph the VIN plate, the car and the odometer. It takes about five minutes."
-        steps={["VIN plate read and matched", "Taken on the lot, inside the window", "Odometer in line with the last reading", "A new photo, not a reused one"]}
+        body="For the rest, the dealer now and then photographs a few cars. About five minutes, when it suits them."
+        steps={["VIN matches", "Taken on the lot", "Odometer adds up", "A fresh photo"]}
         visual={(p) => <CheckIn p={p} />}
       />
       <Scene
@@ -43,7 +44,7 @@ export function Story() {
         index={4}
         kicker="Small samples, often"
         title={<>Nobody knows<br />which cars</>}
-        body="Each check-in draws a few cars at random from the ones data couldn't verify. One check-in proves little. A year of them finds a missing car more than nine times in ten."
+        body="A few random cars each time. Over a year, a missing car is found more than nine times in ten."
         visual={(p) => <Sampling p={p} />}
       />
       <Scene
@@ -52,24 +53,33 @@ export function Story() {
         kicker="Sold out of trust"
         duration={9500}
         title={<>A sale without<br />a payoff</>}
-        body="When a financed car is sold, the dealer has two business days to repay the loan. If the money doesn't come, the signals are already there. People step in only now, cheapest first."
-        steps={["Listed on a marketplace", "Registry owner change pending", "Car seen 180 km away", "Two business days, no payoff", "Check-in, then a €30 spot check"]}
+        body="A car is sold but the loan isn't repaid within two days. The signals are already there."
+        steps={["Listed for sale", "Owner change filed", "Car leaves the lot", "No payoff in two days", "Check-in, then a spot check"]}
         visual={(p) => <OutOfTrust p={p} />}
       />
       <Scene
-        id="trust"
+        id="verifiers"
         index={6}
+        kicker="Freelance verifiers"
+        title={<>A local, not<br />an auditor</>}
+        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €400.`}
+        steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 paid"]}
+        visual={(p) => <Verifiers p={p} />}
+      />
+      <Scene
+        id="trust"
+        index={7}
         kicker="Keeping dealers"
         title={<>Trust earns<br />fewer checks</>}
-        body="Three clean check-ins in a row move a dealer up a tier. Gold dealers get two check-ins a year, a better rate and answers on their credit line within a day."
+        body="Clean check-ins move a dealer up a tier. Gold dealers get two a year and a better rate."
         visual={(p) => <Tiers p={p} />}
       />
       <Scene
         id="result"
-        index={7}
+        index={8}
         kicker="The result"
         title={<>Cheaper checks,<br />less fraud</>}
-        body="Per dealer and year, against six manual floor checks. All figures are assumptions in one config file."
+        body="Per dealer and year, against six manual floor checks. All figures are assumptions."
         visual={(p) => <Savings p={p} />}
       />
     </div>
