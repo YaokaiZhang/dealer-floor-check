@@ -47,7 +47,6 @@ export default function Home() {
           </ul>
         </Reveal>
 
-        <footer className="mx-auto max-w-[1600px] px-4 py-8 text-sm text-ash-700 md:px-8">Fictional prototype. Simulated data.</footer>
       </main>
     </>
   );
