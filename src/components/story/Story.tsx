@@ -70,7 +70,7 @@ export function Story() {
         id="trust"
         index={7}
         kicker="Keeping dealers"
-        title={<>Trust earns<br />fewer checks</>}
+        title={<>Trust earns<br />benefits</>}
         body="Clean check-ins move a dealer up a tier. Gold dealers get two a year and a better rate."
         visual={(p) => <Tiers p={p} />}
       />
