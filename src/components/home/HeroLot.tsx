@@ -11,17 +11,17 @@ import { ScanCar, buildCar } from "@/components/ui/ScanCar";
  */
 
 // Lot layout: double rows of cars nose to nose, bays side by side along z.
-const SPINES = [-6.2, 0, 6.2];
-const BAYS = 7;
-const BAY_W = 1.12;
+const SPINES = [0];
+const BAYS = 5;
+const BAY_W = 1.3;
 const HALF_LOT_Z = (BAYS * BAY_W) / 2;
-const GHOST = { spine: 1, side: 1, bay: 2 }; // the empty bay
-const ORIGIN: [number, number] = [-9.5, 5.5]; // where the scan starts (x, z), near the camera
+const GHOST = { spine: 0, side: 1, bay: 2 }; // the empty bay
+const ORIGIN: [number, number] = [-5, 4.5]; // where the scan starts (x, z), near the camera
 
 // Timeline, ms
 const ASSEMBLE = 2600;
 const SWEEP = 5200, HOLD = 2600, FADE = 900, CYCLE = SWEEP + HOLD + FADE;
-const MAX_D = 21;
+const MAX_D = 13;
 
 type V3 = [number, number, number];
 
@@ -43,7 +43,7 @@ function buildLot(mobile: boolean) {
   const out: number[] = [];
   const step = mobile ? 3 : 2;
   const scatter = (x: number, y: number, z: number): V3 => {
-    const a = r() * Math.PI * 2, b = r() * 0.9 + 0.1, d = 4 + r() * 11;
+    const a = r() * Math.PI * 2, b = r() * 0.9 + 0.1, d = 3 + r() * 7;
     return [x * 0.4 + Math.cos(a) * d, y + 4 + b * d * 0.6, z * 0.4 + Math.sin(a) * d];
   };
   const add = (x: number, y: number, z: number, k: number) => {
@@ -60,7 +60,7 @@ function buildLot(mobile: boolean) {
         const isGhost = si === GHOST.spine && side === GHOST.side && b === GHOST.bay;
         if (isGhost) ghost = [cx, 0.4, cz];
         // Nose to the spine for most cars; a few parked the other way round.
-        const flip = r() < 0.2 ? -1 : 1;
+        const flip = 1;
         const yaw = (side < 0 ? 0 : Math.PI) + (flip < 0 ? Math.PI : 0) + (r() - 0.5) * 0.06;
         const c = Math.cos(yaw), s = Math.sin(yaw);
         const sc = 0.98 + r() * 0.06;
@@ -73,15 +73,14 @@ function buildLot(mobile: boolean) {
       // Painted bay lines on this side of the spine.
       for (let b = 0; b <= BAYS; b++) {
         const z = -HALF_LOT_Z + BAY_W * b;
-        for (let t = 0.08; t <= 2.3; t += 0.07) add(sx + side * t, 0, z, 4);
+        for (let t = 0.2; t <= 2.3; t += 0.09) add(sx + side * t, 0, z, 4);
       }
     }
-    for (let z = -HALF_LOT_Z; z <= HALF_LOT_Z; z += 0.07) add(sx, 0, z, 4);
   });
 
   // Ground: a dot grid that carries the scan ring.
-  const G = mobile ? 0.42 : 0.3;
-  for (let x = -11; x <= 11; x += G) for (let z = -7; z <= 7; z += G) add(x + (r() - 0.5) * 0.05, 0, z + (r() - 0.5) * 0.05, 3);
+  const G = mobile ? 0.5 : 0.4;
+  for (let x = -7; x <= 7; x += G) for (let z = -6; z <= 6; z += G) add(x + (r() - 0.5) * 0.05, 0, z + (r() - 0.5) * 0.05, 3);
 
   return { data: new Float32Array(out), ghost };
 }
@@ -136,12 +135,12 @@ void main() {
     size *= 1.0 + band * 1.1;
   } else if (kind < 3.5) {
     col = mix(LINE, LIME, band);
-    a = 0.45 + band * 0.55;
+    a = (0.4 + band * 0.6) * smoothstep(6.5, 2.5, length(aPos.xz));
     size = 0.8 + band * 1.6;
   } else if (kind < 4.5) {
     col = mix(ASH, GO, band);
-    a = 0.55 + band * 0.45;
-    size = 0.75;
+    a = 0.4 + band * 0.5;
+    size = 0.7;
   } else {
     // The missing car: only there once the scan has looked for it.
     float flick = 0.75 + 0.25 * sin(uTime * 7.0 + seed * 30.0);
@@ -153,7 +152,7 @@ void main() {
 
   gl_Position = uMVP * vec4(p, 1.0);
   float w = gl_Position.w;
-  a *= smoothstep(44.0, 10.0, w);              // fog with distance
+  a *= smoothstep(30.0, 8.0, w);              // fog with distance
   gl_PointSize = max(1.0, uSize * size * uFocal / w);
   vCol = vec4(col, a);
 }`;
@@ -271,14 +270,14 @@ export function HeroLot({ className = "" }: { className?: string }) {
 
       // A slow orbit, nudged by the pointer, rising with scroll.
       const ang = -1.12 + (reduce ? 0 : Math.sin(t * 0.00006) * 0.12) + cam.x * 0.35;
-      const radius = (mobile ? 23 : 20) + cam.s * 4;
-      const height = 8 + cam.s * 7 - cam.y * 2.5;
+      const radius = (mobile ? 15 : 13) + cam.s * 3;
+      const height = 6 + cam.s * 5 - cam.y * 2;
       const target: V3 = [0, 0, 0];
       const eye: V3 = [target[0] + Math.sin(ang) * radius, height, target[2] + Math.cos(ang) * radius];
       const aspect = W / Math.max(1, H);
       const fov = mobile ? 0.82 : 0.62;
       // Shift the lot on screen: to the right of the title on desktop, above it on phones.
-      const shift = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, mobile ? 0.14 : 0.4, mobile ? 0.24 : 0.2, 0, 1]);
+      const shift = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, mobile ? 0.05 : 0.46, mobile ? 0.16 : 0.12, 0, 1]);
       const mvp = mul(shift, mul(perspective(fov, aspect, 0.1, 80), lookAt(eye, target)));
       const focal = Math.hypot(eye[0] - target[0], eye[1] - target[1], eye[2] - target[2]);
 
@@ -288,7 +287,7 @@ export function HeroLot({ className = "" }: { className?: string }) {
       gl.uniform1f(uWave, wave);
       gl.uniform1f(uFade, Math.max(0, fade));
       gl.uniform1f(uTime, t / 1000);
-      gl.uniform1f(uSize, (mobile ? 2.1 : 2.4) * dpr);
+      gl.uniform1f(uSize, (mobile ? 1.8 : 2.0) * dpr);
       gl.uniform1f(uFocal, focal);
       gl.drawArrays(gl.POINTS, 0, count);
 
@@ -326,7 +325,7 @@ export function HeroLot({ className = "" }: { className?: string }) {
 
   return (
     <div ref={wrap} className={`pointer-events-none ${className}`}>
-      <canvas ref={canvasRef} role="img" aria-label="A dealer lot drawn in points. A scan spreads across it, reading each parked car; one bay is empty." className="absolute inset-0 h-full w-full" />
+      <canvas ref={canvasRef} role="img" aria-label="A row of parked cars drawn in points. A scan spreads across it, reading each car; one bay is empty." className="absolute inset-0 h-full w-full" />
       <div ref={tagRef} aria-hidden className="absolute top-0 left-0 opacity-0 transition-opacity duration-500 will-change-transform">
         <div className="-translate-x-1/2 -translate-y-full pb-3">
           <div className="flex flex-col items-center">
