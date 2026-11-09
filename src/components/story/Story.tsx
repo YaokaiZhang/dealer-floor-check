@@ -25,7 +25,8 @@ export function Story() {
         index={2}
         kicker="Data first"
         title={<>Most cars check<br />themselves</>}
-        body="Connected cars report where they are. Any car seen inside the dealer's lot in the last day counts as verified, with nobody on site. Registry and marketplace feeds watch for sales, so an empty stall is noticed the same day."
+        body="Floor-plan stock is new or nearly new, and almost every recent car leaves the factory with a modem and GPS. So the cars can say where they are themselves, and only the rest need a person."
+        steps={["Recent cars carry a modem and GPS", "The carmaker shares each car's position, with the dealer's consent", "Seen inside the lot in the last day: verified", "Registry and marketplace feeds flag sales the same day"]}
         visual={(p) => <Signals p={p} />}
       />
       <Scene
@@ -49,7 +50,7 @@ export function Story() {
         id="out-of-trust"
         index={5}
         kicker="Sold out of trust"
-        length={320}
+        duration={9500}
         title={<>A sale without<br />a payoff</>}
         body="When a financed car is sold, the dealer has two business days to repay the loan. If the money doesn't come, the signals are already there. People step in only now, cheapest first."
         steps={["Listed on a marketplace", "Registry owner change pending", "Car seen 180 km away", "Two business days, no payoff", "Check-in, then a €30 spot check"]}

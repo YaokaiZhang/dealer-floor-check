@@ -125,3 +125,9 @@ html:not([data-entered]):has(.intro:not([data-gone])) { overflow: hidden; }
 
 /* Expected fraud loss in the savings chart: red hatching, so it reads as risk rather than spend. */
 .savings-hatch { background: repeating-linear-gradient(135deg, var(--color-high) 0 2px, transparent 2px 7px); }
+
+/* Scroll reveal: a section's parts land once it comes into view (data-shown). */
+.reveal-fade, .reveal-rise { transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms), transform 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms); }
+.reveal:not([data-shown]) .reveal-fade { opacity: 0; transform: translateY(18px); }
+.reveal:not([data-shown]) .reveal-rise { transform: translateY(105%); }
+@media (prefers-reduced-motion: reduce) { .reveal-fade, .reveal-rise { transition: none; } }

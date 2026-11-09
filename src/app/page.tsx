@@ -1,8 +1,10 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { Intro } from "@/components/home/Intro";
 import { HeroLot } from "@/components/home/HeroLot";
 import { Story } from "@/components/story/Story";
+import { Reveal } from "@/components/ui/Reveal";
 
 /** Skip the cover for the rest of the session once someone has entered. Runs before paint. */
 const SKIP_INTRO = `try{if(sessionStorage.getItem("curb:entered"))document.documentElement.dataset.entered=""}catch(e){}`;
@@ -30,20 +32,20 @@ export default function Home() {
 
         <Story />
 
-        <section className="border-t border-ink" aria-label="Open the prototype">
+        <Reveal className="border-t border-ink" label="Open the prototype">
           <ul>
-            {ROLES.map((r) => (
+            {ROLES.map((r, i) => (
               <li key={r.href} className="border-b border-ink">
                 <Link href={r.href} className="group block transition-colors duration-300 hover:bg-ink hover:text-paper focus-visible:bg-ink focus-visible:text-paper focus-visible:outline-none">
                   <span className="mx-auto flex max-w-[1600px] items-baseline justify-between gap-6 px-4 py-6 md:px-8 md:py-8">
-                    <span className="display-wide text-[clamp(2.6rem,7vw,6.5rem)] transition-transform duration-300 group-hover:translate-x-3">{r.title}</span>
+                    <span className="overflow-hidden"><span className="reveal-rise block" style={{ "--d": `${i * 90}ms` } as CSSProperties}><span className="block display-wide text-[clamp(2.6rem,7vw,6.5rem)] transition-transform duration-300 group-hover:translate-x-3">{r.title}</span></span></span>
                     <span className="text-sm text-ash-700 group-hover:text-paper/70">{r.kind} ↗</span>
                   </span>
                 </Link>
               </li>
             ))}
           </ul>
-        </section>
+        </Reveal>
 
         <footer className="mx-auto max-w-[1600px] px-4 py-8 text-sm text-ash-700 md:px-8">Fictional prototype. Simulated data.</footer>
       </main>
