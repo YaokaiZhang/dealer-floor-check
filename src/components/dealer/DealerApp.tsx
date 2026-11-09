@@ -65,7 +65,7 @@ export function DealerApp() {
   if (!hydrated) return <DealerSkeleton />;
 
   const dealer = state.dealers.find((d) => d.id === params.get("d")) ?? state.dealers.find((d) => d.id === "d1") ?? state.dealers[0];
-  const open = state.checkIns.filter((c) => c.dealerId === dealer.id && c.status !== "completed");
+  const open = state.checkIns.filter((c) => c.dealerId === dealer.id && (c.status === "scheduled" || c.status === "in_progress"));
   const due = payoffsDue(state, dealer.id);
   const active = open.find((c) => c.status === "in_progress");
   const doneCheckIn = done ? state.checkIns.find((c) => c.id === done.id && c.dealerId === dealer.id) : undefined;
@@ -102,6 +102,12 @@ export function DealerApp() {
           </div>
           <h1 className="mt-4 display-wide text-[clamp(2rem,9vw,2.75rem)] [overflow-wrap:anywhere]">{dealer.name}</h1>
         </header>
+      )}
+
+      {dealer.creditPaused && !capturing && (
+        <div className="border-t border-ink bg-brand-soft px-4 py-3 text-sm" role="status">
+          New financing is on hold for now. Your account manager will be in touch.
+        </div>
       )}
 
       {state.spotChecks

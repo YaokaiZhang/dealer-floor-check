@@ -1,7 +1,7 @@
 /**
  * Real vision read for a floor-check car, via Claude (Anthropic Messages API).
  *
- * Takes the three shots (VIN plate, whole car with licence plate, odometer),
+ * Takes the three shots (VIN plate with the one-time code, whole car with licence plate, odometer),
  * downscales them with sharp, sends them in one message and forces a strict
  * JSON answer via structured outputs. The model reads "blind": the expected
  * VIN/plate are never sent, so it cannot just echo them back.
@@ -13,7 +13,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import sharp from "sharp";
 
-export interface VisionRead { vin: string | null; confidence: number; plate: string | null; odometerKm: number | null }
+export interface VisionRead {
+  vin: string | null; confidence: number; plate: string | null; odometerKm: number | null;
+  /** Handwritten one-time code on paper next to the VIN plate. */
+  code: string | null;
+  /** Make and colour of the car in image 2. */
+  make: string | null; color: string | null;
+  /** Any image looks like a photo of a screen or a printout, or edited. */
+  fakeSuspected: boolean;
+}
 
 export const visionEnabled = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY);
 
@@ -26,8 +34,12 @@ const SCHEMA = {
     vin_confidence: { type: "number", description: "0..1 confidence in the VIN read" },
     plate: { type: ["string", "null"], description: "Licence plate exactly as printed; null if not visible" },
     odometer_km: { type: ["integer", "null"], description: "Odometer in km (convert if shown in miles); null if unreadable" },
+    code: { type: ["string", "null"], description: "4-digit code handwritten on paper in image 1; null if no code is visible" },
+    car_make: { type: ["string", "null"], description: "Car make in image 2, e.g. Volvo; null if unsure" },
+    car_color: { type: ["string", "null"], description: "Main body colour in image 2, one or two words; null if unsure" },
+    looks_fake: { type: "boolean", description: "True if any image looks like a photo of a screen or a printout, or edited" },
   },
-  required: ["vin", "vin_confidence", "plate", "odometer_km"],
+  required: ["vin", "vin_confidence", "plate", "odometer_km", "code", "car_make", "car_color", "looks_fake"],
   additionalProperties: false,
 } as const;
 
@@ -81,6 +93,9 @@ export async function readShotsWithClaude(
           { type: "text", text: "Image 2: whole car with licence plate" }, image(car),
           { type: "text", text: "Image 3: odometer" }, image(odo),
           { type: "text", text: "Read the VIN from image 1, the licence plate from image 2 and the odometer from image 3. "
+            + "Image 1 should also show a 4-digit code handwritten on paper; read it. "
+            + "From image 2, name the car's make and main colour. "
+            + "Say whether any image looks like a photo of a screen or a printout, or edited. "
             + "Only report characters you can actually see; use null rather than guessing. "
             + "If the odometer is in miles, convert to km." + country },
         ],
@@ -106,5 +121,9 @@ export async function readShotsWithClaude(
     confidence: vinRead && Number.isFinite(conf) ? Math.min(1, Math.max(0, conf)) : 0,
     plate: normPlate(raw.plate),
     odometerKm: normKm(raw.odometer_km),
+    code: typeof raw.code === "string" && /^\d{4}$/.test(raw.code.trim()) ? raw.code.trim() : null,
+    make: typeof raw.car_make === "string" && raw.car_make.trim() ? raw.car_make.trim().slice(0, 40) : null,
+    color: typeof raw.car_color === "string" && raw.car_color.trim() ? raw.car_color.trim().slice(0, 30) : null,
+    fakeSuspected: raw.looks_fake === true,
   };
 }

@@ -74,7 +74,7 @@ export function Verifiers({ p }: { p: number }) {
     <div
       className="relative h-full w-full"
       role="img"
-      aria-label={`A map around a dealer lot. A spot check is posted to verifiers nearby; one accepts, drives over, finds the three cars on the list and is paid €${FEE}, against €${AUDITOR} for an auditor's visit.`}
+      aria-label={`A map around a dealer lot. A spot check is posted to verifiers nearby; one accepts, drives over, finds the three cars on the list and is paid €${FEE} a car, against €${AUDITOR} a car for an in-person inspection.`}
     >
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden style={FONT}>
         <defs>
@@ -86,9 +86,9 @@ export function Verifiers({ p }: { p: number }) {
           <text x={8} y={34} className="figure" fill="var(--color-ink)">
             <tspan fontSize={27}>€{FEE}</tspan>
           </text>
-          <text x={8} y={48} fontSize={8} fill="var(--color-ash-500)">Local verifier, per visit</text>
+          <text x={8} y={48} fontSize={8} fill="var(--color-ash-500)">Local verifier, per car</text>
           <text x={VB_W - 8} y={34} fontSize={27} className="figure" textAnchor="end" fill="var(--color-ash-300)">€{AUDITOR}</text>
-          <text x={VB_W - 8} y={48} fontSize={8} fill="var(--color-ash-500)" textAnchor="end">Auditor, per visit</text>
+          <text x={VB_W - 8} y={48} fontSize={8} fill="var(--color-ash-500)" textAnchor="end">Inspector, per car</text>
           <line x1={8} x2={VB_W - 8} y1={56} y2={56} stroke="var(--color-line)" vectorEffect="non-scaling-stroke" />
         </g>
 

@@ -63,6 +63,7 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
   return (
     <div>
       <Progress checkIn={checkIn} currentVin={shownVin} index={car ? index : undefined} />
+      {checkIn.code && car && <CodeNote code={checkIn.code} />}
 
       {!car ? (
         <div>
@@ -93,12 +94,12 @@ export function CaptureFlow({ checkIn, onComplete }: { checkIn: CheckIn; onCompl
                   <p className="font-medium">{failed ? "Couldn't send the photos" : "We couldn't confirm this car"}</p>
                   <p className="mt-0.5 text-sm text-ash-700">{failed ? "Check the connection and retake." : "Retake: closer, no glare."}</p>
                 </div>
-                <div className="px-4 pt-4"><ShotSequence key={attempt} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
+                <div className="px-4 pt-4"><ShotSequence key={attempt} car={car} code={checkIn.code} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
                 <TextAction className="mt-2" onClick={skip}>Skip for now</TextAction>
               </div>
             ) : (
               <>
-                <div className="px-4 pt-4"><ShotSequence key={`${car.vin}-${attempt}`} car={car} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
+                <div className="px-4 pt-4"><ShotSequence key={`${car.vin}-${attempt}`} car={car} code={checkIn.code} allowDemo={state.flags.demoCamera} onDone={onShots} /></div>
                 <TextAction className="mt-2" onClick={skip}>Can&apos;t find it? Skip for now</TextAction>
               </>
             )}
@@ -150,6 +151,16 @@ function Progress({ checkIn, currentVin, index }: { checkIn: CheckIn; currentVin
           return <li key={v} className={`h-2 flex-1 border transition-colors duration-300 ${cls}`} />;
         })}
       </ol>
+    </div>
+  );
+}
+
+/** The one-time code for this check-in: on paper, next to the VIN plate in the first photo. */
+function CodeNote({ code }: { code: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-ink bg-brand-soft px-4 py-3">
+      <p className="text-sm">Write this on a piece of paper. Keep it next to the VIN plate in the first photo.</p>
+      <span className="shrink-0 border-2 border-ink bg-paper px-3 py-1 figure text-2xl tracking-[0.12em]" aria-label={`Code ${code.split("").join(" ")}`}>{code}</span>
     </div>
   );
 }

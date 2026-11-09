@@ -3,15 +3,14 @@ import { TIER_ORDER } from "@/config/tiers";
 import { FREQUENCY } from "./tierCopy";
 
 const CHECKS = [
-  { title: "Check-in photos", body: "VIN, plate, odometer, place and time" },
+  { title: "Check-in photos", body: "VIN, plate, odometer, a one-time code, place and time. Read by an AI model, checked by people" },
   { title: "Spot checks", body: "A local verifier sees a few cars. Random, short, paid by us" },
-  { title: "Connected cars", body: "Cars seen on your lot count as checked (with consent)" },
-  { title: "Public registry", body: "Ownership changes" },
+  { title: "Vehicle register", body: "Ownership changes. No more paper registration documents" },
   { title: "Marketplaces", body: "Listings of financed cars" },
 ];
 
 const DONT = [
-  "No phone tracking. Location only during a check-in you start.",
+  "No phone tracking. Location only while you fill in a check-in.",
   "No automatic changes to your terms.",
   "No sharing with other dealers.",
 ];

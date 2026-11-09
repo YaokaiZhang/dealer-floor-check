@@ -1,13 +1,11 @@
 "use client";
-import { useState } from "react";
-import { Tag } from "@/components/ui/Tag";
+import { useEffect, useState } from "react";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { TIERS } from "@/config/tiers";
 import { actions } from "@/lib/store";
-import type { CheckIn, CheckInWindow, Dealer } from "@/lib/types";
+import type { CheckIn, Dealer } from "@/lib/types";
 import { Bar, Check, TextAction } from "./Bar";
 import { FREQUENCY } from "./tierCopy";
-import { bookedLabel, makeWindows } from "./windows";
 
 /** quiet: something else (a payoff) leads the screen, so skip the "All good" headline. */
 export function Inbox({ dealer, checkIns, onTier, quiet }: { dealer: Dealer; checkIns: CheckIn[]; onTier: () => void; quiet?: boolean }) {
@@ -53,8 +51,8 @@ function EmptyInbox({ dealer, onTier, quiet }: { dealer: Dealer; onTier: () => v
 /** What the dealer is signing up for, as three facts. */
 function Ask({ targeted }: { targeted: boolean }) {
   const facts = targeted
-    ? [["Cars", "1"], ["Photos", "3"], ["Time", "~1 min"]]
-    : [["Cars", "A few"], ["Photos", "3 each"], ["Time", "~5 min"]];
+    ? [["Cars", "1"], ["Photos", "3"], ["Time", "~2 min"]]
+    : [["Cars", "A few"], ["Photos", "3 each"], ["Time", "~2 min a car"]];
   return (
     <dl className="grid grid-cols-3 border-t border-ink">
       {facts.map(([k, v], i) => (
@@ -67,60 +65,39 @@ function Ask({ targeted }: { targeted: boolean }) {
   );
 }
 
+/** The bank sets the window. No countdown: just the time, a start button when it's open, and one way out. */
 function CheckInCard({ checkIn }: { checkIn: CheckIn }) {
-  const [changing, setChanging] = useState(false);
+  const now = useNow(15_000);
+  const [asked, setAsked] = useState(false);
   const targeted = checkIn.reason === "targeted";
-  const scheduled = checkIn.status === "scheduled" && checkIn.window && !changing;
   const title = targeted ? "One quick photo" : "Quick check-in";
+  const opens = Date.parse(checkIn.window.start) - 15 * 60_000;
+  const isOpen = now >= opens && now <= Date.parse(checkIn.window.end);
 
   return (
     <section className="animate-rise border-b border-ink" aria-label={title}>
       <h2 className="px-4 pt-10 pb-8 display-wide text-[1.9rem]">{targeted ? title : <>Quick <span className="whitespace-nowrap">check-in</span></>}</h2>
       <Ask targeted={targeted} />
-      {scheduled ? (
-        <>
-          <div className="flex items-center gap-3 border-t border-ink bg-lime px-4 py-4" role="status">
-            <Check size={28} />
-            <p className="font-medium">Booked for {bookedLabel(checkIn.window!)}</p>
-          </div>
-          <Bar onClick={() => { actions.startCheckIn(checkIn.id); window.scrollTo({ top: 0 }); }}>Start check-in</Bar>
-          <TextAction className="my-1" onClick={() => setChanging(true)}>Pick another time</TextAction>
-        </>
+      <div className={`flex items-center gap-3 border-t border-ink px-4 py-4 ${isOpen ? "bg-lime" : "bg-brand-soft"}`} role="status">
+        {isOpen && <Check size={28} />}
+        <p className="font-medium">{checkIn.window.label}{checkIn.rescheduled ? " (new time)" : ""}</p>
+      </div>
+      {isOpen ? (
+        <Bar onClick={() => { actions.startCheckIn(checkIn.id); window.scrollTo({ top: 0 }); }}>Start check-in</Bar>
       ) : (
-        <WindowPicker onPick={(w) => { actions.scheduleCheckIn(checkIn.id, w); setChanging(false); }} />
+        <p className="border-t border-ink px-4 py-4 text-sm text-ash-700">You can start when the time comes. We&apos;ll show the cars then.</p>
       )}
+      {!checkIn.rescheduled && !asked ? (
+        <TextAction className="my-1" onClick={() => { setAsked(true); actions.requestAnotherTime(checkIn.id); }}>This time doesn&apos;t work? Ask for another</TextAction>
+      ) : checkIn.rescheduled ? (
+        <p className="px-4 py-3 text-sm text-ash-700">We picked a new time within two weeks.</p>
+      ) : null}
     </section>
   );
 }
 
-function WindowPicker({ onPick }: { onPick: (w: CheckInWindow) => void }) {
-  const [windows] = useState(() => makeWindows());
-  const [selected, setSelected] = useState<string | null>(null);
-  const chosen = windows.find((w) => w.id === selected);
-
-  return (
-    <div className="border-t border-ink">
-      <fieldset>
-        <legend className="px-4 pt-8 pb-4 display-md">When suits you?</legend>
-        <div>
-          {windows.map((w) => {
-            const on = w.id === selected;
-            return (
-              <label key={w.id} className={`flex min-h-14 cursor-pointer items-center gap-3 border-t border-line px-4 py-3 transition-colors duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-4 has-[:focus-visible]:outline-brand-deep ${on ? "bg-ink text-paper has-[:focus-visible]:outline-paper" : "hover:bg-mist"}`}>
-                <input type="radio" name="window" value={w.id} checked={on} onChange={() => setSelected(w.id)} className="sr-only" />
-                <span aria-hidden className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${on ? "border-lime" : "border-ash-500"}`}>
-                  {on && <span className="size-2.5 rounded-full bg-lime" />}
-                </span>
-                <span className="flex-1 font-medium">{w.label}</span>
-                {w.label === "Right now" && <Tag tone="lime">Quickest</Tag>}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
-      <Bar arrow={!!chosen} disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
-        {chosen ? `Book ${chosen.label === "Right now" ? "for right now" : chosen.label}` : "Pick a time"}
-      </Bar>
-    </div>
-  );
+function useNow(ms: number) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), ms); return () => clearInterval(t); }, [ms]);
+  return now;
 }

@@ -29,9 +29,8 @@ export function useWidth<T extends HTMLElement>(fallback = 640) {
 }
 
 export const SOURCE_LABEL: Record<AlertSource, string> = {
-  connected_car: "Connected car",
   marketplace: "Marketplace",
-  registry: "Registry",
+  registry: "Register",
   check_in: "Check-in",
   spot_check: "Spot check",
 };
@@ -55,8 +54,6 @@ export function SourceTag({ source }: { source: AlertSource }) {
 export function SourceIcon({ source }: { source: AlertSource }) {
   const p = { width: 10, height: 10, viewBox: "0 0 10 10", fill: "none", stroke: "currentColor", strokeWidth: 1.3, "aria-hidden": true } as const;
   switch (source) {
-    case "connected_car":
-      return <svg {...p}><path d="M1 6.5h8M2 6.5 3 3.5h4l1 3M2.5 8.5v-1M7.5 8.5v-1" /></svg>;
     case "marketplace":
       return <svg {...p}><path d="M1.5 4.5 5 1h3.5v3.5L5 8z" /><circle cx="6.8" cy="2.8" r=".6" /></svg>;
     case "registry":

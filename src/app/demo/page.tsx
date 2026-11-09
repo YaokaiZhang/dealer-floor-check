@@ -17,11 +17,13 @@ export default function DemoPage() {
   const demoCar = s.cars.find((c) => c.vin === s.demo.soldCarVin)!;
   const demoDealer = s.dealers.find((d) => d.id === demoCar.dealerId)!;
 
-  const inStock = useMemo(() => s.cars.filter((c) => c.status === "in_stock"), [s.cars]);
-  const connected = useMemo(() => inStock.filter((c) => c.connected), [inStock]);
+  // The four hand-made dealers carry the demo story; any of the other 146 can be picked below.
+  const [extra, setExtra] = useState("");
+  const stage = useMemo(() => s.dealers.filter((d, i) => i < 4 || d.id === extra), [s.dealers, extra]);
+  const stageIds = useMemo(() => new Set(stage.map((d) => d.id)), [stage]);
+  const inStock = useMemo(() => s.cars.filter((c) => c.status === "in_stock" && stageIds.has(c.dealerId)), [s.cars, stageIds]);
   const [marketVin, setMarketVin] = useState(s.demo.soldCarVin);
   const [registryVin, setRegistryVin] = useState(inStock.find((c) => c.dealerId === "d4")?.vin ?? inStock[0].vin);
-  const [geoVin, setGeoVin] = useState(connected.find((c) => c.dealerId === "d3")?.vin ?? connected[0].vin);
   const [flash, setFlash] = useState<string | null>(null);
 
   const fire = (label: string, fn: () => void) => {
@@ -85,10 +87,18 @@ export default function DemoPage() {
               {/* Check-ins */}
               <section aria-labelledby="checkins">
                 <SectionHead id="checkins">Check-ins</SectionHead>
+                <div className="flex flex-wrap items-center gap-3 border-t border-line px-4 py-3 md:px-8">
+                  <label htmlFor="extra-dealer" className="text-sm text-ash-700">Another dealer</label>
+                  <select id="extra-dealer" value={extra} onChange={(e) => setExtra(e.target.value)} className="min-w-0 flex-1 border border-ink bg-paper px-2 py-2 text-sm">
+                    <option value="">Pick one of {s.dealers.length - 4} more…</option>
+                    {s.dealers.slice(4).map((d) => <option key={d.id} value={d.id}>{d.name} · {d.city} · {d.tier}</option>)}
+                  </select>
+                </div>
                 <ul className="divide-y divide-line border-t border-line">
-                  {s.dealers.map((d) => {
+                  {stage.map((d) => {
                     const st = portfolioStats(s, d.id);
-                    const open = s.checkIns.filter((c) => c.dealerId === d.id && c.status !== "completed").length;
+                    const waiting = s.checkIns.find((c) => c.dealerId === d.id && c.status === "scheduled" && Date.parse(c.window.start) - 15 * 60_000 > Date.now());
+                    const open = s.checkIns.filter((c) => c.dealerId === d.id && (c.status === "scheduled" || c.status === "in_progress")).length;
                     const visit = s.spotChecks.find((v) => v.dealerId === d.id && v.verifier.status !== "reported");
                     const status = hydrated ? [open ? `${open} check-in${open > 1 ? "s" : ""}` : "", visit ? "visit open" : ""].filter(Boolean).join(" · ") : "";
                     return (
@@ -100,9 +110,15 @@ export default function DemoPage() {
                           </p>
                         </div>
                         <div className="flex shrink-0 flex-wrap gap-2">
-                          <Button variant="secondary" className="py-1.5" onClick={() => fire(`Check-in sent to ${d.name}`, () => actions.sendCheckIn(d.id))}>
-                            Send check-in
-                          </Button>
+                          {waiting ? (
+                            <Button variant="secondary" className="py-1.5" onClick={() => fire(`Window opened now for ${d.name}`, () => actions.openWindowNow(waiting.id))}>
+                              Open window now
+                            </Button>
+                          ) : (
+                            <Button variant="secondary" className="py-1.5" disabled={hydrated && open > 0} onClick={() => fire(`Check-in sent to ${d.name}`, () => actions.sendCheckIn(d.id))}>
+                              Send check-in
+                            </Button>
+                          )}
                           <Button variant="secondary" className="py-1.5" disabled={hydrated && !!visit} onClick={() => fire(`Spot check posted for ${d.name}`, () => actions.sendSpotCheck(d.id))}>
                             Spot check
                           </Button>
@@ -126,17 +142,9 @@ export default function DemoPage() {
                     ]}
                   />
                   <FeedRow
-                    source="Registry" tone="bg-high"
+                    source="Register" tone="bg-high"
                     cars={inStock} vin={registryVin} onVin={setRegistryVin}
-                    buttons={[{ label: "Owner change", run: () => fire("Registry: owner change", () => actions.registryOwnerChange(registryVin)) }]}
-                  />
-                  <FeedRow
-                    source="Connected car" tone="bg-go"
-                    cars={connected} vin={geoVin} onVin={setGeoVin}
-                    buttons={[
-                      { label: "Leaves geofence > 48 h", run: () => fire("Connected car: left geofence", () => actions.connectedLeavesGeofence(geoVin)) },
-                      { label: "Odometer +742 km", run: () => fire("Connected car: odometer jump", () => actions.connectedOdometerJump(geoVin)) },
-                    ]}
+                    buttons={[{ label: "Owner change", run: () => fire("Register: owner change", () => actions.registryOwnerChange(registryVin)) }]}
                   />
                 </ul>
               </section>
@@ -196,7 +204,7 @@ function FeedRow({ source, tone, cars, vin, onVin, buttons }: {
           onChange={(e) => onVin(e.target.value)}
           className="w-full min-w-0 flex-1 border border-ink bg-paper px-2 py-2 text-sm"
         >
-          {s.dealers.map((d) => (
+          {s.dealers.filter((d) => cars.some((c) => c.dealerId === d.id)).map((d) => (
             <optgroup key={d.id} label={d.name}>
               {cars.filter((c) => c.dealerId === d.id).map((c) => (
                 <option key={c.vin} value={c.vin}>{carOption(c)}{c.demoScenario ? " ★" : ""}</option>

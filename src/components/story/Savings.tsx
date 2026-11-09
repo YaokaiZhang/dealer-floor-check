@@ -49,8 +49,8 @@ export function Savings({ p }: { p: number }) {
       aria-label={`Per dealer and year: manual floor checks ${eur(today.total)}, Curb ${eur(curb.total)}. Check cost down ${H.checkCostReductionPct}%, expected fraud loss down ${H.fraudLossReductionPct}%.`}
     >
       <div className="flex flex-col gap-6 md:gap-8">
-        <Bar label="Manual floor checks" checks={today.checkCost} fraud={today.fraudLoss} grow={a} note={`${today.f} auditor visits, a missed sale found after ${Math.round(today.detectionDays)} days`} />
-        <Bar label="Curb" checks={curb.checkCost} fraud={curb.fraudLoss} grow={b} note={`Data, check-ins and €${ASSUMPTIONS.gigCheckCost} spot checks, found after ${Math.round(curb.detectionDays)} days`} />
+        <Bar label="Manual floor checks" checks={today.checkCost} fraud={today.fraudLoss} grow={a} note={`${today.f} in-person car checks, a missed sale found after ${Math.round(today.detectionDays)} days`} />
+        <Bar label="Curb" checks={curb.checkCost} fraud={curb.fraudLoss} grow={b} note={`Data, self-checks, €${ASSUMPTIONS.gigCheckCost}-a-car spot checks, AI and upkeep, found after ${Math.round(curb.detectionDays)} days`} />
         <p className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ash-700" aria-hidden>
           <span className="flex items-center gap-2"><span className="inline-block size-3 bg-ink" />Cost of checks</span>
           <span className="flex items-center gap-2"><span className="savings-hatch inline-block size-3 border border-ink" />Expected fraud loss</span>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { Store } from "@/lib/store";
 import { actions } from "@/lib/store";
 import type { CheckIn, Dealer, HistoryEntry, PhotoCheck, SpotCheck, Tier } from "@/lib/types";
-import { isAutoVerified, portfolioStats, riskScore, samplingFor } from "@/lib/risk";
+import { carRisk, portfolioStats, riskScore, samplingFor } from "@/lib/risk";
 import { dateFi, eur, eurCompact, pct, timeFi } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
 import { TIERS, TIER_ORDER } from "@/config/tiers";
@@ -37,9 +37,16 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
       <dl className="grid grid-cols-2 border-t border-ink sm:grid-cols-4">
         <Fig i={0} k="Credit line" v={eurCompact(d.creditLine)} sub={`${pct(st.financedTotal / d.creditLine)} used`} />
         <Fig i={1} k="Cars financed" v={String(st.cars.length)} sub={eurCompact(st.financedTotal)} />
-        <Fig i={2} k="Auto-verified" v={`${st.autoVerified.length}`} sub={`${pct(st.cars.length ? st.autoVerified.length / st.cars.length : 0)} today`} />
+        <Fig i={2} k="Collateral confirmed" v={pct(st.confirmedShare)} sub={`${st.confirmed.length} cars in the last 90 days`} />
         <Fig i={3} k="Tier perks" v={tier.rateDiscountPp ? `−${tier.rateDiscountPp} pp` : "—"} sub={`${tier.lineReview ? `Line review ${tier.lineReview}` : "No line review"} · ${tier.checkInsPerYear} check‑ins/yr`} />
       </dl>
+
+      {d.creditPaused && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink bg-high-soft px-4 py-4 md:px-8" role="status">
+          <p className="text-sm"><b>Credit paused</b> {dateFi(d.creditPaused.at)}: {d.creditPaused.reason}</p>
+          <Button variant="secondary" className="py-1.5" onClick={() => actions.resumeCredit(d.id)}>Resume credit</Button>
+        </div>
+      )}
 
       {alerts.length > 0 && (
         <Block title="Alerts" note={`${alerts.filter(isOpen).length} open`}>
@@ -70,7 +77,10 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
             </p>
             <div className="mt-3 h-2 bg-ash-100"><div className={`h-full ${riskTone(risk.score)}`} style={{ width: `${risk.score}%` }} /></div>
           </div>
-          <div className="md:pt-9"><RiskBreakdown parts={risk.parts} score={risk.score} /></div>
+          <div className="md:pt-9">
+            <RiskBreakdown parts={risk.parts} score={risk.score} />
+            <p className="mt-3 text-xs text-ash-700">Risk model, demo version: a transparent weighted score. Every point has a reason.</p>
+          </div>
         </div>
       </Block>
 
@@ -97,7 +107,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
       <Block
         title="Check-ins"
         action={
-          <Button variant="secondary" className="py-1.5" disabled={checkIns.some((c) => c.status !== "completed")} onClick={() => actions.sendCheckIn(d.id)}>
+          <Button variant="secondary" className="py-1.5" disabled={checkIns.some((c) => c.status === "scheduled" || c.status === "in_progress")} onClick={() => actions.sendCheckIn(d.id)}>
             Send check-in
           </Button>
         }
@@ -183,6 +193,7 @@ function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
     <div className="border border-ink">
       <div className="flex flex-wrap items-center gap-2 border-b border-ink px-3 py-2.5">
         <Tag tone={v.reason === "brought_forward" ? "brand" : "outline"}>{v.reason === "brought_forward" ? "brought forward" : "random"}</Tag>
+        {!!v.recheckVins?.length && <Tag tone="outline">{v.recheckVins.length} re-check</Tag>}
         <Tag tone={v.outcome === "clean" ? "lime" : v.outcome ? "high" : "muted"}>{v.outcome ?? VISIT_STATUS[j.status]}</Tag>
         <span className="text-sm">{j.name} · {j.visitCode} · {eur(j.fee)}</span>
         <span className="ml-auto tag-text text-ash-700">{v.sampledVins.length} cars{j.simulated ? " · simulated" : ""}</span>
@@ -196,7 +207,8 @@ function VisitCard({ v, s }: { v: SpotCheck; s: Store }) {
               const car = s.cars.find((x) => x.vin === vin);
               const label = car ? `${car.make} ${car.model}` : "";
               const flagged = v.alertIds.some((id) => s.alerts.find((a) => a.id === id)?.vin === vin);
-              const lead = <><span className="font-mono">{vin}</span> <span className="text-ash-500">· {label}</span>{flagged && <Tag tone="brand" className="ml-1">flagged</Tag>}</>;
+              const recheck = v.recheckVins?.includes(vin);
+              const lead = <><span className="font-mono">{vin}</span> <span className="text-ash-500">· {label}</span>{flagged && <Tag tone="brand" className="ml-1">flagged</Tag>}{recheck && <Tag tone="outline" className="ml-1">re-check</Tag>}</>;
               if (!r) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={7}>{lead} <span className="text-ash-500">· {j.status === "reported" ? "not checked" : "waiting"}</span></td></tr>;
               if (r.status === "missing") return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}>{lead} <span className="ml-1">{r.reason ?? "Not on the lot"}</span></td><td className="p-2"><Tag tone="high">not on lot</Tag></td></tr>;
               if (!r.photo) return <tr key={vin} className="border-b border-ash-100"><td className="p-2" colSpan={6}>{lead} <span className="text-ash-500">· found (simulated report, no photos)</span></td><td className="p-2"><Tag tone="lime">found</Tag></td></tr>;
@@ -214,9 +226,9 @@ function CheckInCard({ c, s }: { c: CheckIn; s: Store }) {
     <div className="border border-ink">
       <div className="flex flex-wrap items-center gap-2 border-b border-ink px-3 py-2.5">
         <Tag tone={c.reason === "targeted" ? "brand" : "outline"}>{c.reason}</Tag>
-        <Tag tone={c.outcome === "clean" ? "lime" : c.outcome ? "high" : "muted"}>{c.outcome ?? c.status.replace("_", " ")}</Tag>
-        <span className="text-sm">{c.window ? c.window.label : `Requested ${timeFi(c.createdAt)}`}</span>
-        <span className="ml-auto tag-text text-ash-700">{c.sampledVins.length ? `${c.sampledVins.length} car${c.sampledVins.length > 1 ? "s" : ""} drawn` : "VINs drawn at start"}</span>
+        <Tag tone={c.outcome === "clean" ? "lime" : c.outcome ? "high" : "muted"}>{c.status === "missed" ? "window missed" : c.outcome ?? c.status.replace("_", " ")}</Tag>
+        <span className="text-sm">{c.window.label}{c.rescheduled ? ` · rescheduled from ${c.rescheduled.previous.label}` : ""}</span>
+        <span className="ml-auto tag-text text-ash-700">{c.sampledVins.length ? `${c.sampledVins.length} car${c.sampledVins.length > 1 ? "s" : ""} drawn by risk${c.code ? ` · code ${c.code}` : ""}` : "Cars and code drawn at start"}</span>
       </div>
       {c.sampledVins.length > 0 && (
         <div className="overflow-x-auto">
@@ -265,12 +277,16 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
             </span>
           : <span className="flex h-12 w-16 items-center justify-center border border-ash-300 bg-mist tag-text text-ash-500">no img</span>}
         {r.capture === "simulated" && <Tag tone="muted" className="mt-1">simulated camera</Tag>}
-        {r.reader === "claude" && <Tag tone="muted" className="mt-1">read by Claude vision</Tag>}
+        <Tag tone="muted" className="mt-1">{r.reader === "claude" ? "AI photo model" : "simulated photo model"}</Tag>
       </td>
       <td className="p-2">
         <span className="block font-mono">{r.readVin ?? "unreadable"}</span>
         <span className="mt-1 flex items-center gap-1"><Tag tone={matchTone}>{r.vinMatch.replace("_", " ")}</Tag><span className="tabular-nums">{Math.round(r.confidence * 100)}%</span></span>
         <span className="mt-0.5 block text-ash-500">{label}</span>
+        {r.code && <span className="mt-1 flex items-center gap-1 whitespace-nowrap"><Check ok={r.code.match} />code {r.code.read ?? "not visible"}</span>}
+        {r.carMatch && <span className="mt-0.5 flex items-center gap-1"><Check ok={r.carMatch.match} />{r.carMatch.read ?? "make, colour not read"}</span>}
+        {r.fakeSuspected && <Tag tone="high" className="mt-1">screen or print?</Tag>}
+        {r.ip && <span className="mt-0.5 block text-ash-500">IP: {r.ip.area}</span>}
       </td>
       <td className="p-2">
         {r.plate ? <span className="flex items-center gap-1 whitespace-nowrap"><Check ok={r.plate.match} /><span className="font-mono">{r.plate.read ?? "unreadable"}</span></span> : <span className="text-ash-500">—</span>}
@@ -299,7 +315,10 @@ function PhotoRow({ r, label }: { r: PhotoCheck; label: string }) {
         <span className="flex items-center gap-1"><Check ok={!r.reuse.duplicate} />{r.reuse.duplicate ? "duplicate" : "unique"}</span>
         <span className="mt-0.5 block text-ash-500 tabular-nums">hamming {Number.isFinite(r.reuse.nearestDistance) ? r.reuse.nearestDistance : "—"}</span>
       </td>
-      <td className="p-2"><Tag tone={r.verified ? "lime" : "high"}>{r.verified ? "verified" : "not verified"}</Tag></td>
+      <td className="p-2">
+        <Tag tone={r.verified ? "lime" : r.needsLook?.length ? "medium" : "high"}>{r.verified ? "verified" : r.needsLook?.length ? "needs a look" : "not verified"}</Tag>
+        {r.needsLook?.length ? <span className="mt-1 block max-w-40 text-ash-700">{r.needsLook.join(", ")}</span> : null}
+      </td>
     </tr>
   );
 }
@@ -326,28 +345,32 @@ function History({ entries }: { entries: HistoryEntry[] }) {
 
 function CarList({ s, d }: { s: Store; d: Dealer }) {
   const [all, setAll] = useState(false);
-  const cars = s.cars.filter((c) => c.dealerId === d.id);
+  const now = Date.now();
+  const cars = s.cars.filter((c) => c.dealerId === d.id)
+    .map((c) => ({ c, risk: carRisk(s, c, now) }))
+    .sort((a, b) => b.risk.weight - a.risk.weight);
   const shown = all ? cars : cars.slice(0, 8);
   const STATUS: Record<string, string> = { in_stock: "in stock", sold_awaiting_payoff: "sold, payoff due", sold_paid: "sold, paid", paid_off: "paid off", sold_unpaid_suspect: "sold out of trust" };
   return (
-    <Block title={`Cars (${cars.length})`} note={`${cars.filter((c) => c.connected).length} connected`}>
+    <Block title={`Cars (${cars.length})`} note="Riskiest first: the draw weighs these more">
       <div className="overflow-x-auto border-y border-line">
-        <table className="w-full min-w-[640px] text-left text-xs">
+        <table className="w-full min-w-[820px] text-left text-xs">
           <thead className="tag-text text-ash-700">
             <tr>
               <th className="p-2 font-normal">VIN</th><th className="p-2 font-normal">Car</th><th className="p-2 font-normal">Plate</th>
-              <th className="p-2 text-right font-normal">Loan</th><th className="p-2 font-normal">Connected</th><th className="p-2 font-normal">Auto today</th><th className="p-2 font-normal">Status</th>
+              <th className="p-2 text-right font-normal">Loan</th><th className="p-2 text-right font-normal">Risk weight</th><th className="p-2 font-normal">Why</th><th className="p-2 font-normal">Last confirmed</th><th className="p-2 font-normal">Status</th>
             </tr>
           </thead>
           <tbody>
-            {shown.map((c) => (
+            {shown.map(({ c, risk }) => (
               <tr key={c.vin} className="border-t border-ash-100">
                 <td className="p-2 font-mono">{c.vin}</td>
                 <td className="p-2">{c.year} {c.make} {c.model}</td>
                 <td className="whitespace-nowrap p-2 font-mono">{c.plate}</td>
                 <td className="p-2 text-right tabular-nums">{eur(c.loanAmount)}</td>
-                <td className="p-2"><Check ok={c.connected} /></td>
-                <td className="p-2"><Check ok={isAutoVerified(s, c)} /></td>
+                <td className="p-2 text-right tabular-nums">{risk.weight.toFixed(1)}</td>
+                <td className="p-2 text-ash-700">{risk.reasons.join(", ") || "—"}</td>
+                <td className="whitespace-nowrap p-2 tabular-nums">{c.lastCheckedAt ? dateFi(c.lastCheckedAt) : "never"}</td>
                 <td className="p-2">{c.status === "sold_unpaid_suspect" ? <Tag tone="high">{STATUS[c.status]}</Tag> : <span className={c.status === "sold_paid" || c.status === "paid_off" ? "text-ash-500" : ""}>{STATUS[c.status]}{c.status === "sold_awaiting_payoff" && c.sale ? ` ${dateFi(c.sale.payoffDueAt)}` : ""}</span>}</td>
               </tr>
             ))}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkShots, SHOT_KINDS, type CheckContext } from "@/server/photoChecks";
+import { checkShots, ipArea, SHOT_KINDS, type CheckContext } from "@/server/photoChecks";
 import { apply, savePhoto, snapshot } from "@/server/db";
 import { ActionError, lastOdometer, type Position } from "@/lib/engine";
 import type { ShotKind } from "@/lib/types";
@@ -51,9 +51,14 @@ export async function POST(req: Request) {
   const dealer = job && s.dealers.find((d) => d.id === job.dealerId);
   if (!job || !car || !dealer || !job.sampledVins.includes(car.vin)) return NextResponse.json({ error: "Unknown check or car" }, { status: 404 });
 
+  const address = (req.headers.get("x-forwarded-for")?.split(",")[0] ?? req.headers.get("x-real-ip") ?? "unknown").trim();
   const ctx: CheckContext = {
     requestedVin: car.vin,
     expectedPlate: car.plate,
+    expectedCode: "code" in job ? job.code : undefined,
+    expectedMake: car.make,
+    expectedColor: car.color,
+    ip: { address, area: ipArea(address) },
     lastKnownOdometerKm: lastOdometer(s, car.vin),
     geofence: dealer.geofence,
     window: "window" in job ? job.window : undefined,

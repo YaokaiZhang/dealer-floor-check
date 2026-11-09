@@ -18,16 +18,16 @@ export function Story() {
         index={1}
         kicker="Floor checks today"
         title={<>Car by car,<br />on foot</>}
-        body="An auditor ticks off every car by hand. It costs €170 a visit, and last week's sales still slip through."
+        body="An inspector ticks off every car by hand. €170 a car, 3,000 cars a year, and last week's sales still slip through."
         visual={(p) => <Walk p={p} />}
       />
       <Scene
         id="data"
         index={2}
         kicker="Data first"
-        title={<>Most cars check<br />themselves</>}
-        body="Recent cars have GPS built in. If a car is on the lot, its own position says so."
-        steps={["GPS in the car", "Position shared by the carmaker", "On the lot today: verified", "Sales flagged by registry feeds"]}
+        title={<>Sales show up<br />in the data</>}
+        body="Every financed car is watched on marketplaces and in the vehicle register. No paper registration documents."
+        steps={["Listed for sale online", "Owner change in the register", "AI matches it to the loan", "Payoff reminder sent"]}
         visual={(p) => <Signals p={p} />}
       />
       <Scene
@@ -35,8 +35,8 @@ export function Story() {
         index={3}
         kicker="Check-in on the phone"
         title={<>Three photos<br />a car</>}
-        body="For the rest, the dealer now and then photographs a few cars. About five minutes, when it suits them."
-        steps={["VIN matches", "Taken on the lot", "Odometer adds up", "A fresh photo"]}
+        body="Now and then the bank sets a two-hour window and the dealer photographs a few cars. About two minutes a car. Wrong time? Ask for another, once."
+        steps={["VIN matches", "One-time code in view", "Taken on the lot", "Read by AI, checked by people"]}
         visual={(p) => <CheckIn p={p} />}
       />
       <Scene
@@ -44,8 +44,8 @@ export function Story() {
         index={4}
         kicker="Freelance verifiers"
         title={<>A local, not<br />an auditor</>}
-        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €170.`}
-        steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 paid"]}
+        body={`Random spot checks keep everyone honest. A vetted local nearby takes the visit as a paid gig: €30 a car instead of €170.`}
+        steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 a car paid"]}
         visual={(p) => <Verifiers p={p} />}
       />
       <Scene
@@ -53,7 +53,7 @@ export function Story() {
         index={5}
         kicker="Small samples, often"
         title={<>Nobody knows<br />which cars</>}
-        body="A few random cars each time. Over a year, a missing car is found more than nine times in ten."
+        body="A few cars each time, picked by an AI risk model but never predictable. Over a year, a missing car is found more than nine times in ten."
         visual={(p) => <Sampling p={p} />}
       />
       <Scene
@@ -62,8 +62,8 @@ export function Story() {
         kicker="Sold out of trust"
         duration={9500}
         title={<>A sale without<br />a payoff</>}
-        body="A car is sold but the loan isn't repaid within two days. The signals are already there."
-        steps={["Sold online", "Owner change filed", "Car leaves the lot", "No payoff in two days", "All four: payoff reminder, credit paused"]}
+        body="A sale is normal. It starts a two-day payoff clock and a friendly reminder. Only a missed payoff raises an alert."
+        steps={["Sold online: payoff reminder", "No payoff in two days: alert", "Register agrees: spot check today", "Officer decides: pause credit"]}
         visual={(p) => <OutOfTrust p={p} />}
       />
       <Scene
@@ -79,7 +79,7 @@ export function Story() {
         index={8}
         kicker="The result"
         title={<>Cheaper checks,<br />less fraud</>}
-        body="Per dealer and year, against six manual floor checks. All figures are assumptions."
+        body="Per dealer and year, with AI and app maintenance included. All figures are assumptions."
         visual={(p) => <Savings p={p} />}
       />
     </div>

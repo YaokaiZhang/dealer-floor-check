@@ -1,8 +1,8 @@
 "use client";
 import type { Store } from "@/lib/store";
 import { actions } from "@/lib/store";
-import type { Alert, Car, CheckIn, ConnectedFeed, Dealer, EscalationStep, SpotCheck } from "@/lib/types";
-import { distanceM, formatDistance } from "@/lib/geo";
+import type { Alert, CheckIn, Dealer, EscalationStep, PhotoCheck, SpotCheck } from "@/lib/types";
+import { formatDistance } from "@/lib/geo";
 import { dateFi, eur, timeAgo, timeFi } from "@/lib/format";
 import { ASSUMPTIONS } from "@/config/assumptions";
 import { Button } from "@/components/ui/Button";
@@ -13,16 +13,15 @@ import { Block, SEV_BAR, STEP_ORDER, SeverityTag, SourceTag, StatusTag, isOpen, 
 
 const LADDER: { step: EscalationStep; title: string; who: string; cost: string }[] = [
   { step: "signal", title: "Signal", who: "Automatic", cost: "€0" },
-  { step: "targeted_check_in", title: "Check-in", who: "Dealer photo", cost: `€${ASSUMPTIONS.checkInHandlingCost}` },
+  { step: "targeted_check_in", title: "Self-check", who: "Dealer photo, one car", cost: `€${ASSUMPTIONS.checkInHandlingCost}` },
   { step: "visit", title: "Spot check", who: "Next random visit, today", cost: `€${visitFee(ASSUMPTIONS.avgCarsPerVisit)}` },
-  { step: "auditor", title: "Auditor", who: "Last resort", cost: `€${ASSUMPTIONS.auditorVisitCost}` },
+  { step: "auditor", title: "Full count", who: "Last resort, every car", cost: `€${ASSUMPTIONS.auditorVisitCost}/car` },
 ];
 
 export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; onDealer: (id: string) => void }) {
   const now = useNow(1000);
   const d = s.dealers.find((x) => x.id === alert.dealerId)!;
   const car = s.cars.find((c) => c.vin === alert.vin)!;
-  const cc = car.connected ? s.feeds.connected[alert.vin] : undefined;
   const ci = alert.targetedCheckInId ? s.checkIns.find((c) => c.id === alert.targetedCheckInId) : undefined;
   const open = isOpen(alert);
   const visit = alert.spotCheckId ? s.spotChecks.find((v) => v.id === alert.spotCheckId) : undefined;
@@ -56,7 +55,7 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
             Bring spot check forward
           </Button>
           <Button variant="secondary" disabled={!open || alert.step === "auditor"} onClick={() => actions.escalateToAuditor(alert.id)}>
-            Escalate to auditor
+            Order full count
           </Button>
           <Button variant="secondary" disabled={!open} onClick={() => actions.resolveAlert(alert.id, "resolved_ok")}>
             Clear (resolved)
@@ -67,13 +66,14 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
         </div>
       </section>
 
+      <CreditDecision d={d} alert={alert} />
+
       <Ladder stepIdx={stepIdx} alert={alert} />
 
       {visit && <SpotCheckCard s={s} alert={alert} visit={visit} now={now} />}
 
       <TargetedCheckIn ci={ci} vin={alert.vin} severity={alert.severity} />
 
-      {cc && <ConnectedCar cc={cc} d={d} car={car} />}
 
       <Block title="Evidence">
         <dl className="divide-y divide-line border-y border-line">
@@ -92,14 +92,17 @@ export function AlertDetail({ s, alert, onDealer }: { s: Store; alert: Alert; on
 function recommend(a: Alert, ci?: CheckIn, v?: SpotCheck): string {
   if (a.status === "resolved_ok") return "Cleared.";
   if (a.status === "confirmed_fraud") return "Confirmed. Hand over to recovery.";
-  if (a.step === "auditor") return "Auditor assigned. Decide after the visit.";
+  if (a.step === "auditor") return "Full count ordered. Decide after the visit.";
   if (v?.verifier.status === "offered") return "Spot check brought forward. Waiting for a verifier.";
   if (v?.verifier.status === "en_route") return `${v.verifier.name} en route.`;
   if (v?.verifier.status === "on_site") return `${v.verifier.name} on the lot.`;
   if (v) return visitFoundCar(v, a.vin) ? "Car found. Clear the alert." : "Car not found. Escalate or confirm.";
-  if (ci && ci.status !== "completed") return "Wait for the dealer's check-in.";
+  if (ci && (ci.status === "scheduled" || ci.status === "in_progress")) return "Wait for the dealer's check-in.";
+  if (ci?.status === "missed") return "Check-in window missed. Bring the spot check forward.";
   if (ci?.status === "completed") return ci.outcome === "clean" ? "Photographed on site. Clear it." : "Check-in failed. Bring the spot check forward.";
-  return "Low severity. Keep watching.";
+  if (a.source === "marketplace" || a.source === "registry") return "Payoff missed. Decide whether to send a spot check.";
+  if (a.severity === "low") return "Look at the photos, then clear or follow up.";
+  return "Keep watching.";
 }
 
 function Ladder({ stepIdx, alert }: { stepIdx: number; alert: Alert }) {
@@ -233,10 +236,10 @@ function SpotCheckCard({ s, alert, visit, now }: { s: Store; alert: Alert; visit
 }
 
 const CI_STATUS: Record<CheckIn["status"], string> = {
-  requested: "Waiting for the dealer",
-  scheduled: "Booked",
+  scheduled: "Window set",
   in_progress: "In progress",
   completed: "Completed",
+  missed: "Window missed",
 };
 
 function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; severity: string }) {
@@ -249,93 +252,62 @@ function TargetedCheckIn({ ci, vin, severity }: { ci?: CheckIn; vin: string; sev
   const photo = r && !("skipped" in r) ? r : null;
   return (
     <Block title="Targeted check-in" action={<Tag tone={ci.status === "completed" ? (ci.outcome === "clean" ? "lime" : "high") : "muted"}>{ci.status === "completed" ? ci.outcome : ci.status.replace("_", " ")}</Tag>}>
-      <p className="font-semibold">{CI_STATUS[ci.status]}{ci.window ? `: ${ci.window.label}` : ""}</p>
+      <p className="font-semibold">{CI_STATUS[ci.status]}: {ci.window.label}{ci.rescheduled ? " (rescheduled once)" : ""}</p>
       {r && "skipped" in r && <p className="mt-2 text-sm">Dealer skipped this car.</p>}
-      {photo && (
-        <p className="mt-2 text-sm">
-          VIN {photo.vinMatch.replace("_", " ")} ({Math.round(photo.confidence * 100)}%){photo.plate ? ` · plate ${photo.plate.match ? "✓" : "✗"}` : ""}{photo.odometer ? ` · odometer ${photo.odometer.plausible ? "✓" : "✗"}` : ""} · {photo.location ? (photo.location.inside ? "on the lot" : `${formatDistance(photo.location.distanceM)} away`) : "no location"} · {photo.verified ? "verified ✓" : "not verified"}
-        </p>
-      )}
+      {photo && <PhotoReads photo={photo} />}
     </Block>
   );
 }
 
-function ConnectedCar({ cc, d, car }: { cc: ConnectedFeed; d: Dealer; car: Car }) {
-  const dist = distanceM(cc, d.geofence);
-  const inside = dist <= d.geofence.radiusM;
+/** What the AI photo model read, and the silent checks, in one compact list. Bank only. */
+export function PhotoReads({ photo }: { photo: PhotoCheck }) {
+  const items: [string, string, boolean | null][] = [
+    ["VIN", `${photo.readVin ?? "unreadable"} · ${photo.vinMatch.replace("_", " ")} (${Math.round(photo.confidence * 100)}%)`, photo.vinMatch === "exact" || photo.vinMatch === "ocr_tolerant"],
+  ];
+  if (photo.plate) items.push(["Plate", `${photo.plate.read ?? "unreadable"}`, photo.plate.match]);
+  if (photo.code) items.push(["One-time code", `${photo.code.read ?? "not visible"} (expected ${photo.code.expected})`, photo.code.match]);
+  if (photo.carMatch) items.push(["Make, colour", `${photo.carMatch.read ?? "not read"} (loan: ${photo.carMatch.expected})`, photo.carMatch.match]);
+  if (photo.odometer) items.push(["Odometer", photo.odometer.readKm != null ? `${photo.odometer.readKm.toLocaleString("en")} km${photo.odometer.deltaKm != null ? ` (+${photo.odometer.deltaKm})` : ""}` : "unreadable", photo.odometer.plausible]);
+  items.push(["Location", photo.location ? `${photo.location.inside ? "on the lot" : `${formatDistance(photo.location.distanceM)} away`}${photo.location.simulated ? " (simulated)" : ""}` : "no location", photo.location?.inside ?? false]);
+  if (photo.ip) items.push(["IP (info only)", `${photo.ip.area}`, null]);
+  items.push(["Inside window", photo.freshness.insideWindow ? "yes" : "no", photo.freshness.insideWindow]);
+  items.push(["Photo reuse", photo.reuse.duplicate ? "matches an earlier photo" : "none", !photo.reuse.duplicate]);
+  items.push(["Fake photo", photo.fakeSuspected ? "screen or print suspected" : "none seen", !photo.fakeSuspected]);
   return (
-    <Block title="Connected car">
-      <div className="grid gap-6 sm:grid-cols-[1fr_15rem]">
-        <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-sm">
-          <dt className="tag-text text-ash-700">Position</dt>
-          <dd className="font-mono">{cc.lat.toFixed(4)}, {cc.lng.toFixed(4)}</dd>
-          <dt className="tag-text text-ash-700">From lot</dt>
-          <dd className="font-semibold">{inside ? "Inside geofence" : `${formatDistance(dist)} away`}</dd>
-          <dt className="tag-text text-ash-700">Last seen</dt>
-          <dd>{timeAgo(cc.lastSeen)}</dd>
-          {cc.outsideSince && (
-            <>
-              <dt className="tag-text text-ash-700">Outside since</dt>
-              <dd>{dateFi(cc.outsideSince)} {timeFi(cc.outsideSince)}</dd>
-            </>
-          )}
-          <dt className="tag-text text-ash-700">Odometer</dt>
-          <dd className="tabular-nums">
-            {cc.prevOdometerKm ? `${cc.prevOdometerKm.toLocaleString("en")} → ` : ""}
-            {cc.odometerKm.toLocaleString("en")} km
-            {cc.prevOdometerKm ? <strong className="ml-1">(+{(cc.odometerKm - cc.prevOdometerKm).toLocaleString("en")})</strong> : null}
-          </dd>
-          <dt className="tag-text text-ash-700">Loan</dt>
-          <dd>{eur(car.loanAmount)}</dd>
-        </dl>
-        <MiniMap cc={cc} d={d} dist={dist} />
+    <div className="mt-3">
+      <dl className="grid grid-cols-[8rem_1fr] gap-x-3 gap-y-1 text-xs">
+        {items.map(([k, v, ok]) => (
+          <div key={k} className="contents">
+            <dt className="tag-text text-ash-700">{k}</dt>
+            <dd className="font-mono">{ok === null ? "" : ok ? "✓ " : "✗ "}{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 text-sm font-semibold">
+        {photo.verified ? "Verified ✓" : photo.needsLook?.length ? `Needs a look: ${photo.needsLook.join(", ")}` : "Not verified"}
+        <span className="ml-2 font-normal text-ash-700">Read by {photo.reader === "claude" ? "the AI photo model" : "the simulated photo model"}</span>
+      </p>
+    </div>
+  );
+}
+
+/** The rules may recommend pausing credit; only the officer can do it. */
+function CreditDecision({ d, alert }: { d: Dealer; alert: Alert }) {
+  if (d.creditPaused) {
+    return (
+      <Block title="Credit" note={`Paused ${dateFi(d.creditPaused.at)}`} action={<Button variant="secondary" onClick={() => actions.resumeCredit(d.id)}>Resume credit</Button>}>
+        <p className="text-sm">New drawdowns for {d.name} are on hold. Reason: {d.creditPaused.reason}.</p>
+      </Block>
+    );
+  }
+  if (!alert.recommendPause || !isOpen(alert)) return null;
+  return (
+    <section className="border-t border-ink bg-high-soft px-4 py-6 md:px-8" aria-labelledby="pause-h">
+      <h3 id="pause-h" className="display-md">Recommended: pause credit</h3>
+      <p className="mt-1 text-sm">Both sources show this sale and the payoff is missing. The system won&apos;t pause anything on its own.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button variant="danger" onClick={() => actions.pauseCredit(d.id, alert.id)}>Pause credit</Button>
       </div>
-    </Block>
-  );
-}
-
-/** Schematic (not to scale): dealer geofence vs car dot along the true bearing. */
-function MiniMap({ cc, d, dist }: { cc: ConnectedFeed; d: Dealer; dist: number }) {
-  const W = 240, H = 150, R = 16;
-  const dx = (cc.lng - d.geofence.lng) * Math.cos((d.geofence.lat * Math.PI) / 180);
-  const dy = cc.lat - d.geofence.lat;
-  const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len, uy = -dy / len;
-  const inside = dist <= d.geofence.radiusM;
-  // Put the dealer opposite the bearing so the line uses the whole box.
-  const cx = inside ? W / 2 : W / 2 - ux * 60, cy = inside ? H / 2 : H / 2 - uy * 35;
-  // Inside: true scale within the circle. Outside: out to ~85% of the way to the box edge along the bearing.
-  const edge = Math.min(ux > 0 ? (W - 14 - cx) / ux : ux < 0 ? (14 - cx) / ux : Infinity, uy > 0 ? (H - 14 - cy) / uy : uy < 0 ? (14 - cy) / uy : Infinity);
-  const reach = inside ? (dist / d.geofence.radiusM) * R * 0.8 : Math.max(R + 30, edge * 0.9);
-  const px = cx + ux * reach, py = cy + uy * reach;
-  const mx = (cx + px) / 2, my = (cy + py) / 2;
-  return (
-    <figure className="m-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full border border-ink bg-mist" role="img" aria-label={`Car ${inside ? "inside the dealer geofence" : `${formatDistance(dist)} from the dealer geofence`}`}>
-        <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M20 0H0V20" fill="none" stroke="#e6eaf0" strokeWidth="1" />
-          </pattern>
-        </defs>
-        <rect width={W} height={H} fill="url(#grid)" />
-        <circle cx={cx} cy={cy} r={R} fill="#dbe5f2" stroke="#0f1e33" strokeWidth="1" />
-        <rect x={cx - 3} y={cy - 3} width="6" height="6" fill="#0f1e33" />
-        <text x={cx} y={cy + R + 14} textAnchor="middle" fontSize="10" fontWeight="600" fill="#3d4858">{d.name.toUpperCase()}</text>
-        {!inside && <line x1={cx} y1={cy} x2={px} y2={py} stroke="#0f1e33" strokeWidth="1" strokeDasharray="3 3" />}
-        <circle cx={px} cy={py} r="6" fill={inside ? "#b6e0cb" : "#c23b2e"} stroke="#fff" strokeWidth="2" />
-        <circle cx={px} cy={py} r="6" fill="none" stroke="#0f1e33" strokeWidth="1" />
-        {!inside && (
-          <g>
-            <rect x={mx - 26} y={my - 9} width="52" height="16" fill="#0f1e33" />
-            <text x={mx} y={my + 3} textAnchor="middle" fontSize="10" fontWeight="600" fill="#fff">{formatDistance(dist)}</text>
-          </g>
-        )}
-        <g transform={`translate(${W - 16},18)`}>
-          <path d="M0 -9 L4 3 L0 0 L-4 3Z" fill="#0f1e33" />
-          <text y="12" textAnchor="middle" fontSize="10" fontWeight="600">N</text>
-        </g>
-      </svg>
-      <figcaption className="mt-1 tag-text text-ash-500">Not to scale</figcaption>
-    </figure>
+    </section>
   );
 }

@@ -1,5 +1,6 @@
 // Deterministic seed generator. Run: node scripts/generate-seed.mjs
-// Produces data/seed.json (fictional dealers, cars and mock feed states).
+// Produces data/seed.json (fictional dealers, cars and mock feed states): 150 dealers, ~3,500 cars,
+// matching the case fact sheet. The first 4 dealers are hand-made for the demo story.
 import { writeFileSync } from "node:fs";
 
 let s = 20261109;
@@ -41,7 +42,7 @@ const plate = () => {
 
 const dealers = [
   { id: "d1", name: "Laakso Autot", city: "Tampere", geofence: { lat: 61.4851, lng: 23.7615, radiusM: 450 },
-    creditLine: 1_600_000, tier: "Gold", cars: 48, connectedShare: 0.5, contact: "Mikko Laakso",
+    creditLine: 1_600_000, tier: "Gold", cars: 48, contact: "Mikko Laakso",
     history: [
       ["2025-11-12", "check_in", "clean", "5 of 5 cars verified"],
       ["2026-02-03", "check_in", "clean", "4 of 4 cars verified"],
@@ -50,7 +51,7 @@ const dealers = [
       ["2026-08-19", "check_in", "clean", "5 of 5 cars verified"],
     ] },
   { id: "d2", name: "Koskinen Car Center", city: "Vantaa", geofence: { lat: 60.2934, lng: 25.0378, radiusM: 600 },
-    creditLine: 1_250_000, tier: "Silver", cars: 36, connectedShare: 0.45, contact: "Anna Koskinen",
+    creditLine: 1_250_000, tier: "Silver", cars: 36, contact: "Anna Koskinen",
     history: [
       ["2025-12-04", "check_in", "clean", "7 of 7 cars verified"],
       ["2026-03-11", "check_in", "clean", "6 of 6 cars verified"],
@@ -58,14 +59,14 @@ const dealers = [
       ["2026-09-02", "check_in", "clean", "6 of 6 cars verified"],
     ] },
   { id: "d3", name: "Revontuli Motors", city: "Oulu", geofence: { lat: 65.0121, lng: 25.4651, radiusM: 500 },
-    creditLine: 780_000, tier: "Standard", cars: 26, connectedShare: 0.35, contact: "Joonas Heikkinen",
+    creditLine: 780_000, tier: "Standard", cars: 26, contact: "Joonas Heikkinen",
     history: [
-      ["2026-04-14", "onboarding", "info", "Onboarded, connected-car consent given"],
+      ["2026-04-14", "onboarding", "info", "Onboarded, in-person onboarding visit"],
       ["2026-06-30", "check_in", "clean", "8 of 8 cars verified"],
       ["2026-09-22", "check_in", "clean", "7 of 7 cars verified"],
     ] },
   { id: "d4", name: "Saimaa Auto", city: "Lappeenranta", geofence: { lat: 61.0587, lng: 28.1887, radiusM: 400 },
-    creditLine: 640_000, tier: "Standard", cars: 22, connectedShare: 0.25, contact: "Petri Rantanen",
+    creditLine: 640_000, tier: "Standard", cars: 22, contact: "Petri Rantanen",
     history: [
       ["2025-10-08", "check_in", "failed", "1 car not found, later explained as test drive"],
       ["2026-01-21", "check_in", "skipped", "Check-in not completed, rescheduled"],
@@ -75,47 +76,88 @@ const dealers = [
     ] },
 ];
 
-const out = { generatedAt: "2026-11-05", dealers: [], cars: [], feeds: { connected: {}, marketplace: {}, registry: {} } };
+// --- 146 generated dealers so the portfolio matches the fact sheet: 150 dealers, ~3,500 cars.
+// Tier mix with the 4 hand-made dealers: 30 Gold, 45 Silver, 60 Standard, 15 Review.
+const CITIES = [
+  ["Helsinki", 60.1699, 24.9384], ["Espoo", 60.2055, 24.6559], ["Vantaa", 60.2934, 25.0378], ["Tampere", 61.4978, 23.761],
+  ["Turku", 60.4518, 22.2666], ["Oulu", 65.0121, 25.4651], ["Jyväskylä", 62.2426, 25.7473], ["Lahti", 60.9827, 25.6612],
+  ["Kuopio", 62.8924, 27.677], ["Pori", 61.4851, 21.7974], ["Joensuu", 62.601, 29.7636], ["Lappeenranta", 61.0587, 28.1887],
+  ["Hämeenlinna", 60.9929, 24.4643], ["Vaasa", 63.0951, 21.6165], ["Seinäjoki", 62.7903, 22.8403], ["Rovaniemi", 66.5039, 25.7294],
+  ["Mikkeli", 61.6886, 27.2723], ["Kotka", 60.4664, 26.9458], ["Salo", 60.3831, 23.1255], ["Porvoo", 60.3932, 25.6649],
+  ["Kokkola", 63.8385, 23.1307], ["Hyvinkää", 60.6303, 24.8597], ["Lohja", 60.2486, 24.0653], ["Rauma", 61.1272, 21.5112],
+];
+const NAME_A = ["Aalto", "Berg", "Heikkilä", "Hakala", "Järvinen", "Kallio", "Karjala", "Koivisto", "Lehto", "Lindholm", "Mäkelä", "Niemi",
+  "Nurmi", "Ojala", "Paananen", "Rautio", "Salminen", "Sirola", "Tuominen", "Vainio", "Virta", "Väisänen", "Halme", "Kivi"];
+const NAME_B = ["Auto", "Autotalo", "Car Center", "Motors", "Autokeskus", "Cars", "Autoliike", "Vehicles"];
+const TIER_MIX = [...Array(29).fill("Gold"), ...Array(44).fill("Silver"), ...Array(58).fill("Standard"), ...Array(15).fill("Review")];
+const names = new Set(dealers.map((d) => d.name));
+const isoDay = (y, m, d) => new Date(Date.UTC(y, m, d)).toISOString().slice(0, 10);
+TIER_MIX.forEach((tier, i) => {
+  const [city, lat, lng] = pick(CITIES);
+  let name;
+  do { name = rnd() < 0.5 ? `${pick(NAME_A)} ${pick(NAME_B)}` : `${pick(NAME_B)} ${pick(NAME_A)}`; } while (names.has(name));
+  names.add(name);
+  const cars = int(15, 32);
+  const [glat, glng] = [lat + (rnd() - 0.5) * 0.08, lng + (rnd() - 0.5) * 0.12];
+  const history = [];
+  const checks = tier === "Gold" ? 4 : tier === "Silver" ? 4 : tier === "Standard" ? 3 : 4;
+  for (let k = 0; k < checks; k++) {
+    const date = isoDay(2026, 1 + k * 2 + int(0, 1), int(1, 27));
+    const bad = tier === "Review" ? rnd() < 0.45 : tier === "Standard" ? rnd() < 0.12 : 0;
+    const outcome = bad ? (rnd() < 0.5 ? "skipped" : "failed") : "clean";
+    const n = int(2, 4);
+    history.push([date, "check_in", outcome, outcome === "clean" ? `${n} of ${n} cars verified` : outcome === "skipped" ? "Check-in window missed" : `${n - 1} of ${n} cars verified`]);
+  }
+  if (tier === "Review") history.push([isoDay(2026, 9, int(1, 25)), "payoff", "info", "Sold car paid off 6 days late"]);
+  if (tier === "Gold") history.splice(2, 0, [isoDay(2026, 5, int(1, 27)), "tier_change", "info", "Moved up to Gold tier after 3 clean check-ins"]);
+  history.sort((a, b) => a[0].localeCompare(b[0]));
+  dealers.push({
+    id: `d${i + 5}`, name, city, geofence: { lat: +glat.toFixed(4), lng: +glng.toFixed(4), radiusM: int(250, 550) },
+    creditLine: Math.round((cars * int(30, 45) * 1000) / 50000) * 50000, tier, cars, contact: `${pick(["Mikko", "Anna", "Juha", "Laura", "Timo", "Sari", "Antti", "Heidi"])} ${name.split(" ").find((w) => NAME_A.includes(w))}`,
+    history,
+  });
+});
 
-const offset = (lat, lng, meters, bearingDeg) => {
-  const R = 6371000, b = (bearingDeg * Math.PI) / 180, d = meters / R;
-  const la1 = (lat * Math.PI) / 180, lo1 = (lng * Math.PI) / 180;
-  const la2 = Math.asin(Math.sin(la1) * Math.cos(d) + Math.cos(la1) * Math.sin(d) * Math.cos(b));
-  const lo2 = lo1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(la1), Math.cos(d) - Math.sin(la1) * Math.sin(la2));
-  return [+(la2 * 180 / Math.PI).toFixed(5), +(lo2 * 180 / Math.PI).toFixed(5)];
-};
+const out = { generatedAt: "2026-11-05", dealers: [], cars: [], feeds: { marketplace: {}, registry: {} } };
+const TODAY = Date.UTC(2026, 10, 5);
+const DAY = 86400000;
 
 for (const d of dealers) {
-  const { cars, connectedShare, history, ...rest } = d;
+  const { cars, history, ...rest } = d;
   out.dealers.push({ ...rest, history: history.map(([date, kind, outcome, note], i) => ({ id: `${d.id}-h${i}`, date, kind, outcome, note })) });
   for (let i = 0; i < cars; i++) {
     const [make, wmi, models] = pick(MODELS);
     const year = int(2019, 2026);
     const v = vin(wmi, year);
-    const connected = rnd() < connectedShare;
     const soldPaid = rnd() < 0.08;
     const loanAmount = Math.round((year - 2016) * int(2600, 4200) / 100) * 100 + 8000;
-    const opened = new Date(Date.UTC(2026, int(0, 9), int(1, 28)));
-    out.cars.push({
+    // Days in stock: most cars turn over in weeks, a tail sits for months.
+    const age = rnd() < 0.75 ? int(3, 90) : int(91, 260);
+    const opened = new Date(TODAY - age * DAY);
+    const checkedAgo = rnd() < 0.7 ? int(5, Math.min(170, age)) : null;
+    const car = {
       vin: v, dealerId: d.id, make, model: pick(models), year, color: pick(COLORS), plate: plate(),
       loanAmount, loanOpenedAt: opened.toISOString().slice(0, 10),
-      status: soldPaid ? "sold_paid" : "in_stock", connected,
-    });
-    if (connected) {
-      const [lat, lng] = offset(d.geofence.lat, d.geofence.lng, int(10, d.geofence.radiusM * 0.7), int(0, 359));
-      out.feeds.connected[v] = { lat, lng, odometerKm: int(800, 95000), lastSeenHoursAgo: +(rnd() * 6).toFixed(1) };
+      status: soldPaid ? "sold_paid" : "in_stock",
+    };
+    if (checkedAgo !== null && !soldPaid) car.lastCheckedAt = new Date(TODAY - checkedAgo * DAY).toISOString().slice(0, 10);
+    out.cars.push(car);
+    // Feeds are sparse: only listed cars have a marketplace entry, only changed owners a registry entry.
+    if (!soldPaid && rnd() < 0.35) out.feeds.marketplace[v] = { listed: true, status: "active" };
+    if (soldPaid) {
+      out.feeds.marketplace[v] = { listed: true, status: "sold" };
+      out.feeds.registry[v] = { owner: "Private person", lastOwnerChange: "2026-10-1" + int(0, 9) };
     }
-    out.feeds.marketplace[v] = { listed: !soldPaid && rnd() < 0.6, status: soldPaid ? "sold" : "active" };
-    out.feeds.registry[v] = { owner: soldPaid ? "Private person" : d.name, lastOwnerChange: soldPaid ? "2026-10-1" + int(0, 9) : opened.toISOString().slice(0, 10) };
   }
 }
 
-// Demo scenario car: connected Koskinen car that will "turn up" ~180 km away (Jämsä area) when sold.
-const demo = out.cars.find((c) => c.dealerId === "d2" && c.connected && c.status === "in_stock");
+// Demo scenario car: a Koskinen car listed for sale. When it sells, the register also shows a pending owner change.
+const demo = out.cars.find((c) => c.dealerId === "d2" && c.status === "in_stock");
 demo.demoScenario = "sold_out_of_trust";
 demo.loanAmount = 41900;
+demo.lastCheckedAt = "2026-09-02";
 out.feeds.marketplace[demo.vin] = { listed: true, status: "active", listingTitle: `${demo.make} ${demo.model}, ${demo.year}, ${demo.color.toLowerCase()}`, price: 47900 };
-out.demo = { soldCarVin: demo.vin, soldCarAwayPosition: { lat: 61.8701, lng: 25.1902 } };
+out.demo = { soldCarVin: demo.vin };
 
-writeFileSync(new URL("../data/seed.json", import.meta.url), JSON.stringify(out, null, 2));
-console.log(`dealers=${out.dealers.length} cars=${out.cars.length} connected=${Object.keys(out.feeds.connected).length} demoVin=${demo.vin}`);
+writeFileSync(new URL("../data/seed.json", import.meta.url), JSON.stringify(out));
+console.log(`dealers=${out.dealers.length} cars=${out.cars.length} demoVin=${demo.vin}`);

@@ -2,14 +2,14 @@ import { ASSUMPTIONS, type Assumptions } from "@/config/assumptions";
 
 /**
  * Cost / risk model per dealer per year, as a function of f = scheduled physical checks per year.
- *   checkCost(f)    = f × auditorVisitCost
+ *   checkCost(f)    = f × auditorVisitCost   (f in-person car checks)
  *   detectionDays   = 365 / (2f)  (mean wait until the next evenly spaced check), capped
  *   lossPerIncident = avgLoan × lossGivenFraud × (1 + extraCarsPerMonth × detectionDays / 30)
  *   fraudLoss(f)    = incidentsPerDealerYear × lossPerIncident
  * With signals, most incidents are detected within days; the rest by checks or check-ins.
  */
-/** Verifier fee for one spot check: a flat rate, however many cars are on the list. */
-export const visitFee = (_cars: number, a: Assumptions = ASSUMPTIONS) => a.gigCheckCost;
+/** Verifier fee for one spot check: a rate per car on the list. */
+export const visitFee = (cars: number, a: Assumptions = ASSUMPTIONS) => cars * a.gigCheckCost;
 
 export interface CostPoint { f: number; checkCost: number; fraudLoss: number; total: number; detectionDays: number }
 
@@ -29,9 +29,10 @@ export function withSignals(f: number, a: Assumptions = ASSUMPTIONS): CostPoint 
   const detectionDays = a.signalCoverage * a.signalDetectionDays + (1 - a.signalCoverage) * residualDays;
   const checkCost =
     f * a.auditorVisitCost +
-    a.checkInsPerDealerYear * a.checkInHandlingCost +
+    a.checkInsPerDealerYear * a.carsPerCheckIn * (a.checkInHandlingCost + a.aiCostPerCar) +
     a.gigChecksPerDealerYear * visitFee(a.avgCarsPerVisit, a) +
-    a.dataFeedCostPerDealerYear;
+    a.dataFeedCostPerDealerYear +
+    (a.appMaintenancePerYear + a.riskModelPerYear) / a.portfolioDealers;
   const fraudLoss = lossFor(detectionDays, a);
   return { f, checkCost, fraudLoss, total: checkCost + fraudLoss, detectionDays };
 }

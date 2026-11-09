@@ -11,7 +11,7 @@ const HEAD: Record<Dealer["tier"], string> = {
   Review: "bg-ink text-paper",
 };
 
-const HELPS = ["Clean check-ins", "Connected-car consent on", "Pay off sold cars promptly"];
+const HELPS = ["Clean check-ins", "Check-ins done in their window", "Pay off sold cars promptly"];
 
 export function TierPage({ dealer }: { dealer: Dealer }) {
   const tier = dealer.tier;

@@ -9,6 +9,10 @@ import { AlertFeed } from "@/components/bank/AlertFeed";
 import { AlertDetail } from "@/components/bank/AlertDetail";
 import { DealerDetail } from "@/components/bank/DealerDetail";
 import { Drawer } from "@/components/bank/Drawer";
+import { LotMap } from "@/components/bank/LotMap";
+import { Mailbox } from "@/components/bank/Mailbox";
+import { BusinessCasePanel } from "@/components/bank/BusinessCasePanel";
+import { CostChart } from "@/components/bank/CostChart";
 
 type Panel = { kind: "alert" | "dealer"; id: string } | null;
 
@@ -60,6 +64,26 @@ export default function BankPage() {
                   <AlertFeed s={s} selected={alert?.id ?? null} onSelect={(id) => setPanel({ kind: "alert", id })} />
                 </aside>
               </div>
+            </div>
+
+            <section aria-labelledby="lot-h" className={`${WRAP} py-8 lg:py-10`}>
+              <h2 id="lot-h" className="display-lg">Lot map</h2>
+              <div className="mt-6"><LotMap s={s} onOpen={(id) => setPanel({ kind: "dealer", id })} /></div>
+            </section>
+
+            <div className="border-t border-ink">
+              <section aria-labelledby="mail-h" className={`${WRAP} py-8 lg:py-10`}>
+                <h2 id="mail-h" className="display-lg">Mailbox</h2>
+                <div className="mt-6"><Mailbox s={s} /></div>
+              </section>
+            </div>
+
+            <div className="border-t border-ink">
+              <section aria-labelledby="case-h" className={`${WRAP} py-8 lg:py-10`}>
+                <h2 id="case-h" className="display-lg">Business case</h2>
+                <div className="mt-6"><BusinessCasePanel s={s} /></div>
+              </section>
+              <div className={WRAP}><CostChart /></div>
             </div>
           </>
         )}

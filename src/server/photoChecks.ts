@@ -3,8 +3,12 @@
  * dealer can't change a result. The context (expected VIN and plate, geofence, window, last
  * odometer, earlier photo hashes) comes from the server's own state, never from the request.
  *
- * VIN, plate and odometer reads: Claude vision when ANTHROPIC_API_KEY is set and the photos come
- * from a real camera; otherwise (or if the call fails) a simulated read with the same shape.
+ * The AI photo model reads the VIN, plate, odometer, the one-time code, and the car's make and colour,
+ * and flags photos of a screen or printout: Claude vision when ANTHROPIC_API_KEY is set and the photos
+ * come from a real camera; otherwise (or if the call fails) a simulated read with the same shape.
+ *
+ * A clear mismatch is a fail. When the model is unsure, the car is marked "needs a look" for a person
+ * instead: a low-confidence read never fails a check on its own.
  */
 import sharp from "sharp";
 import { compareVin } from "@/lib/vin";
@@ -17,6 +21,12 @@ export const SHOT_KINDS: ShotKind[] = ["vin", "car", "odometer"];
 export interface CheckContext {
   requestedVin: string;
   expectedPlate: string;
+  /** One-time code shown at Start (self-checks only). */
+  expectedCode?: string;
+  expectedMake: string;
+  expectedColor: string;
+  /** Uploader's IP and its rough (simulated) area. Information only. */
+  ip?: { address: string; area: string };
   lastKnownOdometerKm: number | null;
   geofence: Geofence;
   window?: CheckInWindow;
@@ -54,17 +64,34 @@ function hamming(a: string, b: string): number {
 
 const normPlate = (p: string | null) => (p ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+/** Loose match for make and colour ("Dark grey" vs "grey", "VW" stays a mismatch): unknown counts as a match. */
+function sameWords(read: string | null, expected: string): boolean {
+  if (!read) return true;
+  const a = read.toLowerCase(), b = expected.toLowerCase();
+  return a.includes(b) || b.includes(a) || a.split(/\s+/).some((w) => w.length > 2 && b.split(/\s+/).includes(w));
+}
+
+/** Rough area of an IP address. A mock: a real build would call a geo-IP service. */
+export function ipArea(address: string): string {
+  if (!address || address === "unknown") return "Unknown";
+  if (/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|fc|fd|::ffff:127\.)/i.test(address)) return "Local network (demo)";
+  return "Finland, approximate (simulated lookup)";
+}
+
 /** Stand-in odometer for cars with no earlier reading, stable per VIN. */
 const baseOdometer = (vin: string) => 8000 + ([...vin].reduce((s, c) => s + c.charCodeAt(0) * 131, 0) % 90000);
 
 async function simulatedRead(ctx: CheckContext): Promise<VisionRead> {
   await new Promise((r) => setTimeout(r, 900 + Math.random() * 600));
   const last = ctx.lastKnownOdometerKm ?? baseOdometer(ctx.requestedVin);
-  return { vin: ctx.requestedVin, confidence: 0.94 + Math.random() * 0.05, plate: ctx.expectedPlate, odometerKm: last + Math.round(Math.random() * 40) };
+  return {
+    vin: ctx.requestedVin, confidence: 0.94 + Math.random() * 0.05, plate: ctx.expectedPlate, odometerKm: last + Math.round(Math.random() * 40),
+    code: ctx.expectedCode ?? null, make: ctx.expectedMake, color: ctx.expectedColor, fakeSuspected: false,
+  };
 }
 
 async function read(shots: Record<ShotKind, Buffer>, ctx: CheckContext): Promise<{ read: VisionRead; reader: "claude" | "simulated" }> {
-  if (ctx.forceUnreadable) return { read: { vin: null, confidence: 0.2, plate: ctx.expectedPlate, odometerKm: null }, reader: "simulated" };
+  if (ctx.forceUnreadable) return { read: { vin: null, confidence: 0.2, plate: ctx.expectedPlate, odometerKm: null, code: null, make: ctx.expectedMake, color: ctx.expectedColor, fakeSuspected: false }, reader: "simulated" };
   if (visionEnabled() && ctx.capture === "camera") {
     try {
       return { read: await readShotsWithClaude(shots, { expectedPlateCountry: "Finland" }), reader: "claude" };
@@ -104,7 +131,25 @@ export async function checkShots(shots: Record<ShotKind, Buffer>, ctx: CheckCont
     ? receivedAt >= new Date(new Date(ctx.window.start).getTime() - 15 * 60_000) && receivedAt <= new Date(ctx.window.end)
     : true;
 
-  const verified = (vinMatch === "exact" || vinMatch === "ocr_tolerant") && plateMatch && plausible && !!location?.inside && insideWindow && !duplicate;
+  const code = ctx.expectedCode ? { expected: ctx.expectedCode, read: r.code, match: r.code === ctx.expectedCode } : undefined;
+  const expectedCar = `${ctx.expectedMake} · ${ctx.expectedColor}`;
+  const carRead = r.make || r.color ? `${r.make ?? "?"} · ${r.color ?? "?"}` : null;
+  const carMatch = { expected: expectedCar, read: carRead, match: sameWords(r.make, ctx.expectedMake) && sameWords(r.color, ctx.expectedColor) };
+
+  // Unsure reads go to a person instead of failing.
+  const needsLook: string[] = [];
+  if (vinMatch === "unreadable") needsLook.push("VIN not readable");
+  else if (r.confidence < 0.6) needsLook.push("low confidence in the VIN read");
+  if (!r.plate) needsLook.push("plate not readable");
+  if (r.odometerKm === null) needsLook.push("odometer not readable");
+  if (code && !code.read) needsLook.push("code not visible");
+  if (r.make && r.color && !carMatch.match) needsLook.push(`car looks like ${carRead}, loan says ${expectedCar}`);
+  if (r.fakeSuspected) needsLook.push("may be a photo of a screen or a printout");
+
+  // Clear mismatches fail.
+  const hardOk = vinMatch !== "mismatch" && (plateMatch || !r.plate) && !(code && code.read && !code.match)
+    && (plausible || r.odometerKm === null) && !!location?.inside && insideWindow && !duplicate;
+  const verified = hardOk && needsLook.length === 0;
 
   return {
     hashes,
@@ -121,6 +166,11 @@ export async function checkShots(shots: Record<ShotKind, Buffer>, ctx: CheckCont
       location,
       freshness: { receivedAt: receivedAt.toISOString(), insideWindow },
       reuse: { hash: hashes[0], nearestDistance: nearest, duplicate },
+      code,
+      carMatch,
+      fakeSuspected: r.fakeSuspected,
+      needsLook: needsLook.length ? needsLook : undefined,
+      ip: ctx.ip,
       verified,
     },
   };

@@ -27,8 +27,10 @@ type Mode = "starting" | "live" | "error" | "demo";
 /** Once the presenter picks the demo camera, keep it for the next cars in this page session. */
 let preferDemo = false;
 
-export function ShotSequence({ car, allowDemo, onDone }: {
+export function ShotSequence({ car, code, allowDemo, onDone }: {
   car: Car;
+  /** One-time code to hold next to the VIN plate (self-checks only). */
+  code?: string;
   allowDemo: boolean;
   onDone: (shots: Shots, positions: Fix[], simulated: boolean) => void;
 }) {
@@ -81,8 +83,8 @@ export function ShotSequence({ car, allowDemo, onDone }: {
 
   // Demo camera: draw a fresh simulated frame for each step.
   useEffect(() => {
-    if (mode === "demo" && previewRef.current) drawSimulated(previewRef.current, kind, car);
-  }, [mode, kind, car]);
+    if (mode === "demo" && previewRef.current) drawSimulated(previewRef.current, kind, car, code);
+  }, [mode, kind, car, code]);
 
   const grab = async (): Promise<Blob | null> => {
     const c = document.createElement("canvas");
@@ -170,7 +172,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
 
       {(step === 0 || (allowDemo && (mode === "live" || mode === "demo"))) && (
         <div className="mt-2 flex items-start justify-between gap-3 text-sm text-ash-700">
-          <p>{step === 0 ? vinHint(car.make) : ""}</p>
+          <p>{step === 0 ? `${vinHint(car.make)}${code ? `. Code ${code} on paper in view.` : ""}` : ""}</p>
           {allowDemo && mode === "live" && <button type="button" onClick={useDemo} className="-my-2 min-h-11 shrink-0 underline underline-offset-4">Demo camera</button>}
           {allowDemo && mode === "demo" && <button type="button" onClick={useReal} className="-my-2 min-h-11 shrink-0 underline underline-offset-4">Real camera</button>}
         </div>
@@ -198,7 +200,7 @@ export function ShotSequence({ car, allowDemo, onDone }: {
 }
 
 /** A clearly labelled stand-in frame. Random shapes keep every frame unique for the reuse check. */
-function drawSimulated(c: HTMLCanvasElement, kind: ShotKind, car: Car) {
+function drawSimulated(c: HTMLCanvasElement, kind: ShotKind, car: Car, code?: string) {
   const x = c.getContext("2d")!;
   const W = c.width, H = c.height, r = Math.random;
   const hue = Math.floor(r() * 360);
@@ -217,6 +219,13 @@ function drawSimulated(c: HTMLCanvasElement, kind: ShotKind, car: Car) {
     x.fillStyle = "#f4f4f4"; x.fillRect(W * 0.12, H * 0.38, W * 0.76, H * 0.24);
     x.strokeStyle = "#0f1e33"; x.lineWidth = 4; x.strokeRect(W * 0.12, H * 0.38, W * 0.76, H * 0.24);
     x.fillStyle = "#0f1e33"; x.font = "600 64px monospace"; x.fillText(car.vin, W / 2, H / 2);
+    if (code) {
+      // The handwritten code on paper, next to the plate.
+      x.save(); x.translate(W * 0.74, H * 0.78); x.rotate(-0.06);
+      x.fillStyle = "#fffdf4"; x.fillRect(-120, -60, 240, 120);
+      x.fillStyle = "#1a1a1a"; x.font = "italic 700 76px 'Comic Sans MS', cursive"; x.fillText(code, 0, 4);
+      x.restore();
+    }
   } else if (kind === "car") {
     x.fillStyle = "#1d1d1d";
     x.beginPath(); x.roundRect(W * 0.12, H * 0.38, W * 0.76, H * 0.32, 60); x.fill();

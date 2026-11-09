@@ -17,7 +17,8 @@ const SERIES = [
 
 const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]> = {
   portfolioDealers: ["Dealers in portfolio", (v) => String(v)],
-  auditorVisitCost: ["In-person inspection", (v) => eur(v)],
+  auditorVisitCost: ["In-person check, per car", (v) => eur(v)],
+  inPersonChecksToday: ["In-person car checks today / yr", (v) => v.toLocaleString("en")],
   incidentsPerDealerYear: ["Fraud incidents / dealer / yr", (v) => String(v)],
   avgLoanPerCar: ["Average loan per car", (v) => eur(v)],
   lossGivenFraud: ["Loss given fraud", (v) => `${v * 100}%`],
@@ -26,13 +27,19 @@ const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]
   signalCoverage: ["Incidents caught by signals", (v) => `${v * 100}%`],
   signalDetectionDays: ["Detection when a signal fires", (v) => `${v} days`],
   payoffBusinessDays: ["Payoff window after a sale", (v) => `${v} business days`],
-  checkInHandlingCost: ["Self-check", (v) => eur(v)],
+  checkInHandlingCost: ["Self-check, per car", (v) => eur(v)],
+  carsPerCheckIn: ["Cars per self-check", (v) => String(v)],
   checkInsPerDealerYear: ["Check-ins / dealer / yr", (v) => String(v)],
-  gigCheckCost: ["Spot check, per visit", (v) => eur(v)],
+  gigCheckCost: ["Local verifier, per car", (v) => eur(v)],
   avgCarsPerVisit: ["Cars per spot check", (v) => String(v)],
   gigChecksPerDealerYear: ["Spot checks / dealer / yr", (v) => String(v)],
   dataFeedCostPerDealerYear: ["Data feeds / dealer / yr", (v) => eur(v)],
-  maxScheduledChecks: ["Max scheduled checks (x-axis)", (v) => `${v} / yr`],
+  fullCountsPerYear: ["Full counts / yr", (v) => String(v)],
+  carsPerFullCount: ["Cars per full count", (v) => String(v)],
+  aiCostPerCar: ["AI processing, per car", (v) => `€${v.toFixed(2)}`],
+  riskModelPerYear: ["Risk model / yr", (v) => eur(v)],
+  appMaintenancePerYear: ["App maintenance / yr", (v) => eur(v)],
+  maxScheduledChecks: ["Max in-person car checks (x-axis)", (v) => `${v} / yr`],
 };
 
 export function CostChart() {

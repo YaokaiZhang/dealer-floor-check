@@ -11,9 +11,9 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
   const M = e.missingToDetect;
   const steps = [
     { k: "Fleet", v: e.fleet, sub: "financed cars", cls: "bg-paper" },
-    { k: "Auto-verified", v: e.autoVerified, sub: "by connected cars", cls: "bg-lime" },
-    { k: "Pool", v: e.pool, sub: "left to sample", cls: "bg-paper" },
-    { k: "Check", v: e.n, sub: `random VINs · ${e.perYear}×/yr`, cls: "bg-brand" },
+    { k: "In stock", v: e.pool, sub: "ranked by car risk", cls: "bg-lime" },
+    { k: "Missing", v: e.missingToDetect, sub: `to catch (${Math.round(e.p * 100)}%)`, cls: "bg-paper" },
+    { k: "Check", v: e.n, sub: `cars drawn · ${e.perYear}×/yr`, cls: "bg-brand" },
   ];
   return (
     <div>
@@ -43,7 +43,7 @@ export function SamplingFlow({ e }: { e: SamplingExplanation }) {
             Each of the <b>{e.perYear}</b> check-ins a year draws afresh, so all of them miss with q<sup>{e.perYear}</sup>.
           </span>
           <span className="mt-2 block">
-            Random spot checks add their own chance: <b>{e.visitsPerYear}</b> unannounced visits of {e.visitCars} cars from all stock, connected cars included, each catching it {pct(e.perVisit, 1)} of the time. A year misses with q<sup>{e.perYear}</sup> · q<sub>visit</sub><sup>{e.visitsPerYear}</sup>.
+            Random spot checks add their own chance: <b>{e.visitsPerYear}</b> unannounced visits of {e.visitCars} cars from all stock, drawn the same way, each catching it {pct(e.perVisit, 1)} of the time. A year misses with q<sup>{e.perYear}</sup> · q<sub>visit</sub><sup>{e.visitsPerYear}</sup>.
           </span>
           <span className="mt-2 block">
             We pick the smallest n where the year reaches {pct(e.confidence)}, capped at {e.maxCars} cars.

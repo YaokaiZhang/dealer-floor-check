@@ -3,11 +3,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ease, span } from "./Scene";
 
 /**
- * Chapter 5: one financed car, and independent signals converging on it.
- * A marketplace listing, a registry owner change, the car leaving its lot,
- * then the payoff window closing empty. The car turns from lime to red. The
- * response matches the evidence: one signal asks for a check-in, two for a
- * spot check, all four for a payoff reminder with further credit paused.
+ * Chapter 6: one financed car, and the evidence converging on it. A marketplace
+ * listing marked sold starts the payoff clock and a friendly reminder in the
+ * dealer app; the register shows a pending owner change; the payoff window
+ * closes empty. The car turns from lime to red. The response matches the
+ * evidence: a sale only gets a reminder, a missed payoff an alert, and both
+ * sources agreeing a spot check today, with the officer asked to pause credit.
  */
 
 const SANS = { fontFamily: "var(--font-sans)" } as const;
@@ -78,30 +79,6 @@ const NARROW: Layout = (() => {
   };
 })();
 
-/** The road the car takes away from the lot on the map card. */
-const ROAD: Pt[] = [{ x: 34, y: 86 }, { x: 58, y: 80 }, { x: 80, y: 62 }, { x: 108, y: 56 }, { x: 128, y: 38 }, { x: 150, y: 32 }];
-const ROAD_LEN = (() => {
-  const acc = [0];
-  for (let i = 1; i < ROAD.length; i++) acc.push(acc[i - 1] + Math.hypot(ROAD[i].x - ROAD[i - 1].x, ROAD[i].y - ROAD[i - 1].y));
-  return acc;
-})();
-const ROAD_D = "M" + ROAD.map((q) => `${q.x} ${q.y}`).join(" L");
-
-function along(t: number) {
-  const target = t * ROAD_LEN[ROAD_LEN.length - 1];
-  const pts: Pt[] = [ROAD[0]];
-  for (let i = 1; i < ROAD.length; i++) {
-    if (ROAD_LEN[i] >= target) {
-      const k = (target - ROAD_LEN[i - 1]) / (ROAD_LEN[i] - ROAD_LEN[i - 1] || 1);
-      const q = { x: ROAD[i - 1].x + (ROAD[i].x - ROAD[i - 1].x) * k, y: ROAD[i - 1].y + (ROAD[i].y - ROAD[i - 1].y) * k };
-      pts.push(q);
-      return { at: q, trail: "M" + pts.map((r) => `${r.x} ${r.y}`).join(" L") };
-    }
-    pts.push(ROAD[i]);
-  }
-  return { at: ROAD[ROAD.length - 1], trail: ROAD_D };
-}
-
 /** Width below which the stacked, compact layout is used. */
 function useNarrow() {
   const ref = useRef<HTMLDivElement>(null);
@@ -163,13 +140,11 @@ export function OutOfTrust({ p }: { p: number }) {
   const tLadder = span(p, 0.81, 0.84), lOut = span(p, 0.81, 0.85);
   const rung = [span(p, 0.84, 0.87), span(p, 0.87, 0.9), span(p, 0.89, 0.92)];
 
-  const road = along(drive);
-  const km = Math.round(drive * 180);
   const car = { x: L.car.x, y: L.car.y };
   const R = RING * L.car.s;
 
   return (
-    <div ref={ref} className="relative h-full w-full" role="img" aria-label="A financed Kia Niro EV, plate RKR-197, loan €41,900. Four signals converge on it: a marketplace listing marked sold, a pending registry owner change, the car seen 180 km from the dealer's lot, and two business days with no payoff. The car turns red. The response matches the evidence: one signal asks for a check-in, two for a €30 spot check, and all four, as here, for a payoff reminder with further credit paused.">
+    <div ref={ref} className="relative h-full w-full" role="img" aria-label="A financed Kia Niro EV, plate RKR-197, loan €41,900. A marketplace listing is marked sold, which sends the dealer a payoff reminder. The register shows a pending owner change. Two business days pass with no payoff. The car turns red. The response matches the evidence: a sale gets a reminder, a missed payoff an alert, and with both sources agreeing, as here, a spot check today and a request to the officer to pause credit.">
       <svg aria-hidden viewBox={`0 0 ${L.vw} ${L.vh}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-x-0 top-0 bottom-8 h-[calc(100%-2rem)] w-full lg:bottom-0 lg:h-full">
         {/* Converging signal lines, under everything else */}
         <Signal a={L.from.market} c={car} r={R} t={lMarket} alert={alert} />
@@ -219,7 +194,7 @@ export function OutOfTrust({ p }: { p: number }) {
 
         {/* 2. Registry */}
         <Card box={L.registry} w={SMALL.w} h={SMALL.h} t={tReg}>
-          <Head>Vehicle registry</Head>
+          <Head>Vehicle register</Head>
           <rect x={10} y={26} width={62} height={20} fill="none" stroke={FG} strokeOpacity={0.8} vectorEffect="non-scaling-stroke" />
           <text x={41} y={40} fontSize={11} textAnchor="middle" fill={FG} style={MONO}>RKR-197</text>
           <text x={80} y={40} fontSize={10} fill={FG} fillOpacity={0.55} style={SANS}>Laakso Autot</text>
@@ -229,17 +204,19 @@ export function OutOfTrust({ p }: { p: number }) {
           </g>
         </Card>
 
-        {/* 3. Map: the car leaves the dealer's geofence */}
+        {/* 3. Dealer app: the sale only triggers a friendly payoff reminder */}
         <Card box={L.map} w={BIG.w} h={BIG.h} t={tMap}>
-          <Head>Location</Head>
-          <Head x={154} anchor="end" o={km > 0 ? 1 : 0.4}><tspan className="figure">{km} km</tspan> from lot</Head>
-          <path d={ROAD_D} fill="none" stroke={FG} strokeOpacity={0.18} strokeWidth={5} strokeLinejoin="round" />
-          <path d="M8 46 L60 30 L96 98 M112 100 L150 70" fill="none" stroke={FG} strokeOpacity={0.08} strokeWidth={2} />
-          <circle cx={ROAD[0].x} cy={ROAD[0].y} r={16} fill={LIME} fillOpacity={0.1} stroke={LIME} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-          <text x={ROAD[0].x} y={ROAD[0].y + 27} fontSize={9} textAnchor="middle" fill={FG} fillOpacity={0.55} style={SANS}>Lot</text>
-          {drive > 0 && <path d={road.trail} fill="none" stroke={LIME} strokeWidth={1.5} strokeDasharray="2 3" vectorEffect="non-scaling-stroke" />}
-          <circle cx={road.at.x} cy={road.at.y} r={4.5} fill={alert > 0.5 ? HIGH : LIME} />
-          {drive >= 1 && <circle cx={road.at.x} cy={road.at.y} r={8} fill="none" stroke={FG} strokeOpacity={0.5} vectorEffect="non-scaling-stroke" />}
+          <Head>Dealer app</Head>
+          <Head x={154} anchor="end" o={0.4}>what the dealer sees</Head>
+          <rect x={10} y={26} width={144} height={52} fill={FG} fillOpacity={0.04} stroke={FG} strokeOpacity={0.3} vectorEffect="non-scaling-stroke" />
+          <text x={18} y={44} fontSize={11} fontWeight={600} fill={FG} style={SANS}>Payoff due</text>
+          <text x={18} y={60} fontSize={9.5} fill={FG} fillOpacity={0.65} style={SANS}>Kia Niro EV · <tspan className="figure">€41,900</tspan></text>
+          <text x={18} y={72} fontSize={9} fill={FG} fillOpacity={0.5} style={SANS}>Thanks for the sale. Due in 2 days</text>
+          <g opacity={ease(drive)}>
+            <circle cx={16} cy={94} r={5} fill={LIME} />
+            <path d="M13.5 94 l2 2 l3.5 -4" fill="none" stroke={INK} strokeWidth={1.4} />
+            <text x={26} y={98} fontSize={10.5} fill={FG} style={SANS}>Reminder sent, no suspicion</text>
+          </g>
         </Card>
 
         {/* 4. Payoff window: two business days, the bank's view */}
@@ -268,9 +245,9 @@ export function OutOfTrust({ p }: { p: number }) {
         <Card box={L.ladder} w={LADDER.w} h={LADDER.h} t={tLadder} bare>
           <text x={0} y={12} fontSize={10} fill={FG} fillOpacity={0.6} style={SANS}>Matched to evidence</text>
           {[
-            { label: "Check-in", when: "1 signal", y: 96 },
-            { label: "Spot check €30", when: "2 signals", y: 63 },
-            { label: "Payoff reminder", when: "All four", y: 30 },
+            { label: "Reminder", when: "Sold", y: 96 },
+            { label: "Alert", when: "No payoff", y: 63 },
+            { label: "Spot check today", when: "Both agree", y: 30 },
           ].map((r, i) => {
             const hit = i === 2;
             const t = ease(rung[i]);

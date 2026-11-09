@@ -15,14 +15,16 @@ const SEV_CHIP: Record<Severity, string> = { high: "bg-high text-paper", medium:
 
 /** Dealers as one ledger, riskiest first, so the eye lands on the row that needs action. */
 export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => void }) {
-  const rows = s.dealers
+  const [all, setAll] = useState(false);
+  const ranked = s.dealers
     .map((d) => ({ d, st: portfolioStats(s, d.id), risk: riskScore(s, d) }))
     .sort((a, b) => b.risk.score - a.risk.score || a.d.name.localeCompare(b.d.name));
+  const rows = all ? ranked : ranked.slice(0, 12);
 
   return (
     <div>
       <table className="w-full border-collapse text-left text-sm">
-        <caption className="sr-only">Dealers, sorted by risk score, highest first. Select a dealer to open details.</caption>
+        <caption className="sr-only">Dealers ranked by the risk model, highest first, with the top reasons. Select a dealer to open details.</caption>
         <thead className="border-b border-line text-xs whitespace-nowrap text-ash-700">
           <tr>
             <th scope="col" className="py-2 pr-2 font-normal">Dealer</th>
@@ -30,7 +32,7 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
             <th scope="col" className="px-2 py-2 font-normal">Open alerts</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal sm:table-cell">Financed</th>
             <th scope="col" className="hidden px-2 py-2 text-right font-normal xl:table-cell">Credit used</th>
-            <th scope="col" className="hidden px-2 py-2 font-normal md:table-cell lg:hidden xl:table-cell">Auto-verified</th>
+            <th scope="col" className="hidden px-2 py-2 font-normal md:table-cell lg:hidden xl:table-cell">Confirmed</th>
             <th scope="col" className="w-10 py-2 font-normal"><span className="sr-only">Risk breakdown</span></th>
           </tr>
         </thead>
@@ -40,13 +42,18 @@ export function Portfolio({ s, onOpen }: { s: Store; onOpen: (id: string) => voi
           ))}
         </tbody>
       </table>
+      {ranked.length > rows.length || all ? (
+        <button type="button" onClick={() => setAll((a) => !a)} className="mt-4 border border-ink px-3 py-2 text-sm font-medium hover:bg-ink hover:text-paper">
+          {all ? "Show the riskiest 12" : `Show all ${ranked.length} dealers`}
+        </button>
+      ) : null}
     </div>
   );
 }
 
 function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof portfolioStats>; risk: ReturnType<typeof riskScore>; onOpen: () => void }) {
   const [why, setWhy] = useState(false);
-  const autoPct = st.cars.length ? st.autoVerified.length / st.cars.length : 0;
+  const autoPct = st.confirmedShare;
   const used = d.creditLine ? st.financedTotal / d.creditLine : 0;
   const sev = (k: Severity) => st.openAlerts.filter((a) => a.severity === k).length;
   const breakdownId = `why-${d.id}`;
@@ -63,7 +70,9 @@ function DealerRow({ d, st, risk, onOpen }: { d: Dealer; st: ReturnType<typeof p
             <span className="mt-0.5 block text-xs text-ash-700">
               {d.city}
               <span className="sm:hidden">, {st.cars.length} cars, {eurCompact(st.financedTotal)}</span>
+              {d.creditPaused && <span className="ml-1 font-semibold text-ink">· credit paused</span>}
             </span>
+            {risk.top.length > 0 && <span className="mt-1 block text-xs text-ash-700">{risk.top.join(" · ")}</span>}
           </button>
         </td>
         <td className="px-2 py-4">

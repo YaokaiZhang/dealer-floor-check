@@ -9,7 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { buildInitialState, ops, VERSION, type Store } from "@/lib/engine";
+import { buildInitialState, needsTick, ops, VERSION, type Store } from "@/lib/engine";
 
 type Listener = (rev: number) => void;
 interface Db { state: Store; rev: number; listeners: Set<Listener>; saveTimer?: ReturnType<typeof setTimeout>; ticker?: ReturnType<typeof setInterval>; lastTick: number }
@@ -96,7 +96,7 @@ function tick() {
   const now = Date.now();
   const elapsed = now - d.lastTick;
   d.lastTick = now;
-  if (!d.state.flags.autoSchedule && !d.state.flags.autoVerifier) return;
+  if (!needsTick(d.state, now)) return;
   try { apply("tick", [elapsed, now]); } catch { /* never let the scheduler crash the server */ }
 }
 

@@ -16,7 +16,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
   // What needs action first: open alerts by severity, then newest; closed ones below.
   const open = s.alerts.filter(isOpen).sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || newest(a, b));
   const closed = s.alerts.filter((a) => !isOpen(a)).sort(newest);
-  const connected = s.cars.filter((c) => c.connected && c.status === "in_stock").length;
+  const watched = s.cars.filter((c) => c.status === "in_stock").length;
 
   const row = (a: Alert) => {
     const d = s.dealers.find((x) => x.id === a.dealerId)!;
@@ -62,7 +62,7 @@ export function AlertFeed({ s, selected, onSelect }: { s: Store; selected: strin
         {open.length === 0 && (
           <li className="py-10">
             <p className="display-lg">All quiet</p>
-            <p className="mt-2 text-sm text-ash-700">{connected} connected cars watched</p>
+            <p className="mt-2 text-sm text-ash-700">{watched.toLocaleString("en")} financed cars watched for sales</p>
           </li>
         )}
         {open.map(row)}

@@ -1,8 +1,9 @@
-export type Tier = "Gold" | "Silver" | "Standard" | "Review";
+/** Best to worst: A+, A (base, where every dealer starts), B, C. */
+export type Tier = "A+" | "A" | "B" | "C";
 /** paid_off: the dealer repaid the loan before a sale; the car stays on the lot but is no longer collateral. */
 export type CarStatus = "in_stock" | "sold_awaiting_payoff" | "sold_paid" | "paid_off" | "sold_unpaid_suspect";
 export type Severity = "high" | "medium" | "low";
-export type AlertSource = "connected_car" | "marketplace" | "registry" | "check_in" | "spot_check";
+export type AlertSource = "marketplace" | "registry" | "check_in" | "spot_check";
 
 export interface Geofence { lat: number; lng: number; radiusM: number }
 
@@ -22,12 +23,14 @@ export interface Dealer {
   geofence: Geofence;
   creditLine: number;
   tier: Tier;
-  /** Tier to return to when a Review caused by an alert is cleared by the bank. */
-  tierBeforeReview?: Tier;
+  /** Tier to return to when the bank clears the high-severity alert that moved the dealer to C. */
+  tierBeforeAlert?: Tier;
   /** Consecutive clean check-ins since the last tier change; drives gradual step-ups. */
   cleanStreak: number;
   history: HistoryEntry[];
   tierHistory: { date: string; tier: Tier; reason: string }[];
+  /** Further drawdowns paused by a bank officer. Only an officer sets or lifts it. */
+  creditPaused?: { at: string; reason: string };
 }
 
 export interface Car {
@@ -41,7 +44,8 @@ export interface Car {
   loanAmount: number;
   loanOpenedAt: string;
   status: CarStatus;
-  connected: boolean;
+  /** Last time a self-check or spot check confirmed the car on the lot (ISO date). */
+  lastCheckedAt?: string;
   demoScenario?: string;
   /** A feed showed the car sold; the dealer owes the payoff by payoffDueAt. */
   sale?: { seenAt: string; via: "marketplace" | "registry"; payoffDueAt: string };
@@ -49,7 +53,6 @@ export interface Car {
   paidAt?: string;
 }
 
-export interface ConnectedFeed { lat: number; lng: number; odometerKm: number; lastSeen: string; outsideSince?: string; prevOdometerKm?: number }
 export interface MarketplaceFeed { listed: boolean; status: "active" | "sold" | "removed"; listingTitle?: string; price?: number; changedAt?: string }
 export interface RegistryFeed { owner: string; lastOwnerChange: string; pending?: boolean }
 
@@ -70,6 +73,8 @@ export interface Alert {
   /** The spot check this alert brought forward (or that raised it). */
   spotCheckId?: string;
   targetedCheckInId?: string;
+  /** The rules recommend pausing the dealer's credit line; an officer decides. */
+  recommendPause?: boolean;
 }
 
 export type VerifierStatus = "offered" | "en_route" | "on_site" | "reported";
@@ -96,7 +101,7 @@ export type VisitCarResult = { status: "found"; photo?: PhotoCheck } | { status:
 
 /**
  * An unannounced, random spot check by a local verifier: a few random cars from all financed stock,
- * connected cars included. Alerts bring the next one forward and add the flagged car, so a visit
+ * drawn by risk weight, plus a random re-check. Alerts bring the next one forward and add the flagged car, so a visit
  * looks the same to the dealer and the verifier whatever its reason.
  */
 export interface SpotCheck {
@@ -108,6 +113,8 @@ export interface SpotCheck {
   /** Alerts that brought this visit forward. Bank-only. */
   alertIds: string[];
   sampledVins: string[];
+  /** Bank-only: cars that recently passed a self-check, drawn again to compare. */
+  recheckVins?: string[];
   verifier: VerifierJob;
   results: Record<string, VisitCarResult>;
   outcome?: "clean" | "failed";
@@ -133,6 +140,16 @@ export interface PhotoCheck {
   /** Who read the VIN, plate and odometer: Claude vision, or the demo stand-in. */
   reader?: "claude" | "simulated";
   verified: boolean;
+  /** One-time code on paper in the VIN plate photo (self-checks only). */
+  code?: { expected: string; read: string | null; match: boolean };
+  /** Make and colour from the whole-car photo, against the loan record. */
+  carMatch?: { expected: string; read: string | null; match: boolean };
+  /** The photo model thinks a shot shows a screen, a printout or an edited image. */
+  fakeSuspected?: boolean;
+  /** Reasons a person should look at this car's photos; set instead of a hard fail when the model is unsure. */
+  needsLook?: string[];
+  /** Rough IP location of the upload. Information only, never fails a check. */
+  ip?: { address: string; area: string };
   /** VIN plate photo URL, for the bank evidence view. */
   thumbnail?: string;
   /** Photo URLs (served by /api/photos/[id]). */
@@ -141,14 +158,23 @@ export interface PhotoCheck {
 
 export interface CheckInWindow { id: string; label: string; start: string; end: string }
 
+/** Mock email the bank sends with each check-in request (shown in the bank's mailbox). */
+export interface MailMessage { id: string; at: string; dealerId: string; checkInId: string; subject: string; body: string; link: string }
+
 export interface CheckIn {
   id: string;
   dealerId: string;
   createdAt: string;
   reason: "random" | "targeted";
   targetVin?: string;
-  status: "requested" | "scheduled" | "in_progress" | "completed";
-  window?: CheckInWindow;
+  /** scheduled: the bank set the window; missed: the window passed without a start. */
+  status: "scheduled" | "in_progress" | "completed" | "missed";
+  /** Set by the bank: a 2-hour window on a working day. */
+  window: CheckInWindow;
+  /** The dealer asked for another time once; the bank set a new window within 2 weeks. */
+  rescheduled?: { at: string; previous: CheckInWindow };
+  /** One-time code, created at Start and shown in the VIN plate photo. */
+  code?: string;
   /** Filled when the dealer taps Start: drawn at random from the sampling pool. */
   sampledVins: string[];
   sampling?: SamplingExplanation;
@@ -160,7 +186,6 @@ export interface CheckIn {
 
 export interface SamplingExplanation {
   fleet: number;
-  autoVerified: number;
   pool: number;
   n: number;
   p: number;
@@ -174,7 +199,7 @@ export interface SamplingExplanation {
   perCheckIn: number;
   /** Chance a year of check-ins and spot checks catches it. */
   yearly: number;
-  /** Random spot checks per year and cars per visit for the tier. */
+  /** Random spot checks per year and cars per visit: the tier's share of in-stock cars, in visits of up to 3 (C: 4). */
   visitsPerYear: number;
   visitCars: number;
   /** Chance one spot check catches it (visits draw from all in-stock cars). */
@@ -189,7 +214,6 @@ export interface DemoState {
   dealers: Dealer[];
   cars: Car[];
   feeds: {
-    connected: Record<string, ConnectedFeed>;
     marketplace: Record<string, MarketplaceFeed>;
     registry: Record<string, RegistryFeed>;
   };
@@ -198,7 +222,9 @@ export interface DemoState {
   spotChecks: SpotCheck[];
   /** Perceptual hashes of all earlier check-in photos across dealers (reuse detection). */
   photoHashes: { hash: string; dealerId: string; vin: string; at: string; kind?: ShotKind }[];
-  demo: { soldCarVin: string; soldCarAwayPosition: { lat: number; lng: number } };
+  demo: { soldCarVin: string };
+  /** Mock mailbox: check-in request emails. */
+  mail: MailMessage[];
   /** Live event ticker for the bank/demo screens. */
   events: { id: string; at: string; text: string }[];
 }
