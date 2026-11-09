@@ -40,8 +40,17 @@ export function Story() {
         visual={(p) => <CheckIn p={p} />}
       />
       <Scene
-        id="sampling"
+        id="verifiers"
         index={4}
+        kicker="Freelance verifiers"
+        title={<>A local, not<br />an auditor</>}
+        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €400.`}
+        steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 paid"]}
+        visual={(p) => <Verifiers p={p} />}
+      />
+      <Scene
+        id="sampling"
+        index={5}
         kicker="Small samples, often"
         title={<>Nobody knows<br />which cars</>}
         body="A few random cars each time. Over a year, a missing car is found more than nine times in ten."
@@ -49,22 +58,13 @@ export function Story() {
       />
       <Scene
         id="out-of-trust"
-        index={5}
+        index={6}
         kicker="Sold out of trust"
         duration={9500}
         title={<>A sale without<br />a payoff</>}
         body="A car is sold but the loan isn't repaid within two days. The signals are already there."
         steps={["Listed for sale", "Owner change filed", "Car leaves the lot", "No payoff in two days", "Check-in, then a spot check"]}
         visual={(p) => <OutOfTrust p={p} />}
-      />
-      <Scene
-        id="verifiers"
-        index={6}
-        kicker="Freelance verifiers"
-        title={<>A local, not<br />an auditor</>}
-        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €400.`}
-        steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 paid"]}
-        visual={(p) => <Verifiers p={p} />}
       />
       <Scene
         id="trust"
