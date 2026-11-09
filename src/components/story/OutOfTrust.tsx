@@ -5,8 +5,8 @@ import { ease, span } from "./Scene";
 /**
  * Chapter 5: one financed car, and independent signals converging on it.
  * A marketplace listing, a registry owner change, the car leaving its lot,
- * then the payoff window closing empty. The car turns from lime to red and
- * people step in, cheapest first.
+ * then the payoff window closing empty. The car turns from lime to red; the
+ * app reminds the dealer to pay off, and a spot check covers the rest of the stock.
  */
 
 const SANS = { fontFamily: "var(--font-sans)" } as const;
@@ -168,7 +168,7 @@ export function OutOfTrust({ p }: { p: number }) {
   const R = RING * L.car.s;
 
   return (
-    <div ref={ref} className="relative h-full w-full" role="img" aria-label="A financed Kia Niro EV, plate RKR-197, loan €41,900. Four signals converge on it: a marketplace listing marked sold, a pending registry owner change, the car seen 180 km from the dealer's lot, and two business days with no payoff. The car turns red, and a check-in and a €30 spot check follow; an auditor at €400 only if needed.">
+    <div ref={ref} className="relative h-full w-full" role="img" aria-label="A financed Kia Niro EV, plate RKR-197, loan €41,900. Four signals converge on it: a marketplace listing marked sold, a pending registry owner change, the car seen 180 km from the dealer's lot, and two business days with no payoff. The car turns red. The app shows the dealer a payoff reminder, and a €30 spot check covers the rest of the stock; an auditor at €400 only if needed.">
       <svg aria-hidden viewBox={`0 0 ${L.vw} ${L.vh}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-x-0 top-0 bottom-8 h-[calc(100%-2rem)] w-full lg:bottom-0 lg:h-full">
         {/* Converging signal lines, under everything else */}
         <Signal a={L.from.market} c={car} r={R} t={lMarket} alert={alert} />
@@ -267,7 +267,7 @@ export function OutOfTrust({ p }: { p: number }) {
         <Card box={L.ladder} w={LADDER.w} h={LADDER.h} t={tLadder} bare>
           <text x={0} y={12} fontSize={10} fill={FG} fillOpacity={0.6} style={SANS}>Cheapest first</text>
           {[
-            { label: "Check-in", x: 0, y: 96 },
+            { label: "Payoff reminder", x: 0, y: 96 },
             { label: "Spot check €30", x: 28, y: 63 },
             { label: "Auditor €400", x: 56, y: 30 },
           ].map((r, i) => {
