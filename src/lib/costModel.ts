@@ -24,7 +24,7 @@ export function traditional(f: number, a: Assumptions = ASSUMPTIONS): CostPoint 
 }
 
 export function withSignals(f: number, a: Assumptions = ASSUMPTIONS): CostPoint {
-  const touches = f + a.checkInsPerDealerYear; // physical checks + remote check-ins
+  const touches = f + a.checkInsPerDealerYear; // physical checks + self-checks
   const residualDays = Math.min(a.maxDetectionDays, 365 / (2 * touches));
   const detectionDays = a.signalCoverage * a.signalDetectionDays + (1 - a.signalCoverage) * residualDays;
   const checkCost =

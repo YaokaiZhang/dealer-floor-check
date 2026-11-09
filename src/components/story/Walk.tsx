@@ -73,7 +73,7 @@ export function Walk({ p }: { p: number }) {
   const trail = ROUTE.slice(0, pos.i).map((pt) => `${pt.x},${pt.y}`).concat(`${pos.x},${pos.y}`).join(" ");
 
   return (
-    <div className="relative h-full w-full" role="img" aria-label={`A dealer lot of ${CAR_COUNT} cars, walked aisle by aisle by an auditor from 08:00 to 15:30 at a cost of €400. Every car is ticked, but two stalls emptied by sales last week go unnoticed.`}>
+    <div className="relative h-full w-full" role="img" aria-label={`A dealer lot of ${CAR_COUNT} cars, walked aisle by aisle by an auditor from 08:00 to 15:30 at a cost of €170. Every car is ticked, but two stalls emptied by sales last week go unnoticed.`}>
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden style={FONT}>
         {/* readout */}
         <g fill="var(--color-ink)">

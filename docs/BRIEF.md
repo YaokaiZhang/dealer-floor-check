@@ -26,5 +26,5 @@ Dealer-facing tone: friendly, short, respectful.
 ## Demo script (~3 min)
 1. Bank dashboard: 4 dealers, most cars auto-verified by connected-car data. Cost headline.
 2. Dealer phone: friendly request → pick window → start → ~5 VINs revealed → photograph plates → "All verified ✓, eligible for a line review, you're Gold tier."
-3. Demo panel: "car listed as sold on marketplace" (open loan) starts the payoff window; "2 business days pass, no payoff" fires the alert on bank; connected car shows it ~180 km away; registry shows pending owner change. Dealer → Review, targeted check-in goes out, gig verifier dispatched (€30 instead of €400).
+3. Demo panel: "car listed as sold on marketplace" (open loan) starts the payoff window; "2 business days pass, no payoff" fires the alert on bank; connected car shows it ~180 km away; registry shows pending owner change. Dealer → Review, targeted check-in goes out, gig verifier dispatched (€30 instead of €170).
 4. Close: sampling explainer + slider. "In a high-trust market, the best control is one honest dealers barely notice."

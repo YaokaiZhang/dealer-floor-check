@@ -17,7 +17,7 @@ const SERIES = [
 
 const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]> = {
   portfolioDealers: ["Dealers in portfolio", (v) => String(v)],
-  auditorVisitCost: ["Auditor visit", (v) => eur(v)],
+  auditorVisitCost: ["In-person inspection", (v) => eur(v)],
   incidentsPerDealerYear: ["Fraud incidents / dealer / yr", (v) => String(v)],
   avgLoanPerCar: ["Average loan per car", (v) => eur(v)],
   lossGivenFraud: ["Loss given fraud", (v) => `${v * 100}%`],
@@ -26,7 +26,7 @@ const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]
   signalCoverage: ["Incidents caught by signals", (v) => `${v * 100}%`],
   signalDetectionDays: ["Detection when a signal fires", (v) => `${v} days`],
   payoffBusinessDays: ["Payoff window after a sale", (v) => `${v} business days`],
-  checkInHandlingCost: ["Remote check-in handling", (v) => eur(v)],
+  checkInHandlingCost: ["Self-check", (v) => eur(v)],
   checkInsPerDealerYear: ["Check-ins / dealer / yr", (v) => String(v)],
   gigCheckCost: ["Spot check, per visit", (v) => eur(v)],
   avgCarsPerVisit: ["Cars per spot check", (v) => String(v)],

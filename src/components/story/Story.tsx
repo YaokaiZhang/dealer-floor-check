@@ -18,7 +18,7 @@ export function Story() {
         index={1}
         kicker="Floor checks today"
         title={<>Car by car,<br />on foot</>}
-        body="An auditor ticks off every car by hand. It costs €400 a visit, and last week's sales still slip through."
+        body="An auditor ticks off every car by hand. It costs €170 a visit, and last week's sales still slip through."
         visual={(p) => <Walk p={p} />}
       />
       <Scene
@@ -44,7 +44,7 @@ export function Story() {
         index={4}
         kicker="Freelance verifiers"
         title={<>A local, not<br />an auditor</>}
-        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €400.`}
+        body={`When a car needs a person, a vetted local nearby takes the visit as a paid gig. €30 instead of €170.`}
         steps={["Posted to verifiers nearby", "One accepts and drives over", "Finds the cars on the list", "Photos sent, €30 paid"]}
         visual={(p) => <Verifiers p={p} />}
       />
