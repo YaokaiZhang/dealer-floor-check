@@ -6,7 +6,7 @@ import type { CheckIn, Dealer, HistoryEntry, PhotoCheck, SpotCheck, Tier } from 
 import { carRisk, portfolioStats, riskScore, samplingFor } from "@/lib/risk";
 import { dateFi, eur, eurCompact, pct, timeFi } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
-import { TIERS, TIER_ORDER } from "@/config/tiers";
+import { physicalPlan, TIERS, TIER_ORDER } from "@/config/tiers";
 import { Tag } from "@/components/ui/Tag";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { Button } from "@/components/ui/Button";
@@ -90,7 +90,7 @@ export function DealerDetail({ s, d, onAlert }: { s: Store; d: Dealer; onAlert: 
 
       <Block
         title="Spot checks"
-        note={`${tier.visit.perYear}× a year`}
+        note={`${physicalPlan(d.tier, st.pool.length).visits}× a year`}
         action={
           <Button variant="secondary" className="py-1.5" disabled={!!visits.find((v) => v.verifier.status !== "reported")} onClick={() => actions.sendSpotCheck(d.id)}>
             Post spot check

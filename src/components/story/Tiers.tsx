@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CLEAN_STREAK_TO_STEP_UP, TIERS, TIER_ORDER } from "@/config/tiers";
+import { CLEAN_STREAK_TO_STEP_UP, physicalPlan, TIERS, TIER_ORDER } from "@/config/tiers";
+import { ASSUMPTIONS } from "@/config/assumptions";
+import type { Tier } from "@/lib/types";
 import { ease, span } from "./Scene";
 
 /**
@@ -19,6 +21,8 @@ const FILL: Record<string, string> = {
 };
 /** Weight of a tier at a continuous level (1 at its level, fading to neighbours). */
 const weight = (level: number, i: number) => Math.max(0, 1 - Math.abs(level - i));
+/** Spot checks a year for a dealer with average stock (they scale with stock now). */
+const spots = (t: Tier) => physicalPlan(t, ASSUMPTIONS.carsPerFullCount).visits;
 const START = TIER_ORDER.indexOf("Standard");
 const END = TIER_ORDER.indexOf("Gold");
 
@@ -43,7 +47,7 @@ function slots(level: number, per: (i: number) => number) {
 
 const ROWS: { label: string; values: string[] }[] = [
   { label: "Check-ins a year", values: TIER_ORDER.map((t) => String(TIERS[t].checkInsPerYear)) },
-  { label: "Spot checks a year", values: TIER_ORDER.map((t) => String(TIERS[t].visit.perYear)) },
+  { label: "Spot checks a year", values: TIER_ORDER.map((t) => String(spots(t))) },
   { label: "Line review answer, business days", values: TIER_ORDER.map((t) => TIERS[t].lineReview?.split(" ")[0] ?? "—") },
   { label: "Rate, pp", values: TIER_ORDER.map((t) => (TIERS[t].rateDiscountPp ? `−${TIERS[t].rateDiscountPp.toFixed(2)}` : "0")) },
 ];
@@ -107,7 +111,7 @@ export function Tiers({ p }: { p: number }) {
   // Year strip
   const x0 = L.gutter, x1 = L.vw - L.m - L.dotR;
   const sx = (k: number) => x0 - L.dotR + ((x1 - x0 + 2 * L.dotR) * (k + 0.5)) / 12;
-  const count = (key: "c" | "s") => TIER_ORDER.map((t, i) => ({ v: key === "c" ? TIERS[t].checkInsPerYear : TIERS[t].visit.perYear, w: weight(level, i) })).filter((d) => d.w > 0);
+  const count = (key: "c" | "s") => TIER_ORDER.map((t, i) => ({ v: key === "c" ? TIERS[t].checkInsPerYear : spots(t), w: weight(level, i) })).filter((d) => d.w > 0);
   const tierAt = Math.round(level);
 
   return (
@@ -131,9 +135,9 @@ export function Tiers({ p }: { p: number }) {
           </g>
         ))}
         <text x={L.m} y={L.spotY + 4} fontSize={L.small} fill="var(--color-ash-700)">
-          {count("s").map((d) => <tspan key={d.v} className="figure" opacity={d.w}>{d.w >= 0.5 ? d.v : ""}</tspan>)} spot check{TIERS[TIER_ORDER[tierAt]].visit.perYear === 1 ? "" : "s"}
+          {count("s").map((d) => <tspan key={d.v} className="figure" opacity={d.w}>{d.w >= 0.5 ? d.v : ""}</tspan>)} spot check{spots(TIER_ORDER[tierAt]) === 1 ? "" : "s"}
         </text>
-        {slots(level, (i) => TIERS[TIER_ORDER[i]].visit.perYear).map((d, k) => {
+        {slots(level, (i) => spots(TIER_ORDER[i])).map((d, k) => {
           const q = L.dotR * 1.1;
           return (
             <g key={`s${k}`} transform={`translate(${sx(k) - q / 2} ${L.spotY - q / 2})`}>

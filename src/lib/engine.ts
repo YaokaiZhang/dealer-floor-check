@@ -93,7 +93,7 @@ function setTier(s: Store, d: Dealer, tier: Tier, reason: string) {
 
 /**
  * One tier down (never below C) after a missed window, a failed check-in or a late payoff.
- * While an alert holds the dealer at C, the step down applies to the tier they return to.
+ * While an alert holds the dealer at Review, the step down applies to the tier they return to.
  */
 function stepDown(s: Store, d: Dealer, reason: string) {
   d.cleanStreak = 0;
@@ -109,12 +109,12 @@ function stepDown(s: Store, d: Dealer, reason: string) {
   if (to !== d.tier) setTier(s, d, to, `Moved down to ${to}: ${reason.toLowerCase()}`);
 }
 
-/** One unresolved high-severity alert moves the dealer straight to C until a bank officer clears it. */
+/** One unresolved high-severity alert moves the dealer straight to Review until a bank officer clears it. */
 function applyAlertRule(s: Store, d: Dealer) {
   const openHigh = s.alerts.some((a) => a.dealerId === d.id && a.severity === "high" && isOpenAlert(a));
-  if (openHigh && d.tier !== "C") {
+  if (openHigh && d.tier !== "Review") {
     d.tierBeforeAlert = d.tier;
-    setTier(s, d, "C", "Moved to C: unresolved high-severity alert, more checks while the bank looks");
+    setTier(s, d, "Review", "Moved to Review: unresolved high-severity alert, more checks while the bank looks");
   }
 }
 
@@ -512,8 +512,8 @@ export const ops = {
 
     if (ci.outcome === "clean") {
       d.cleanStreak += 1;
-      // No step up while an alert holds the dealer at C: only the bank lifts that.
-      if (d.cleanStreak >= CLEAN_STREAK_TO_STEP_UP && !d.tierBeforeAlert && d.tier !== "A+") {
+      // No step up while an alert holds the dealer at Review: only the bank lifts that.
+      if (d.cleanStreak >= CLEAN_STREAK_TO_STEP_UP && !d.tierBeforeAlert && d.tier !== "Gold") {
         const to = tierUp(d.tier);
         setTier(s, d, to, `Moved up to ${to}: ${CLEAN_STREAK_TO_STEP_UP} clean check-ins in a row`);
       }
@@ -683,7 +683,7 @@ export const ops = {
     log(s, `Full count ordered at ${dealerOf(s, a.dealerId).name} (${a.vin})`);
   },
 
-  /** Human decision at the bank. Only this changes loan status or lifts an alert's move to C. */
+  /** Human decision at the bank. Only this changes loan status or lifts an alert's move to Review. */
   resolveAlert(s: Store, alertId: string, outcome: "resolved_ok" | "confirmed_fraud") {
     const a = alertOf(s, alertId);
     const d = dealerOf(s, a.dealerId);

@@ -25,9 +25,9 @@ export function Story() {
         id="data"
         index={2}
         kicker="Data first"
-        title={<>Sales show up<br />in the data</>}
-        body="Every financed car is watched on marketplaces and in the vehicle register. No paper registration documents."
-        steps={["Listed for sale online", "Owner change in the register", "AI matches it to the loan", "Payoff reminder sent"]}
+        title={<>Most cars check<br />themselves</>}
+        body="Recent cars have GPS built in. If a car is on the lot, its own position says so."
+        steps={["GPS in the car", "Position shared by the carmaker", "On the lot today: verified", "Sales flagged by registry feeds"]}
         visual={(p) => <Signals p={p} />}
       />
       <Scene

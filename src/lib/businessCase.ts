@@ -4,7 +4,7 @@
  * isn't on the case fact sheet is an assumption and is labelled as one.
  */
 import { ASSUMPTIONS, type Assumptions } from "@/config/assumptions";
-import { TIERS } from "@/config/tiers";
+import { physicalPlan, TIERS } from "@/config/tiers";
 import type { Tier } from "./types";
 
 export interface CaseRow { item: string; volume: string; cost: number; assumption: boolean }
@@ -29,8 +29,10 @@ export function businessCase(tiers: Tier[], a: Assumptions = ASSUMPTIONS): Busin
 
   const checkIns = tiers.reduce((s, t) => s + TIERS[t].checkInsPerYear, 0);
   const selfCars = checkIns * a.carsPerCheckIn;
-  const visits = tiers.reduce((s, t) => s + TIERS[t].visit.perYear, 0);
-  const visitCars = tiers.reduce((s, t) => s + TIERS[t].visit.perYear * TIERS[t].visit.cars, 0);
+  // No per-dealer stock here: plan each dealer at the average stock.
+  const plans = tiers.map((t) => physicalPlan(t, a.carsPerFullCount));
+  const visits = plans.reduce((s, q) => s + q.visits, 0);
+  const visitCars = plans.reduce((s, q) => s + q.cars, 0);
   const fullCars = a.fullCountsPerYear * a.carsPerFullCount;
   const aiCars = selfCars + visitCars;
 

@@ -1,5 +1,5 @@
-/** Best to worst: A+, A (base, where every dealer starts), B, C. */
-export type Tier = "A+" | "A" | "B" | "C";
+/** Best to worst: Gold, Silver (base, where every dealer starts), Standard, Review. */
+export type Tier = "Gold" | "Silver" | "Standard" | "Review";
 /** paid_off: the dealer repaid the loan before a sale; the car stays on the lot but is no longer collateral. */
 export type CarStatus = "in_stock" | "sold_awaiting_payoff" | "sold_paid" | "paid_off" | "sold_unpaid_suspect";
 export type Severity = "high" | "medium" | "low";
@@ -23,7 +23,7 @@ export interface Dealer {
   geofence: Geofence;
   creditLine: number;
   tier: Tier;
-  /** Tier to return to when the bank clears the high-severity alert that moved the dealer to C. */
+  /** Tier to return to when the bank clears the high-severity alert that moved the dealer to Review. */
   tierBeforeAlert?: Tier;
   /** Consecutive clean check-ins since the last tier change; drives gradual step-ups. */
   cleanStreak: number;

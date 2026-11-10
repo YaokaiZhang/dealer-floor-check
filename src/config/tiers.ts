@@ -1,6 +1,6 @@
 import type { Tier } from "@/lib/types";
 
-/** Tier rules. All perks are illustrative. Every new dealer starts at A (BASE_TIER). */
+/** Tier rules. All perks are illustrative. Every new dealer starts at Silver (BASE_TIER). */
 export const TIERS: Record<Tier, {
   order: number;
   checkInsPerYear: number; // rate of random self-check requests
@@ -15,16 +15,16 @@ export const TIERS: Record<Tier, {
   rateDiscountPp: number;
   blurb: string;
 }> = {
-  "A+": { order: 3, checkInsPerYear: 2, physicalShare: 0.05, visitCars: 3, sampling: { p: 0.25, confidence: 0.8, maxCars: 4 }, lineReview: "1 business day", rateDiscountPp: 0.25, blurb: "Clean, on-time check-ins. Our most trusted partners." },
-  A: { order: 2, checkInsPerYear: 4, physicalShare: 0.15, visitCars: 3, sampling: { p: 0.15, confidence: 0.9, maxCars: 5 }, lineReview: "2 business days", rateDiscountPp: 0.1, blurb: "Where every dealer starts." },
-  B: { order: 1, checkInsPerYear: 6, physicalShare: 0.3, visitCars: 3, sampling: { p: 0.1, confidence: 0.95, maxCars: 6 }, lineReview: "5 business days", rateDiscountPp: 0, blurb: "A missed or failed check-in, or a late payoff." },
-  C: { order: 0, checkInsPerYear: 12, physicalShare: 0.6, visitCars: 4, sampling: { p: 0.05, confidence: 0.99, maxCars: 10 }, lineReview: null, rateDiscountPp: 0, blurb: "Something needs a closer look together." },
+  Gold: { order: 3, checkInsPerYear: 2, physicalShare: 0.05, visitCars: 3, sampling: { p: 0.25, confidence: 0.8, maxCars: 4 }, lineReview: "1 business day", rateDiscountPp: 0.25, blurb: "Clean, on-time check-ins. Our most trusted partners." },
+  Silver: { order: 2, checkInsPerYear: 4, physicalShare: 0.15, visitCars: 3, sampling: { p: 0.15, confidence: 0.9, maxCars: 5 }, lineReview: "2 business days", rateDiscountPp: 0.1, blurb: "Where every dealer starts." },
+  Standard: { order: 1, checkInsPerYear: 6, physicalShare: 0.3, visitCars: 3, sampling: { p: 0.1, confidence: 0.95, maxCars: 6 }, lineReview: "5 business days", rateDiscountPp: 0, blurb: "A missed or failed check-in, or a late payoff." },
+  Review: { order: 0, checkInsPerYear: 12, physicalShare: 0.6, visitCars: 4, sampling: { p: 0.05, confidence: 0.99, maxCars: 10 }, lineReview: null, rateDiscountPp: 0, blurb: "Something needs a closer look together." },
 };
 
 /** Worst to best. */
-export const TIER_ORDER: Tier[] = ["C", "B", "A", "A+"];
+export const TIER_ORDER: Tier[] = ["Review", "Standard", "Silver", "Gold"];
 /** Every new dealer starts here. */
-export const BASE_TIER: Tier = "A";
+export const BASE_TIER: Tier = "Silver";
 /** Clean check-ins in a row needed to step up one tier. */
 export const CLEAN_STREAK_TO_STEP_UP = 3;
 

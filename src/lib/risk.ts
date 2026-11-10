@@ -4,7 +4,7 @@
  * and the same "top reasons" view. Nothing here decides anything; it ranks and recommends.
  */
 import type { Car, DemoState, Dealer, SamplingExplanation } from "./types";
-import { TIERS } from "@/config/tiers";
+import { physicalPlan, TIERS } from "@/config/tiers";
 import { detectionProbability, expectedDaysToDetect, missingToDetect, sampleSize, yearlyDetection } from "./sampling";
 
 const DAY = 86_400_000;
@@ -97,8 +97,9 @@ export function samplingFor(state: DemoState, dealer: Dealer) {
 
   // Spot checks draw from the same in-stock cars.
   const stock = pool.length;
-  const visitCars = Math.min(tier.visit.cars, stock);
-  const visitsPerYear = tier.visit.perYear;
+  const plan = physicalPlan(dealer.tier, stock);
+  const visitCars = Math.min(plan.carsPerVisit, stock);
+  const visitsPerYear = plan.visits;
   const perVisit = stock ? detectionProbability(stock, missingToDetect(stock, p), visitCars) : 0;
   const visitMiss = (1 - perVisit) ** visitsPerYear;
 

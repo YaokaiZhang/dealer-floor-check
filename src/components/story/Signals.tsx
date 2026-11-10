@@ -1,18 +1,17 @@
 "use client";
 import { ease, span } from "./Scene";
-import { CAR_COUNT, CarTop, FONT, Kerb, LOT_H, LOT_W, LotLines, LX, LY, SH, STALLS, SW, VB_H, VB_W } from "./WalkLot";
+import { CAR_COUNT, CarTop, CONNECTED_COUNT, FONT, Kerb, LOT_H, LOT_W, LotLines, LX, LY, SH, STALLS, SW, VB_H, VB_W } from "./WalkLot";
 
 /**
- * Chapter 2: the same lot as chapter 1. The lot is outlined, then every financed
- * car is picked up in the data (marketplace listings and the vehicle register): a
- * pulse each and a pale blue fill, spreading through the lot in a wave, with nobody
- * on site. The feeds join last and flag the two stalls emptied by sales, which
- * start the payoff clock. Being watched isn't being verified: that's the check-in.
+ * Chapter 2: the same lot as chapter 1. A geofence is drawn round it, then the
+ * connected cars report in: a pulse each and a lime fill, spreading through the
+ * lot in a wave, with nobody on site. Registry and marketplace feeds join last,
+ * and flag the two stalls emptied by sales. The rest stay grey for check-ins.
  */
 
 const FENCE = 19;
 
-/** When each car is picked up in the data (p): a wave from the middle of the lot, with seeded jitter. */
+/** When each connected car reports (p): a wave from the middle of the lot, with seeded jitter. */
 const REPORT_AT: number[] = (() => {
   let s = 5;
   const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
@@ -20,16 +19,16 @@ const REPORT_AT: number[] = (() => {
   const max = Math.hypot(LOT_W * 0.58, LOT_H * 0.5);
   return STALLS.map((d) => {
     const j = rnd();
-    if (d.kind === "empty" || d.kind === "sold") return Infinity;
+    if (!d.connected) return Infinity;
     return 0.2 + 0.4 * (Math.hypot(d.cx - ox, d.cy - oy) / max) + 0.05 * j;
   });
 })();
 
 /** A handful of reporting cars keep a slow idle ping in the finished picture. */
-const IDLE = STALLS.map((d, i) => i).filter((i) => Number.isFinite(REPORT_AT[i])).filter((_, k) => k % 6 === 2);
+const IDLE = STALLS.map((d, i) => i).filter((i) => STALLS[i].connected).filter((_, k) => k % 6 === 2);
 
 const FEEDS = [
-  { label: "Register", x: 0, w: 48 },
+  { label: "Registry", x: 0, w: 48 },
   { label: "Marketplace", x: 56, w: 64 },
 ];
 
@@ -46,7 +45,7 @@ export function Signals({ p }: { p: number }) {
     <div
       className="relative h-full w-full"
       role="img"
-      aria-label={`The same lot: all ${CAR_COUNT} financed cars watched in marketplace and register data, with nobody on site. The feeds flag two sold cars, which start a two-day payoff clock.`}
+      aria-label={`The same lot inside a geofence: ${CONNECTED_COUNT} of ${CAR_COUNT} cars verified automatically by their own position reports, with nobody on site. Registry and marketplace feeds watch for sales and flag two sold cars. The other cars stay unverified.`}
     >
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="xMidYMid meet" className="absolute inset-0 h-full w-full" aria-hidden style={FONT}>
         {/* readout */}
@@ -55,7 +54,7 @@ export function Signals({ p }: { p: number }) {
             <tspan fontSize={27}>{verified}</tspan>
             <tspan fontSize={15} fill="var(--color-ash-500)" dx={4}>of {CAR_COUNT}</tspan>
           </text>
-          <text x={LX} y={48} fontSize={8} fill="var(--color-ash-500)">Watched for sales</text>
+          <text x={LX} y={48} fontSize={8} fill="var(--color-ash-500)">Verified automatically</text>
           <text x={LX + LOT_W} y={34} fontSize={27} className="figure" textAnchor="end">0</text>
           <text x={LX + LOT_W} y={48} fontSize={8} fill="var(--color-ash-500)" textAnchor="end">People on site</text>
           <line x1={LX} x2={LX + LOT_W} y1={56} y2={56} stroke="var(--color-line)" vectorEffect="non-scaling-stroke" />
@@ -69,7 +68,7 @@ export function Signals({ p }: { p: number }) {
             fill="none" stroke="var(--color-brand-deep)" strokeWidth={0.7}
             pathLength={1} strokeDasharray="1 1" strokeDashoffset={1 - fence}
           />
-          <text x={-FENCE} y={-FENCE - 4} fontSize={7.5} fill="var(--color-brand-deep)" opacity={fence}>Dealer lot</text>
+          <text x={-FENCE} y={-FENCE - 4} fontSize={7.5} fill="var(--color-brand-deep)" opacity={fence}>Geofence</text>
 
           <Kerb />
           <LotLines />
@@ -86,13 +85,13 @@ export function Signals({ p }: { p: number }) {
               );
             }
             const t = REPORT_AT[i];
-            const on = Number.isFinite(t) ? span(p, t, t + 0.012) : 0;
+            const on = d.connected ? span(p, t, t + 0.012) : 0;
             return (
               <g key={i}>
                 <CarTop x={d.x} y={d.y} down={d.down} fill="var(--color-ash-300)" glass="rgba(15,30,51,0.18)" />
                 {on > 0 && (
                   <g opacity={on}>
-                    <CarTop x={d.x} y={d.y} down={d.down} fill="var(--color-brand)" glass="rgba(15,30,51,0.45)" />
+                    <CarTop x={d.x} y={d.y} down={d.down} fill="var(--color-lime)" glass="rgba(15,30,51,0.5)" />
                   </g>
                 )}
               </g>
@@ -101,16 +100,16 @@ export function Signals({ p }: { p: number }) {
 
           {/* pulses: one ring per car as it reports */}
           {STALLS.map((d, i) => {
-            if (!Number.isFinite(REPORT_AT[i])) return null;
+            if (!d.connected) return null;
             const k = span(p, REPORT_AT[i], REPORT_AT[i] + 0.09);
             if (k <= 0 || k >= 1) return null;
-            return <circle key={i} cx={d.cx} cy={d.cy} r={5 + 26 * ease(k)} fill="none" stroke="var(--color-brand-deep)" strokeOpacity={0.75 * (1 - k)} strokeWidth={1.25} vectorEffect="non-scaling-stroke" />;
+            return <circle key={i} cx={d.cx} cy={d.cy} r={5 + 26 * ease(k)} fill="none" stroke="var(--color-go)" strokeOpacity={0.75 * (1 - k)} strokeWidth={1.25} vectorEffect="non-scaling-stroke" />;
           })}
 
           {/* a slow idle ping on a few cars once the wave has passed */}
           {p > 0.68 && IDLE.map((i, k) => (
             <circle
-              key={i} cx={STALLS[i].cx} cy={STALLS[i].cy} r={9} fill="none" stroke="var(--color-brand-deep)" strokeOpacity={0.5} strokeWidth={1}
+              key={i} cx={STALLS[i].cx} cy={STALLS[i].cy} r={9} fill="none" stroke="var(--color-go)" strokeOpacity={0.5} strokeWidth={1}
               className="hidden motion-safe:block motion-safe:animate-ping" vectorEffect="non-scaling-stroke"
               style={{ transformBox: "fill-box", transformOrigin: "center", animationDuration: "3.2s", animationDelay: `${k * 0.7}s` }}
             />
@@ -128,7 +127,7 @@ export function Signals({ p }: { p: number }) {
               </g>
             );
           })}
-          <text x={LOT_W + FENCE} y={badgeY + 9.2} fontSize={7.5} textAnchor="end" fill="var(--color-ash-500)" opacity={feeds}>A sale starts the payoff clock</text>
+          <text x={LOT_W + FENCE} y={badgeY + 9.2} fontSize={7.5} textAnchor="end" fill="var(--color-ash-500)" opacity={feeds}>Sales watched too</text>
         </g>
       </svg>
     </div>
