@@ -1,5 +1,6 @@
 "use client";
 import { Scene } from "./Scene";
+import type { BusinessCase } from "@/lib/businessCase";
 import { Walk } from "./Walk";
 import { Signals } from "./Signals";
 import { CheckIn } from "./CheckIn";
@@ -10,7 +11,7 @@ import { Tiers } from "./Tiers";
 import { Savings } from "./Savings";
 
 /** The case, told in chapters: the problem, then each part of the answer. */
-export function Story() {
+export function Story({ bc }: { bc: BusinessCase }) {
   return (
     <div aria-label="How Curb Floor Check works">
       <Scene
@@ -18,7 +19,7 @@ export function Story() {
         index={1}
         kicker="Floor checks today"
         title={<>Car by car,<br />on foot</>}
-        body="An inspector ticks off every car by hand. €170 a car, 3,000 cars a year, and last week's sales still slip through."
+        body="An inspector ticks off every car by hand. €170 a car, 3,500 cars a year, and last week's sales still slip through."
         visual={(p) => <Walk p={p} />}
       />
       <Scene
@@ -78,9 +79,9 @@ export function Story() {
         id="result"
         index={8}
         kicker="The result"
-        title={<>Cheaper checks,<br />less fraud</>}
-        body="Per dealer and year, with AI and app maintenance included. All figures are assumptions."
-        visual={(p) => <Savings p={p} />}
+        title={<>Cheaper<br />checks</>}
+        body="A year across the portfolio, worst case: every dealer sampled at 12%, every car of the Review dealers inspected in person. All figures are assumptions."
+        visual={(p) => <Savings p={p} bc={bc} />}
       />
     </div>
   );

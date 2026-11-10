@@ -1,12 +1,15 @@
 /**
  * Business-case ASSUMPTIONS, editable here only. They are labelled "assumptions" wherever they appear in the UI.
- * From the case fact sheet: 150 dealers, ~3,500 cars, ~3,000 in-person car checks a year, €170 per car
- * checked in person, €5 per car self-checked. Everything else is our own estimate.
+ * From the case fact sheet: 150 dealers, ~3,500 cars, €170 per car checked in person, €5 per car
+ * self-checked. Everything else is our own estimate.
  */
 export const ASSUMPTIONS = {
   portfolioDealers: 150, // dealers financed by Curb (fact sheet)
   auditorVisitCost: 170, // € per car checked in person (fact sheet)
-  inPersonChecksToday: 3000, // in-person car checks a year today (fact sheet)
+  portfolioCars: 3500, // financed cars; today each gets one in-person inspection a year (fact sheet)
+  carsPerDealer: 24, // average stock per dealer (~3,500 / 150)
+  phoneShareWorstCase: 0.12, // business case, worst case: every dealer's cars sampled at the Review tier's 12% a year
+  phoneCarsRoundUpTo: 50, // phone-checked cars rounded up to this step (420 → 450)
   incidentsPerDealerYear: 0.15, // sold-out-of-trust incidents per dealer per year
   avgLoanPerCar: 30000, // €
   lossGivenFraud: 0.4, // share of an out-of-trust loan never recovered
@@ -22,9 +25,7 @@ export const ASSUMPTIONS = {
   avgCarsPerVisit: 3,
   gigChecksPerDealerYear: 2, // random spot checks, average across tiers (incl. visits brought forward)
   dataFeedCostPerDealerYear: 120, // € marketplace + register data
-  fullCountsPerYear: 15, // full counts after confirmed problems, whole portfolio
-  carsPerFullCount: 23, // average stock per dealer
-  aiCostPerCar: 0.1, // € AI photo and data processing per car checked
+  aiCostPerCar: 1, // € AI photo and data processing per car checked
   riskModelPerYear: 3000, // € hosting, monitoring and retraining of the risk model
   appMaintenancePerYear: 60000, // € hosting, support, security updates and fixes
   maxScheduledChecks: 12,

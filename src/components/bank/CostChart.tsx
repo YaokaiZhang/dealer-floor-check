@@ -2,6 +2,7 @@
 import { useId, useState } from "react";
 import { curve, headline, traditional, withSignals, type CostPoint } from "@/lib/costModel";
 import { ASSUMPTIONS } from "@/config/assumptions";
+import type { BusinessCase } from "@/lib/businessCase";
 import { eur, eurCompact } from "@/lib/format";
 import { useWidth } from "./shared";
 
@@ -18,7 +19,10 @@ const SERIES = [
 const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]> = {
   portfolioDealers: ["Dealers in portfolio", (v) => String(v)],
   auditorVisitCost: ["In-person check, per car", (v) => eur(v)],
-  inPersonChecksToday: ["In-person car checks today / yr", (v) => v.toLocaleString("en")],
+  portfolioCars: ["Financed cars", (v) => v.toLocaleString("en")],
+  carsPerDealer: ["Cars per dealer", (v) => String(v)],
+  phoneShareWorstCase: ["Phone-checked share, worst case", (v) => `${Math.round(v * 100)}%`],
+  phoneCarsRoundUpTo: ["Phone cars rounded up to", (v) => String(v)],
   incidentsPerDealerYear: ["Fraud incidents / dealer / yr", (v) => String(v)],
   avgLoanPerCar: ["Average loan per car", (v) => eur(v)],
   lossGivenFraud: ["Loss given fraud", (v) => `${v * 100}%`],
@@ -34,15 +38,14 @@ const A_LABELS: Record<keyof typeof ASSUMPTIONS, [string, (v: number) => string]
   avgCarsPerVisit: ["Cars per spot check", (v) => String(v)],
   gigChecksPerDealerYear: ["Spot checks / dealer / yr", (v) => String(v)],
   dataFeedCostPerDealerYear: ["Data feeds / dealer / yr", (v) => eur(v)],
-  fullCountsPerYear: ["Full counts / yr", (v) => String(v)],
-  carsPerFullCount: ["Cars per full count", (v) => String(v)],
   aiCostPerCar: ["AI processing, per car", (v) => `€${v.toFixed(2)}`],
   riskModelPerYear: ["Risk model / yr", (v) => eur(v)],
   appMaintenancePerYear: ["App maintenance / yr", (v) => eur(v)],
   maxScheduledChecks: ["Max in-person car checks (x-axis)", (v) => `${v} / yr`],
 };
 
-export function CostChart() {
+/** `bc` drives the cost-vs-today badge, so it matches the headline and the business case. */
+export function CostChart({ bc }: { bc: BusinessCase }) {
   const trad = curve(traditional);
   const sig = curve(withSignals);
   const h = headline();
@@ -82,13 +85,13 @@ export function CostChart() {
         <h2 className="display-lg">Cost per dealer per year</h2>
         <div className="flex w-fit border border-ink">
           <div className="border-r border-ink bg-brand p-3">
-            <p className="tag-text">Total cost</p>
-            <p className="figure text-4xl">−{h.totalReductionPct}%</p>
+            <p className="tag-text">Cost vs today</p>
+            <p className="figure text-4xl">−{bc.savingPct}%</p>
           </div>
           <div className="bg-paper p-3">
             <p className="tag-text">Portfolio / yr</p>
-            <p className="figure text-4xl">{eurCompact(h.portfolioSavings)}</p>
-            <p className="tag-text text-ash-700">saved · {ASSUMPTIONS.portfolioDealers} dealers</p>
+            <p className="figure text-4xl">{eurCompact(bc.saved)}</p>
+            <p className="tag-text text-ash-700">saved · worst case</p>
           </div>
         </div>
       </div>

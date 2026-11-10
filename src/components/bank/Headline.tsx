@@ -115,9 +115,9 @@ function CostInfo({ bc }: { bc: BusinessCase }) {
       {open && (
         <span id={id} role="dialog" aria-label="How this is calculated" className="absolute top-14 right-0 z-20 block w-[min(20rem,calc(100vw-2rem))] border border-ink bg-paper p-4 text-left text-sm leading-snug animate-rise">
           <span className="block tag-text text-ash-700">A year, whole portfolio · assumptions</span>
-          <span className="mt-3 block"><b className="font-semibold">Today</b> {ASSUMPTIONS.inPersonChecksToday.toLocaleString("en")} car checks × {eur(ASSUMPTIONS.auditorVisitCost)} = {eur(bc.today)}</span>
-          <span className="mt-2 block"><b className="font-semibold">Floor Check</b> self-checks, spot checks, full counts, data, AI and maintenance = {eur(bc.total)}</span>
-          <span className="mt-2 block border-t border-line pt-2">{bc.inPersonCarChecks.toLocaleString("en")} in-person car checks instead of {ASSUMPTIONS.inPersonChecksToday.toLocaleString("en")}. Details in the business case below.</span>
+          <span className="mt-3 block"><b className="font-semibold">Today</b> {ASSUMPTIONS.portfolioCars.toLocaleString("en")} cars × {eur(ASSUMPTIONS.auditorVisitCost)}, one inspection per car = {eur(bc.today)}</span>
+          <span className="mt-2 block"><b className="font-semibold">Floor Check</b> {bc.tierMix.Review} Review dealers inspected in person, {bc.phoneCars.toLocaleString("en")} cars checked by phone = {eur(bc.total)}</span>
+          <span className="mt-2 block border-t border-line pt-2">Worst case. {bc.inPersonCarChecks.toLocaleString("en")} in-person inspections instead of {ASSUMPTIONS.portfolioCars.toLocaleString("en")}. Details in the business case below.</span>
         </span>
       )}
     </span>

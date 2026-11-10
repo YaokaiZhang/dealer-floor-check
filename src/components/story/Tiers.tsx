@@ -22,7 +22,7 @@ const FILL: Record<string, string> = {
 /** Weight of a tier at a continuous level (1 at its level, fading to neighbours). */
 const weight = (level: number, i: number) => Math.max(0, 1 - Math.abs(level - i));
 /** Spot checks a year for a dealer with average stock (they scale with stock now). */
-const spots = (t: Tier) => physicalPlan(t, ASSUMPTIONS.carsPerFullCount).visits;
+const spots = (t: Tier) => physicalPlan(t, ASSUMPTIONS.carsPerDealer).visits;
 const START = TIER_ORDER.indexOf("Standard");
 const END = TIER_ORDER.indexOf("Gold");
 

@@ -21,9 +21,9 @@ export function BusinessCasePanel({ s }: { s: Store }) {
   return (
     <div>
       <div className="grid border border-ink sm:grid-cols-3">
-        <Fig k="Today" v={eur(bc.today)} sub={`${ASSUMPTIONS.inPersonChecksToday.toLocaleString("en")} car checks × €${ASSUMPTIONS.auditorVisitCost}`} />
-        <Fig k="Floor Check" v={eur(bc.total)} sub={`−${bc.savingPct}% · ${bc.inPersonCarChecks.toLocaleString("en")} in-person car checks`} accent />
-        <Fig k="With local verifiers" v={eur(bc.freelanceTotal)} sub={`−${bc.freelanceSavingPct}% · €${ASSUMPTIONS.gigCheckCost} per car on spot checks (assumption)`} />
+        <Fig k="Today" v={eur(bc.today)} sub={`${ASSUMPTIONS.portfolioCars.toLocaleString("en")} cars × €${ASSUMPTIONS.auditorVisitCost}: one inspection per car a year`} />
+        <Fig k="Floor Check" v={eur(bc.total)} sub={`−${bc.savingPct}% · ${eur(bc.saved)} saved a year`} accent />
+        <Fig k="With local verifiers" v={eur(bc.freelanceTotal)} sub={`−${bc.freelanceSavingPct}% · €${ASSUMPTIONS.gigCheckCost} per car in person (assumption)`} />
       </div>
       <div className="mt-6 overflow-x-auto border-y border-line">
         <table className="w-full min-w-[640px] text-left text-sm">
@@ -47,7 +47,7 @@ export function BusinessCasePanel({ s }: { s: Store }) {
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button type="button" onClick={download} className="border border-ink bg-ink px-3 py-2 text-sm font-medium text-paper hover:bg-ink/85">Download CSV</button>
-        <p className="text-sm text-ash-700">Spot checks and maintenance are the big costs. The one-off build cost is not included.</p>
+        <p className="text-sm text-ash-700">Worst case: every dealer is sampled at {Math.round(ASSUMPTIONS.phoneShareWorstCase * 100)}% and every car of the Review dealers is inspected in person. Data feeds, maintenance and the one-off build are not included.</p>
       </div>
     </div>
   );

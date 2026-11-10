@@ -13,6 +13,7 @@ import { LotMap } from "@/components/bank/LotMap";
 import { Mailbox } from "@/components/bank/Mailbox";
 import { BusinessCasePanel } from "@/components/bank/BusinessCasePanel";
 import { CostChart } from "@/components/bank/CostChart";
+import { businessCase } from "@/lib/businessCase";
 
 type Panel = { kind: "alert" | "dealer"; id: string } | null;
 
@@ -83,7 +84,7 @@ export default function BankPage() {
                 <h2 id="case-h" className="display-lg">Business case</h2>
                 <div className="mt-6"><BusinessCasePanel s={s} /></div>
               </section>
-              <div className={WRAP}><CostChart /></div>
+              <div className={WRAP}><CostChart bc={businessCase(s.dealers.map((d) => d.tier))} /></div>
             </div>
           </>
         )}

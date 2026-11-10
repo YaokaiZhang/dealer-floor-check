@@ -5,6 +5,12 @@ import { Intro } from "@/components/home/Intro";
 import { HeroLot } from "@/components/home/HeroLot";
 import { Story } from "@/components/story/Story";
 import { Reveal } from "@/components/ui/Reveal";
+import { businessCase } from "@/lib/businessCase";
+import seed from "../../data/seed.json";
+import type { Tier } from "@/lib/types";
+
+/** The story's business case, from the seeded tier mix (computed on the server, so the seed stays out of the bundle). */
+const BC = businessCase(seed.dealers.map((d) => d.tier as Tier));
 
 /** Skip the cover for the rest of the session once someone has entered. Runs before paint. */
 const SKIP_INTRO = `try{if(sessionStorage.getItem("curb:entered"))document.documentElement.dataset.entered=""}catch(e){}`;
@@ -30,7 +36,7 @@ export default function Home() {
           </div>
         </header>
 
-        <Story />
+        <Story bc={BC} />
 
         <Reveal className="border-t border-ink" label="Open the prototype">
           <ul>
